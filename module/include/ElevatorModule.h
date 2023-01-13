@@ -14,8 +14,8 @@ class ElevatorModule {
     double conversion_factor = pitch_circum / (30); //Ratio 30:1
 
     //Mech/Electronics Setup
-   // int m_ID = 10;
-    int m_ID = 15;
+    int m_ID = 10;
+    //int m_ID = 15;
     
     rev::CANSparkMax* elevatorMotor = new rev::CANSparkMax(m_ID, rev::CANSparkMax::MotorType::kBrushless);
     rev::SparkMaxRelativeEncoder enc = elevatorMotor->GetEncoder();
