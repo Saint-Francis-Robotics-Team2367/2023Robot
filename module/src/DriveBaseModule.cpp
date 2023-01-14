@@ -83,9 +83,17 @@ void DriveBaseModule::arcadeDrive(double xSpeedi, double zRotationi) {
 }
 
 void DriveBaseModule::gyroDriving() {
+
+  if(driverStick->GetRawButtonPressed(inverseButtonID)){
+    gyroDriveInverse = true;
+  }
+  if(driverStick->GetRawButtonReleased(inverseButtonID)){
+    gyroDriveInverse = false;
+  }
+
   float rightStickOutput = driverStick->GetRawAxis(4);
   float calculation = rightStickPID->Calculate(ahrs->GetRate()/150, rightStickOutput); //add skim
-  arcadeDrive(driverStick->GetRawAxis(1) * (-1), calculation);
+  arcadeDrive(driverStick->GetRawAxis(1) * (-1) * (gyroDriveInverse?-1:1), calculation);
   frc::SmartDashboard::PutNumber("output", calculation);
   frc::SmartDashboard::PutNumber("gyro", ahrs->GetRate());
 

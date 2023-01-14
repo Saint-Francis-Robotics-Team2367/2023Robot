@@ -38,6 +38,8 @@
 #define wheelDiameter 4 //inches
 #define maxOffsetAngle 1
 
+#define inverseButtonID 1
+
 // #define maxAcc = 7.0
 // #define maxVelocity = 21.0
 
@@ -74,6 +76,7 @@ class DriveBaseModule{ //needed for gyroPIDDrive implementation
   public: 
   std::thread driveThread;
   double stopAuto = false;
+  bool gyroDriveInverse = false;
   DriveBaseModule() {
     ahrs = new AHRS(frc::SerialPort::kMXP);
     driveThread = std::thread(&DriveBaseModule::run, this); //initializing thread so can detach in robot init
