@@ -546,6 +546,8 @@ void DriveBaseModule::runInit() {
   lEncoder.SetPosition(0);
   rEncoder.SetPositionConversionFactor(1.96); //check if this works! [look at other code, converts rotations to feet, might not need]
   lEncoder.SetPositionConversionFactor(1.96); //gear ratio?
+
+  PiModule us1 = PiModule(0);
 }
 
 void DriveBaseModule::run() {

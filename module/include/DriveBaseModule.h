@@ -11,6 +11,7 @@
 #include <chrono>
 #include<mutex>
 #include <atomic>
+#include "PiModule.h"
 
 #define driverStickPort 0
 #define operatorStickPort 1
