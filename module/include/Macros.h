@@ -6,6 +6,9 @@
 #define IntakeModuleID 3
 #define ShooterModuleID 4
 
+//Autonomous Preset
+#define AutoPreset 0
+
 // Error loglevel
 #define INFO 0
 #define LOW 1
