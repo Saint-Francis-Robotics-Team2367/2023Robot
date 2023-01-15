@@ -1,16 +1,16 @@
 #include "ColorSensor.h"
 
 ColorSensor::ColorSensor() {
-    for(frc::Color coneColor: coneColorTargets){
-        coneColorMatcher.AddColorMatch(coneColor);
-    }
+    // for(frc::Color coneColor: coneColorTargets){
+    //     coneColorMatcher.AddColorMatch(coneColor);
+    // }
 
-    for(frc::Color cubeColor: cubeColorTargets){
-        cubeColorMatcher.AddColorMatch(cubeColor);
-    }
+    // for(frc::Color cubeColor: cubeColorTargets){
+    //     cubeColorMatcher.AddColorMatch(cubeColor);
+    // }
 
-    coneColorMatcher.SetConfidenceThreshold(minMatchConfidence);
-    cubeColorMatcher.SetConfidenceThreshold(minMatchConfidence);
+    // coneColorMatcher.SetConfidenceThreshold(minMatchConfidence);
+    // cubeColorMatcher.SetConfidenceThreshold(minMatchConfidence);
 }
 
 frc::Color ColorSensor::getColor(){
@@ -28,19 +28,19 @@ uint32_t ColorSensor::getProximity(){
 }
 
 bool ColorSensor::matchesCubeColor(frc::Color matchColor){
-    double confidence = 0;
-    frc::Color matchedColor = cubeColorMatcher.MatchClosestColor(matchColor, confidence);
-    bool matched = cubeColorTargets.count(matchColor) > 0;
-    frc::SmartDashboard::PutNumber("CubeMatch:ColorSensor", matched);
-    frc::SmartDashboard::PutNumber("CubeMatchConfidence:ColorSensor", confidence);
-    return matched;
+    // double confidence = 0;
+    // frc::Color matchedColor = cubeColorMatcher.MatchClosestColor(matchColor, confidence);
+    // bool matched = cubeColorTargets.count(matchColor) > 0;
+    // frc::SmartDashboard::PutNumber("CubeMatch:ColorSensor", matched);
+    // frc::SmartDashboard::PutNumber("CubeMatchConfidence:ColorSensor", confidence);
+    // return matched;
 }
 
 bool ColorSensor::matchesConeColor(frc::Color matchColor){
-    double confidence = 0;
-    frc::Color matchedColor = coneColorMatcher.MatchClosestColor(matchColor, confidence);
-    bool matched = coneColorTargets.count(matchColor) > 0;
-    frc::SmartDashboard::PutNumber("ConeMatch:ColorSensor", matched);
-    frc::SmartDashboard::PutNumber("ConeMatchConfidence:ColorSensor", confidence);
-    return matched;
+    // double confidence = 0;
+    // frc::Color matchedColor = coneColorMatcher.MatchClosestColor(matchColor, confidence);
+    // bool matched = coneColorTargets.count(matchColor) > 0;
+    // frc::SmartDashboard::PutNumber("ConeMatch:ColorSensor", matched);
+    // frc::SmartDashboard::PutNumber("ConeMatchConfidence:ColorSensor", confidence);
+    // return matched;
 }
