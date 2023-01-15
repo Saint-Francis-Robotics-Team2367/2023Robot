@@ -11,6 +11,7 @@
 #include <chrono>
 #include<mutex>
 #include <atomic>
+#include "ColorSensor.h"
 
 #define driverStickPort 0
 #define operatorStickPort 1
@@ -48,6 +49,7 @@ class DriveBaseModule{ //needed for gyroPIDDrive implementation
   AHRS *ahrs; //needs to be intialized in constructor
 
   ElevatorModule* elev = new ElevatorModule(10); //Elevator
+  ColorSensor* colorSensor = new ColorSensor();
 
   double maxAcc =  20.0;
   double maxVelocity = 30.0;
