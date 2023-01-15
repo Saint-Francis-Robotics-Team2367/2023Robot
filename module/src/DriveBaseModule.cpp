@@ -1,5 +1,7 @@
 #include "DriveBaseModule.h"
+#include "Paths.h"
 #include <iostream>
+#include <string>
 
 bool DriveBaseModule::initDriveMotor(rev::CANSparkMax* motor, rev::CANSparkMax* follower, bool invert) {
   motor->SetIdleMode(rev::CANSparkMax::IdleMode::kBrake);
@@ -428,54 +430,62 @@ bool DriveBaseModule::PIDTurn(float angle, float radius, bool keepVelocity) { //
   return true;
 }
 
-void DriveBaseModule::initPath() {
-  //normally a text file, for testing purposes doing this
-  //we also used trig previously and just x, y, now need to incorporate radius
+bool DriveBaseModule::initPath() {  
+  // starting pos
   robPos.x = 0;
   robPos.y = 0;
 
-  pathPoint point1; //example
-  point1.x = 2;
-  point1.y = 2; 
-  straightLinePoints.push_back(point1);
+  static int lastDel = 0; 
+  std::string path = defaultPath; 
 
-  radiusTurnPoint rpoint1;
-  rpoint1.radius = 3; //neg
-  rpoint1.angle = 180;
-  radiusTurnPoints.push_back(rpoint1);
+  // setting up options on Smart Dashboard 
+  chooser.SetDefaultOption(autoDefault, autoDefault);
+  chooser.AddOption("Path 1", autoCustom); // use AddOption to add multiple paths
+  frc::SmartDashboard::PutData("Auto Paths", &chooser);
+  selected = chooser.GetSelected();
 
-  // radiusTurnPoint rpoint2;
-  // rpoint2.radius = 0; //neg
-  // rpoint2.angle = -180;
-  // radiusTurnPoints.push_back(rpoint2);
+  if (selected == "Path 1"){
+    // choosing a specific path 
+    path = path1; 
+  }
+  
+  int delIndex = path.find(delimiter);
+  std::string currPath = path.substr(lastDel, delIndex); 
 
+  // adding turning to path order 
+  bool straight = (currPath[0] == 's') ? true : false; 
+  frc::SmartDashboard::PutBoolean("straight", straight); 
+  pathOrder.push_back(straight); 
 
-  // pathPoint point2; //example
-  // point2.x = 0;
-  // point2.y = 10; 
-  // straightLinePoints.push_back(point2);
-  // //calculate x and y robot manually
+  if (straight) {
+    pathPoint point; 
+    point.x = std::stoi(currPath.substr(2, currPath.find(",")));
+    currPath.erase(0, currPath.find(",") + 1);
+    point.y = std::stoi(currPath.substr(0, currPath.find(",")));
+    currPath.erase(0, currPath.find(",") + 1);
+    frc::SmartDashboard::PutNumber("x coord", point.x); 
+    frc::SmartDashboard::PutNumber("y coord", point.y);
+    straightLinePoints.push_back(point);
+  }
+  else {
+    radiusTurnPoint rpoint;
+    rpoint.angle = std::stoi(currPath.substr(2, currPath.find(","))); // neg
+    currPath.erase(0, currPath.find(",") + 1); 
+    rpoint.radius = std::stoi(currPath.substr(0, currPath.find(",")));
+    currPath.erase(0, currPath.find(",") + 1);
+    frc::SmartDashboard::PutNumber("rpoint radius", rpoint.radius); 
+    frc::SmartDashboard::PutNumber("rpoint angle", rpoint.angle); 
+    radiusTurnPoints.push_back(rpoint);
+  }
 
-  // pathPoint point3; //example
-  // point3.x = -5;
-  // point3.y = 5; 
-  // straightLinePoints.push_back(point3);
+  lastDel = delIndex; // setting start point for next instruction slicing 
 
-  // pathPoint point4; //example
-  // point4.x = 0;
-  // point4.y = 0; 
-  // straightLinePoints.push_back(point4);
-
-  pathOrder.push_back(true);
-  pathOrder.push_back(false);
-  // pathOrder.push_back(true);
-  // pathOrder.push_back(true);
-  // pathOrder.push_back(false);
-  //pathOrder.push_back(true);
+  frc::SmartDashboard::PutString("keep velocity", currPath); 
+  return (currPath == "true") ? true : false; // returns true or false for PID turning (keeping velocity)
 }
 
 void DriveBaseModule::autonomousSequence() {
-  initPath();
+  bool vel = initPath();
   int index = 0;
   int lineIndex = 0;
   int curveIndex = 0;
@@ -515,7 +525,7 @@ void DriveBaseModule::autonomousSequence() {
     } else {
       robPos.x += 0; //do math later !!!!
       robPos.y += 0;  //do math later !!!!
-      PIDTurn(radiusTurnPoints.at(curveIndex).angle, radiusTurnPoints.at(curveIndex).radius, false);
+      PIDTurn(radiusTurnPoints.at(curveIndex).angle, radiusTurnPoints.at(curveIndex).radius, vel);
       curveIndex++;
     }
     index++;
@@ -637,14 +647,14 @@ void DriveBaseModule::run() {
     if(state == 'a') { //ik I have access to isAutonomous
       stopAuto = false;
       if(test) {
-          //autonomousSequence();
+          autonomousSequence();
           //PIDDrive(-7, false);
-          PIDTurn(-110, 0, false);
-          PIDTurn(110, 0, false);
+          //PIDTurn(-110, 0, false);
+          //PIDTurn(110, 0, false);
 
         test = false;
       }
-      elev->AutoPeriodic();
+      //elev->AutoPeriodic();
       
     } else {
       test = true;

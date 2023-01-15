@@ -83,7 +83,7 @@ class DriveBaseModule{ //needed for gyroPIDDrive implementation
   bool PIDDrive(float totalFeet, bool keepVelocity);
   bool PIDTurn(float angle, float radius, bool keepVelocity);
   void autonomousSequence();
-  void initPath();
+  bool initPath();   
   void run();
   void runInit();
   void gyroDriving();
