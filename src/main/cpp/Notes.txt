@@ -1,0 +1,15 @@
+ShuffleUI notes:
+
+DONE
+- Make a widget
+- Set widget to value
+- Read value from a widget
+- See if widget list works
+- Prevents duplicates
+- Make a slider
+- See if it works in continous operation
+- Test boolean box
+- Test graph
+
+TO DO
+- Write an explainer (Shuffleboard docs are terrible)

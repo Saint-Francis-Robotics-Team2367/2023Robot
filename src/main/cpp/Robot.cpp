@@ -4,13 +4,16 @@
 
 #include "Robot.h"
 #include <frc2/command/PIDCommand.h>
+#include <iostream>
 
 // // All Module Includes
 #include "DriveBaseModule.h"
 
-DriveBaseModule drive;
+//DriveBaseModule drive;
 //moved instantiation to h file
 
+
+#include "ShuffleUI.h"
 
 
 void Robot::RobotInit()
@@ -18,7 +21,7 @@ void Robot::RobotInit()
   //compRobotDrive.periodicInit();
 
   //need drive inits
-  drive.driveThread.detach(); 
+  //drive.driveThread.detach(); 
  
 }
 
@@ -27,7 +30,7 @@ void Robot::RobotPeriodic()
 }
 void Robot::AutonomousInit()
 {
-  drive.state = 'a';
+  //drive.state = 'a';
 }
 void Robot::AutonomousPeriodic()
 {
@@ -38,22 +41,23 @@ void Robot::AutonomousPeriodic()
 
 void Robot::TeleopInit()
 {
-  drive.state = 't'; //add codes in while loops to break if state change
+  nt::GenericEntry *entry = ShuffleUI::MakeGraph("Test graph", "test tab", 0.1);
 }
 
 void Robot::TeleopPeriodic()
 {
+
 }
 
 void Robot::DisabledInit() {
-  drive.stopAuto = true;
+  //drive.stopAuto = true;
 }
 void Robot::DisabledPeriodic() {
 }
 
 void Robot::TestInit()
 {
-  drive.state = 'd';
+  //drive.state = 'd';
 }
 
 void Robot::TestPeriodic()
