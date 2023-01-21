@@ -48,6 +48,8 @@ class DriveBaseModule{ //needed for gyroPIDDrive implementation
 
   ElevatorModule* elev = new ElevatorModule(10); //Elevator
 
+  PiModule pi = PiModule(0); // Pi Ultrasonic
+
   double maxAcc =  20.0;
   double maxVelocity = 30.0;
   double currentVelocity = 0;

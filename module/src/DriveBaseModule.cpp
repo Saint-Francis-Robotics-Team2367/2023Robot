@@ -552,6 +552,7 @@ void DriveBaseModule::runInit() {
 
 void DriveBaseModule::run() {
   runInit();
+  pi.pi_thread.detach();
   bool test = true;
   int counter = 0;
   while(true) { 
@@ -581,6 +582,7 @@ void DriveBaseModule::run() {
     if(state == 't') {
       //perioidic routines
       gyroDriving();
+      frc::SmartDashboard::PutNumber("SensorVal", pi.get_distance());
       //honestly let's move to xbox joystick maybe
       //elev->TeleopPeriodic(driverStick->GetLeftTriggerAxis(), driverStick->GetRightTriggerAxis()); 
       test = true;
