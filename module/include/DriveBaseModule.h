@@ -83,7 +83,7 @@ class DriveBaseModule{ //needed for gyroPIDDrive implementation
   bool PIDDrive(float totalFeet, bool keepVelocity);
   bool PIDTurn(float angle, float radius, bool keepVelocity);
   void autonomousSequence();
-  bool initPath();   
+  void initPath();   
   void run();
   void runInit();
   void gyroDriving();
@@ -110,10 +110,13 @@ class DriveBaseModule{ //needed for gyroPIDDrive implementation
     float radius;
   };
   std::vector<radiusTurnPoint> radiusTurnPoints;
+  std::vector<bool> keepVelocity; 
   std::vector<bool> pathOrder; 
 
   float d = 0;
   float theta = 0;
+  float angle = 0; 
+  float radius = 0; 
   //bool PIDGyroTurn(float angle, float radius, float maxAcc, float maxVelocity);
   float prevTime; //all for limit rate
   float prev_value_speed;

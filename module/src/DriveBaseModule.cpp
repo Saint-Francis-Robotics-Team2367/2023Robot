@@ -430,62 +430,75 @@ bool DriveBaseModule::PIDTurn(float angle, float radius, bool keepVelocity) { //
   return true;
 }
 
-bool DriveBaseModule::initPath() {  
+void DriveBaseModule::initPath() { 
   // starting pos
   robPos.x = 0;
   robPos.y = 0;
 
-  static int lastDel = 0; 
+  int lastDel = 0; 
+  int delIndex = 0; 
+  bool straight = true; 
+  bool vel = false; 
+  int runCount = 0; 
   std::string path = defaultPath; 
+  std::string currPath = ""; 
 
-  // setting up options on Smart Dashboard 
+  // setting auto options on Smart Dashboard 
   chooser.SetDefaultOption(autoDefault, autoDefault);
-  chooser.AddOption("Path 1", autoCustom); // use AddOption to add multiple paths
+  chooser.AddOption(autoCustom, autoCustom); // use AddOption to add multiple paths
   frc::SmartDashboard::PutData("Auto Paths", &chooser);
   selected = chooser.GetSelected();
 
-  if (selected == "Path 1"){
-    // choosing a specific path 
+  // may need to constantly check the selected auto path in while loop 
+
+  if (selected == autoCustom){
     path = path1; 
   }
-  
-  int delIndex = path.find(delimiter);
-  std::string currPath = path.substr(lastDel, delIndex); 
 
-  // adding turning to path order 
-  bool straight = (currPath[0] == 's') ? true : false; 
-  frc::SmartDashboard::PutBoolean("straight", straight); 
-  pathOrder.push_back(straight); 
+  while (lastDel < path.length()){
+    delIndex = path.find(delimiter, lastDel); 
+    currPath = path.substr(lastDel, delIndex); 
+    frc::SmartDashboard::PutString("current instruction", currPath); 
+    frc::SmartDashboard::PutNumber("delimiter index", delIndex);
+    frc::SmartDashboard::PutNumber("last deleted index", lastDel);
+    frc::SmartDashboard::PutNumber("run count", runCount);
 
-  if (straight) {
-    pathPoint point; 
-    point.x = std::stoi(currPath.substr(2, currPath.find(",")));
-    currPath.erase(0, currPath.find(",") + 1);
-    point.y = std::stoi(currPath.substr(0, currPath.find(",")));
-    currPath.erase(0, currPath.find(",") + 1);
-    frc::SmartDashboard::PutNumber("x coord", point.x); 
-    frc::SmartDashboard::PutNumber("y coord", point.y);
-    straightLinePoints.push_back(point);
+    // adding turning to path order 
+    straight = (currPath[0] == 's') ? true : false; 
+    frc::SmartDashboard::PutBoolean("straight", straight); 
+    pathOrder.push_back(straight); 
+
+    if (straight) {
+      pathPoint point; 
+      point.x = std::stoi(currPath.substr(2, currPath.find(",")));
+      currPath.erase(0, currPath.find(",") + 1);
+      point.y = std::stoi(currPath.substr(0, currPath.find(",")));
+      currPath.erase(0, currPath.find(",") + 1);
+      frc::SmartDashboard::PutNumber("straight x", point.x); 
+      frc::SmartDashboard::PutNumber("straight y", point.y);
+      straightLinePoints.push_back(point);
+    }
+    else {
+      radiusTurnPoint rpoint;
+      rpoint.angle = std::stoi(currPath.substr(2, currPath.find(","))); // neg
+      currPath.erase(0, currPath.find(",") + 1); 
+      rpoint.radius = std::stoi(currPath.substr(0, currPath.find(",")));
+      currPath.erase(0, currPath.find(",") + 1);
+      frc::SmartDashboard::PutNumber("rpoint radius", rpoint.radius); 
+      frc::SmartDashboard::PutNumber("rpoint angle", rpoint.angle); 
+      radiusTurnPoints.push_back(rpoint);
+    }
+
+    vel = (currPath == "true") ? true : false;
+    keepVelocity.push_back(vel);
+
+    lastDel = delIndex+1; 
+    runCount++;
   }
-  else {
-    radiusTurnPoint rpoint;
-    rpoint.angle = std::stoi(currPath.substr(2, currPath.find(","))); // neg
-    currPath.erase(0, currPath.find(",") + 1); 
-    rpoint.radius = std::stoi(currPath.substr(0, currPath.find(",")));
-    currPath.erase(0, currPath.find(",") + 1);
-    frc::SmartDashboard::PutNumber("rpoint radius", rpoint.radius); 
-    frc::SmartDashboard::PutNumber("rpoint angle", rpoint.angle); 
-    radiusTurnPoints.push_back(rpoint);
-  }
-
-  lastDel = delIndex; // setting start point for next instruction slicing 
-
-  frc::SmartDashboard::PutString("keep velocity", currPath); 
-  return (currPath == "true") ? true : false; // returns true or false for PID turning (keeping velocity)
 }
 
 void DriveBaseModule::autonomousSequence() {
-  bool vel = initPath();
+  initPath();
   int index = 0;
   int lineIndex = 0;
   int curveIndex = 0;
@@ -510,22 +523,29 @@ void DriveBaseModule::autonomousSequence() {
 
      theta = atan2(delta.x, delta.y) * (180/(3.14159265)); 
      frc::SmartDashboard::PutNumber("theta", theta);
-      frc::SmartDashboard::PutNumber("d", d);
+     frc::SmartDashboard::PutNumber("d", d);
 
      robPos.x += delta.x;
      robPos.y += delta.y;
 
-    theta = theta - robTheta; //robTheta inited to zero
-    robTheta += theta;
+     theta = theta - robTheta; //robTheta inited to zero
+     robTheta += theta;
      //check with gyro get displacement
-     PIDTurn(theta, 0, false); //expiriment with true
-     PIDDrive(d, false);
+     PIDTurn(theta, 0, keepVelocity.at(index)); //expiriment with true
+     PIDDrive(d, keepVelocity.at(index));
      lineIndex++;
 
-    } else {
-      robPos.x += 0; //do math later !!!!
-      robPos.y += 0;  //do math later !!!!
-      PIDTurn(radiusTurnPoints.at(curveIndex).angle, radiusTurnPoints.at(curveIndex).radius, vel);
+    } else { 
+      // retrieving angle and radius of turn 
+      angle = radiusTurnPoints.at(curveIndex).angle + 90; // robot's 0 deg is 90 deg on polar graph?
+      radius = radiusTurnPoints.at(curveIndex).radius; 
+
+      robPos.x += (radius * cos(angle*PI/180));
+      robPos.y += (radius * sin(angle*PI/180));  
+      frc::SmartDashboard::PutNumber("x after adding", robPos.x);
+      frc::SmartDashboard::PutNumber("y after adding", robPos.y);
+
+      PIDTurn(angle, radius, keepVelocity.at(index));
       curveIndex++;
     }
     index++;
