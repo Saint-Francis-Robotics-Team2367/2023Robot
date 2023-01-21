@@ -550,6 +550,7 @@ void DriveBaseModule::runInit() {
 
 void DriveBaseModule::run() {
   runInit();
+  arm->ArmInit();
   bool test = true;
   int counter = 0;
   while(true) { 
@@ -581,6 +582,7 @@ void DriveBaseModule::run() {
       gyroDriving();
       //honestly let's move to xbox joystick maybe
       //elev->TeleopPeriodic(driverStick->GetLeftTriggerAxis(), driverStick->GetRightTriggerAxis()); 
+      
       test = true;
       stopAuto = true;
     }

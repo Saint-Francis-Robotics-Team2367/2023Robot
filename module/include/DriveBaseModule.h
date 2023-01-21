@@ -4,6 +4,7 @@
 #include <rev/CANSparkMax.h>
 #include <frc/Joystick.h>
 #include "ElevatorModule.h"
+#include "ScaraArmModule.h"
 #include <frc/SmartDashboard/SmartDashboard.h>
 #include "AHRS.h"
 #include <frc/controller/PIDController.h>
@@ -11,6 +12,7 @@
 #include <chrono>
 #include<mutex>
 #include <atomic>
+
 
 #define driverStickPort 0
 #define operatorStickPort 1
@@ -47,6 +49,8 @@ class DriveBaseModule{ //needed for gyroPIDDrive implementation
 
   ElevatorModule* elev = new ElevatorModule(10); //Elevator
 
+  ScaraArmModule* arm = new ScaraArmModule();
+
   double maxAcc =  20.0;
   double maxVelocity = 30.0;
   double currentVelocity = 0;
@@ -54,8 +58,7 @@ class DriveBaseModule{ //needed for gyroPIDDrive implementation
   double gyroOffsetVal = 0;
   double delta =10;
   double tuningPrevTime = 0;
-  int lScaraArmID = 0;
-  int rScaraArmID = 0;
+
   
   frc::Joystick* driverStick = new frc::Joystick(driverStickPort);
   //frc::Joystick* operatorStick = new frc::Joystick(operatorStickPort);
@@ -63,17 +66,13 @@ class DriveBaseModule{ //needed for gyroPIDDrive implementation
   rev::CANSparkMax* lMotorFollower = new rev::CANSparkMax(lMotorFollowerID, rev::CANSparkMax::MotorType::kBrushless);
   rev::CANSparkMax* rMotor = new rev::CANSparkMax(rMotorLeaderID, rev::CANSparkMax::MotorType::kBrushless);
   rev::CANSparkMax* rMotorFollower = new rev::CANSparkMax(rMotorFollowerID, rev::CANSparkMax::MotorType::kBrushless);
-  rev::CANSparkMax* lArm = new rev::CANSparkMax(lScaraArmID, rev::CANSparkMax::MotorType::kBrushless);
-  rev::CANSparkMax* rArm = new rev::CANSparkMax(rScaraArmID, rev::CANSparkMax::MotorType::kBrushless);
+
   //if you don't include getEncoder here, it doesn't build?
   rev::SparkMaxRelativeEncoder lEncoder = lMotor->GetEncoder();
   rev::SparkMaxRelativeEncoder rEncoder = rMotor->GetEncoder();
   rev::SparkMaxPIDController lPID = lMotor->GetPIDController();
   rev::SparkMaxPIDController rPID = rMotor->GetPIDController();
-  rev::SparkMaxRelativeEncoder lArmEncoder = lArm->GetEncoder();
-  rev::SparkMaxRelativeEncoder rArmEncoder = rArm->GetEncoder();
-  rev::SparkMaxPIDController lArmPID = lMotor->GetPIDController();
-  rev::SparkMaxPIDController rArmPID = rMotor->GetPIDController();
+
   double kp;
   double ki;
   double kd;
@@ -101,8 +100,7 @@ class DriveBaseModule{ //needed for gyroPIDDrive implementation
   void PIDTuning();
   void driveBaseTuning();
   double skim(double v);
-  void ArmInit();
-  void ArmPeriodic();
+
   double getGyroAngleAuto() { //will be positive
     double angle = ahrs->GetAngle();
     if(angle * gyroOffsetVal < 0) { //if signs are different

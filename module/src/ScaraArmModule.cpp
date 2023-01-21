@@ -2,26 +2,14 @@
 #include <vector>
 #include <iostream>
 #include <tuple>
-#include "DriveBaseModule.h"
+#include "ScaraArmModule.h"
 
-using namespace std;
-
-void DriveBaseModule::ArmInit() {
-  kp = 0.5;
-  ki = 0.5;
-  kd = 0.2;
-  lArmPID.SetP(kp);
-  lArmPID.SetI(ki);
-  lArmPID.SetD(kd);
-  rArmPID.SetP(kp);
-  rArmPID.SetI(ki);
-  rArmPID.SetD(kd);
-  frc::SmartDashboard::PutNumber("P Gain", kp);
-  frc::SmartDashboard::PutNumber("I Gain", ki);
-  frc::SmartDashboard::PutNumber("D Gain", kd);
+void ScaraArmModule::ArmInit() {
+  inner_enc.SetPositionConversionFactor(innerConv);
+  outter_enc.SetPositionConversionFactor(outterConv);
 }
-
-void DriveBaseModule::ArmPeriodic() {
+/*
+void ScaraArmModule::ArmPeriodic() {
   double sensor_position = lArmEncoder.GetPosition();
   double theta = plot_point({43,25}, 30, 30);
   cout << theta;
@@ -46,84 +34,214 @@ void DriveBaseModule::ArmPeriodic() {
     }
   }
 }
+*/
 
-vector<tuple<double, double>, tuple<double, double>> circle_line_segment_intersection(std::pair<double, double> center, double radius, std::pair<double, double> pt1, std::pair<double, double> pt2, bool full_line, double tangent_tol) {
-  // Find the points at which a circle intersects a line-segment.  This can happen at 0, 1, or 2 points.
-  double p1x, p1y, p2x, p2y, cx, cy;
-  tie(p1x, p1y) = pt1;
-  tie(p2x, p2y) = pt2;
-  tie(cx, cy) = center;
-  double x1, y1, x2, y2;
-  x1 = p1x - cx;
-  y1 = p1y - cy;
-  x2 = p2x - cx;
-  y2 = p2y - cy;
-  double dx, dy;
-  dx = x2 - x1;
-  dy = y2 - y1;
-  double dr = sqrt(dx*dx + dy*dy);
-  double big_d = x1 * y2 - x2 * y1;
-  double discriminant = radius * radius * dr*dr - big_d*big_d;
-  vector<tuple<double, double>, tuple<double, double>> intersections;
-  if (discriminant < 0) {  // No intersection between circle and line
-    return;
-  }
-  else {  // There may be 0, 1, or 2 intersections with the segment
-    for (int sign : {1, -1}) {
-        intersections.push_back(make_tuple(cx + (big_d * dy + sign * (dy < 0 ? -1 : 1) * dx * std::sqrt(discriminant)) / dr*dr, cy + (-big_d * dx + sign * std::abs(dy) * std::sqrt(discriminant)) / dr*dr));
+
+
+class Point2d : public ScaraArmModule {
+    public:
+    Point2d() {}
+    Point2d(double x, double y)
+        : X(x), Y(y) {}
+     
+    double x() const { return X; }
+    double y() const { return Y; }
+     
+    /**
+     * Returns the norm of this vector.
+     * @return the norm
+    */
+    double norm() const {
+        return sqrt( X * X + Y * Y );
     }
-    if (!full_line) {  // If only considering the segment, filter out intersections that do not fall within the segment
-        for (int i = 0; i < intersections.size(); i++) {
-            double xi, yi;
-            tie(xi, yi) = intersections[i];
-            double fraction;
-        if (abs(dx) > abs(dy)) {
-          fraction = (xi - p1x) / dx;
-        }
-        else {
-          fraction = (yi - p1y) / dy;
-        }
-        if (fraction < 0 || fraction > 1) {
-          intersections.erase(intersections.begin() + i);
-          i--;
-        }
-      }
+     
+    void setCoords(double x, double y) {
+        X = x; Y = y;
     }
-        if (intersections.size() == 2 && abs(discriminant) <= tangent_tol) {
-            return intersections[0];
+     
+    // Print point
+    friend std::ostream& operator << ( std::ostream& s, const Point2d& p )  {
+      s << p.x() << " " << p.y();
+      return s;
+    }
+    double X;
+    double Y;
+};
+
+
+
+class Circle : public ScaraArmModule {
+public:
+    /**
+     * @param R - radius
+     * @param C - center
+     */
+    Circle(double R, Point2d& C) 
+        : r(R), c(C) {}
+         
+    /**
+     * @param R - radius
+     * @param X - center's x coordinate
+     * @param Y - center's y coordinate
+     */
+    Circle(double R, double X, double Y) 
+        : r(R), c(X, Y) {}    
+     
+    Point2d getC() const { return c; }
+    double getR() const { return r; }
+     
+    size_t intersect(const Circle& C2, Point2d& i1, Point2d& i2) {
+        // distance between the centers
+        double d = Point2d(c.x() - C2.c.x(), 
+                c.y() - C2.c.y()).norm();
+         
+        // find number of solutions
+        if(d > r + C2.r) // circles are too far apart, no solution(s)
+        {
+            std::cout << "Circles are too far apart\n";
+            return 0;
         }
-        else {
-            return intersections;
+        else if(d == 0 && r == C2.r) // circles coincide
+        {
+            std::cout << "Circles coincide\n";
+            return 0;
         }
-  }
+        // one circle contains the other
+        else if(d + min(r, C2.r) < max(r, C2.r))
+        {
+            std::cout << "One circle contains the other\n";
+            return 0;
+        }
+        else
+        {
+            double a = (r*r - C2.r*C2.r + d*d)/ (2.0*d);
+            double h = sqrt(r*r - a*a);
+             
+            // find p2
+            Point2d p2( c.x() + (a * (C2.c.x() - c.x())) / d,
+                    c.y() + (a * (C2.c.y() - c.y())) / d);
+             
+            // find intersection points p3
+            i1.setCoords( p2.x() + (h * (C2.c.y() - c.y())/ d),
+                    p2.y() - (h * (C2.c.x() - c.x())/ d)
+            );
+            i2.setCoords( p2.x() - (h * (C2.c.y() - c.y())/ d),
+                    p2.y() + (h * (C2.c.x() - c.x())/ d)
+            );
+             
+            if(d == r + C2.r)
+                return 1;
+            return 2;
+        }
+    }
+     
+    // Print circle
+    friend std::ostream& operator << ( std::ostream& s, const Circle& C )  {
+      s << "Center: " << C.getC() << ", r = " << C.getR();
+      return s;
+    }
+private:
+    // radius
+    double r;
+    // center
+    Point2d c;
+     
+};
+
+std::vector<double> ScaraArmModule::XY_to_Arm(double x, double y, double length1, double length2) {
+
+
+    Circle c1(length2, x, y);
+    Circle c2(length1, 0, 0);
+    Point2d i1, i2;
+     
+    std::cout << c1 << "\n" << c2 << "\n";
+    // intersections point(s)
+    size_t i_points = c1.intersect(c2, i1, i2);
+     
+    std::cout << "Intersection point(s)\n";
+    if(i_points == 0) {
+      std::vector<double> null {};
+      return null;
+    }
+    
+    std::vector<double> output = { };
+
+    
+    //Compute angles
+    double theta1 = (atan2(i1.y(), i1.x()));
+    Point2d ab, ac;
+    ab.X = i1.x() - 0;
+    ab.Y = i1.y() - 0;
+    ac.X = i1.x() - x;
+    ac.Y = i1.y() - y;
+    double angba = atan2(ab.Y, ab.X);
+    double angbc = atan2(ac.Y, ac.X);
+    double rslt = angba - angbc;
+    std::cout << rslt;
+    double rs = (rslt * 180) / 3.141592;
+    //std::cout << rs;
+    double theta2 = rs;
+    output.push_back(theta1);
+    output.push_back(theta2);
+
+
+    if (i_points == 2) {
+      double theta1 = (atan2(i2.y(), i2.x()));
+      Point2d ab, ac;
+      ab.X = i2.x() - 0;
+      ab.Y = i2.y() - 0;
+      ac.X = i2.x() - x;
+      ac.Y = i2.y() - y;
+      double angba = atan2(ab.Y, ab.X);
+      double angbc = atan2(ac.Y, ac.X);
+      double rslt = angba - angbc;
+      std::cout << rslt;
+      double rs = (rslt * 180) / 3.141592;
+      //std::cout << rs;
+      double theta2 = rs;
+      output.push_back(theta1);
+      output.push_back(theta2);
+    }
+    
+    std::cout << "Theta1: " << theta1 * 180/ M_PI << "Theta2: " << theta2;
+    
+    return output;
+
+
+
 }
 
-int zeroClamp(int x, int bound = 0.1) {
-    if ((-bound < x) && (x<bound)) {
-        return 0.01;
-    }
-    else {
-        return x;
-    }
+std::vector<double> ScaraArmModule::Angles_to_XY(double innerAngleDeg, double outterAngleDeg) {
+  std::vector<double> output = {};
+  double x1 =  innerSize * cos(innerAngleDeg * M_PI / 180);
+  double y1 = innerSize * sin(innerAngleDeg * M_PI / 180);
+  double x2 = x1 + (outterSize * cos((outterAngleDeg * M_PI / 180) + innerAngleDeg * M_PI / 180));
+  double y2 = y1 + (outterSize * sin((outterAngleDeg * M_PI / 180) + innerAngleDeg * M_PI / 180));
+
+  output.push_back(x2);
+  output.push_back(y2);
+  return output;
 }
 
-double plot_point(std::pair<double, double> point, double length1, double length2) {
-  double a = point.first;
-  double b = point.second;
-  double t1x = -60;
-  double t1y = ((-1 * a / b) * (t1x - (a / 2))) + (b / 2);
-  double t2x = 60;
-  double t2y = ((-1 * a / b) * (t2x - (a / 2))) + (b / 2);
-  vector<tuple<double, double>, tuple<double, double>> b_point = circle_line_segment_intersection({0, 0}, 30, {t1x, t1y}, {t2x, t2y}, true, 1e-9);
-  tuple<double, double> b_point1 = b_point[0];
-  tuple<double, double> b_point2 = b_point[1];
-  double bx = get<0>(b_point1);
-  double by = get<1>(b_point1);
-  bx = zeroClamp(bx);
-  by = zeroClamp(by);
-  double c2y = zeroClamp(b - by);
-  double c2x = zeroClamp(a - bx);
-  double theta1 = (180 / M_PI) * atan2(by, bx);
-  double theta2 = (180 / M_PI) * (atan2(c2y, c2x) - theta1);
-  return theta1;
+void ScaraArmModule::movetoXY(double x, double y) {
+  std::vector<double> angles = XY_to_Arm(x, y, innerSize, outterSize);
+  double currPos = inner_enc.GetPosition();
+  if (angles.size() == 2) {
+    innerPID.SetReference(angles.at(0), rev::CANSparkMax::ControlType::kPosition);
+    outterPID.SetReference(angles.at(1), rev::CANSparkMax::ControlType::kPosition);
+  } else if (angles.size() == 4) {
+    if ((currPos - angles[0]) > (currPos - angles[2])) {
+      innerPID.SetReference(angles.at(2), rev::CANSparkMax::ControlType::kPosition);
+      outterPID.SetReference(angles.at(3), rev::CANSparkMax::ControlType::kPosition);
+    } else {
+      innerPID.SetReference(angles.at(0), rev::CANSparkMax::ControlType::kPosition);
+      outterPID.SetReference(angles.at(1), rev::CANSparkMax::ControlType::kPosition);
+    }
+  } else {
+    inner->Set(0);
+    outter->Set(0);
+
+  }
+
 }
