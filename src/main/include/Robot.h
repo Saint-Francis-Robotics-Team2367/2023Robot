@@ -5,8 +5,8 @@
 #pragma once
 
 #include <frc/TimedRobot.h>
-
-
+#include <rev/SparkMaxLimitSwitch.h>
+#include <frc/DigitalInput.h>
 class Robot : public frc::TimedRobot {
 
 
@@ -26,8 +26,8 @@ class Robot : public frc::TimedRobot {
 
   void TestInit() override;
   void TestPeriodic() override;
-
-  
+  //rev::SparkMaxLimitSwitch * limitSwitch = new rev::SparkMaxLimitSwitch();
+  frc::DigitalInput * LimitSwitch = new frc::DigitalInput(0);
 };
 
 
