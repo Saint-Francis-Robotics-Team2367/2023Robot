@@ -23,17 +23,19 @@ class ScaraArmModule {
     int innerID = 0;
     int outterID = 1;
 
-    const int innerConv = 1;
-    const int outterConv = 1;
+    const int innerConv = 180 / M_PI;
+    const int outterConv = 180 / M_PI;
 
     const int innerSize = 30;
     const int outterSize = 30;
     
-    void ScaraArmModule::ArmInit();
+    void ArmInit();
 
     std::vector<double> XY_to_Arm(double x, double y, double length1, double length2);
 
     std::vector<double> Angles_to_XY(double inner, double outter);
+
+    double clampAngle(double inp);
 
     void movetoXY(double x, double y);
 

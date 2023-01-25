@@ -226,7 +226,11 @@ std::vector<double> ScaraArmModule::Angles_to_XY(double innerAngleDeg, double ou
 
 void ScaraArmModule::movetoXY(double x, double y) {
   std::vector<double> angles = XY_to_Arm(x, y, innerSize, outterSize);
-  double currPos = inner_enc.GetPosition();
+  double currPos = clampAngle(inner_enc.GetPosition());
+  for (int i = 0; i < angles.size(); i++) {
+    angles.at(i) = clampAngle(angles.at(i));
+  }
+  
   if (angles.size() == 2) {
     innerPID.SetReference(angles.at(0), rev::CANSparkMax::ControlType::kPosition);
     outterPID.SetReference(angles.at(1), rev::CANSparkMax::ControlType::kPosition);
@@ -242,6 +246,26 @@ void ScaraArmModule::movetoXY(double x, double y) {
     inner->Set(0);
     outter->Set(0);
 
+  }
+
+}
+
+double ScaraArmModule::clampAngle(double inp) {
+  double out;
+  if (fabs(inp) > 180) {
+    out = fmod(inp, 360);
+    if (fabs(out) > 180) {
+      if (out > 0) {
+        return 360 - out;
+      }
+      return 360 + out;
+      //pos (360 + 270) -> 270
+      //neg, -(360 + 270) -> -270
+
+
+    }
+  } else {
+    return inp;
   }
 
 }
