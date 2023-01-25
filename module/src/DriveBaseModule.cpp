@@ -1,6 +1,7 @@
 #include "DriveBaseModule.h"
 #include <iostream>
 
+
 bool DriveBaseModule::initDriveMotor(rev::CANSparkMax* motor, rev::CANSparkMax* follower, bool invert) {
   motor->SetIdleMode(rev::CANSparkMax::IdleMode::kBrake);
   motor->SetInverted(invert);
@@ -84,10 +85,33 @@ void DriveBaseModule::arcadeDrive(double xSpeedi, double zRotationi) {
 
 void DriveBaseModule::gyroDriving() {
   float rightStickOutput = driverStick->GetRawAxis(4);
-  float calculation = rightStickPID->Calculate(ahrs->GetRate()/150, rightStickOutput); //add skim
+  double calculation = rightStickPID->Calculate(ahrs->GetRate()/150, rightStickOutput); //add skim
+  //check if clamping needed
+  //calculation = std::clamp(calculation, -1.0, 1.0);
   arcadeDrive(driverStick->GetRawAxis(1) * (-1), calculation);
   frc::SmartDashboard::PutNumber("output", calculation);
   frc::SmartDashboard::PutNumber("gyro", ahrs->GetRate());
+}
+
+void DriveBaseModule::autoBalance() {
+  double pitch = ahrs->GetPitch();
+  //pitch = std::clamp(pitch, -15.0, 15.0);
+  double error = 15 - pitch;
+  double maxDegrees = 15;
+  double length = 12;
+  frc::SmartDashboard::PutNumber("pitch", pitch);
+  frc::SmartDashboard::PutNumber("error", error);
+  //ouble gyroOutput = autoBalancePID->Calculate(pitch); // should I make this setpoint nothing?
+  //double gyroOutput = autoBalancePID->Calculate(pitch, 0.01);
+  //frc::SmartDashboard::PutNumber("gyroOutput", gyroOutput);
+  
+  lPID.SetReference(error, rev::CANSparkMax::ControlType::kPosition);
+  rPID.SetReference(error, rev::CANSparkMax::ControlType::kPosition);
+  //PIDDrive(gyroOutput, false);
+
+  //frc::SmartDashboard::Pu
+  //arcadeDrive(gyroOutput/10, 0);
+
 
 }
 
@@ -447,7 +471,7 @@ void DriveBaseModule::initPath() {
   // radiusTurnPoint rpoint2;
   // rpoint2.radius = 0; //neg
   // rpoint2.angle = -180;
-  // radiusTurnPoints.push_back(rpoint2);
+  // radiusTurnPoints.push_back(rpoin t2);
 
 
   // pathPoint point2; //example
@@ -639,12 +663,14 @@ void DriveBaseModule::run() {
       if(test) {
           //autonomousSequence();
           //PIDDrive(-7, false);
-          PIDTurn(-110, 0, false);
-          PIDTurn(110, 0, false);
+          // PIDTurn(-110, 0, false);
+          // PIDTurn(110, 0, false);
+          
 
-        test = false;
+       test = false;
       }
-      elev->AutoPeriodic();
+      autoBalance();
+     // elev->AutoPeriodic();
       
     } else {
       test = true;

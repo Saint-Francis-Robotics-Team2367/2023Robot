@@ -15,9 +15,9 @@
 #define driverStickPort 0
 #define operatorStickPort 1
 
-#define PIDProportional 0.59
+#define PIDProportional 0.1 //0.59
 #define PIDIntegral 0
-#define PIDDerivative 0.28
+#define PIDDerivative 0 //0.28
 #define PIDIZone 0
 
 #define driveTurningGain 0.25
@@ -45,7 +45,7 @@ class DriveBaseModule{ //needed for gyroPIDDrive implementation
 
   AHRS *ahrs; //needs to be intialized in constructor
 
-  ElevatorModule* elev = new ElevatorModule(10); //Elevator
+  //ElevatorModule* elev = new ElevatorModule(10); //Elevator
 
   double maxAcc =  20.0;
   double maxVelocity = 30.0;
@@ -54,6 +54,7 @@ class DriveBaseModule{ //needed for gyroPIDDrive implementation
   double gyroOffsetVal = 0;
   double delta =10;
   double tuningPrevTime = 0;
+  bool isExceeded = false;
   
   frc::Joystick* driverStick = new frc::Joystick(driverStickPort);
   //frc::Joystick* operatorStick = new frc::Joystick(operatorStickPort);
@@ -97,6 +98,7 @@ class DriveBaseModule{ //needed for gyroPIDDrive implementation
     }
     return fabs(fabs(ahrs->GetAngle()) - fabs(gyroOffsetVal)); //should alwyas return positive because PIDTurn method requires (changes signs in setpoint)
    }
+void autoBalance();
 
   //old system doesn't work, need to fix for radius
   struct pathPoint {
@@ -124,15 +126,10 @@ class DriveBaseModule{ //needed for gyroPIDDrive implementation
   //Target Relative Positioning
 
   std::vector<double> getCoords();
-
   void setTarget(double x, double y);
-  
   void updatePos(double left, double right, double angle);
-
   double getAngleToTarget();
-  
   double getDistanceToTarget();
-  
   double range360(double inp);
 
   //TRP Variables
@@ -151,8 +148,9 @@ class DriveBaseModule{ //needed for gyroPIDDrive implementation
 
   // End of TRP
 
+  //units::second_t period = 5.0;
  frc2::PIDController* rightStickPID = new frc2::PIDController(driveProportional, driveIntegral, driveDerivitive);
-
+ frc2::PIDController* autoBalancePID = new frc2::PIDController(1, 0, 0.0, 5_ms); //bang bang
   private:
 	    double m_out;
 };
