@@ -7,6 +7,12 @@
 void ScaraArmModule::ArmInit() {
   inner_enc.SetPositionConversionFactor(innerConv);
   outter_enc.SetPositionConversionFactor(outterConv);
+  innerPID.SetP(0.5);
+  innerPID.SetI(0.5);
+  innerPID.SetD(0.5);
+  outterPID.SetP(0.5);
+  outterPID.SetI(0.5);
+  outterPID.SetD(0.5);
 }
 /*
 void ScaraArmModule::ArmPeriodic() {
