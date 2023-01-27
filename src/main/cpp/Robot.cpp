@@ -20,6 +20,8 @@ frc::XboxController* ctr = new frc::XboxController(0);
 void Robot::RobotInit()
 {
   arm.ArmInit();
+  frc::SmartDashboard::PutNumber("x", 0);
+  frc::SmartDashboard::PutNumber("x", 0);
   //compRobotDrive.periodicInit();
 
   //need drive inits
