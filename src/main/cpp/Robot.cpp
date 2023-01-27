@@ -52,6 +52,10 @@ void Robot::AutonomousPeriodic()
     arm.inner->Set(0);
     arm.outter->Set(0);
   }
+  frc::SmartDashboard::PutNumber("x", 0);
+  frc::SmartDashboard::PutNumber("x", 0);
+
+
 
   // testLeftMotor->Set(0.2);
   // testRightMotor->Set(0.2);
