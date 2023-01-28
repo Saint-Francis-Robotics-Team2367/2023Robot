@@ -442,14 +442,8 @@ void DriveBaseModule::initPath() {
   int runCount = 0; 
   std::string path = defaultPath; 
   std::string currPath = ""; 
-
-  // setting auto options on Smart Dashboard 
-  chooser.SetDefaultOption(autoDefault, autoDefault);
-  chooser.AddOption(autoCustom, autoCustom); // use AddOption to add multiple paths
-  frc::SmartDashboard::PutData("Auto Paths", &chooser);
+  
   selected = chooser.GetSelected();
-
-  // may need to constantly check the selected auto path in while loop 
 
   if (selected == autoCustom){
     path = path1; 
@@ -459,6 +453,7 @@ void DriveBaseModule::initPath() {
     delIndex = path.find(delimiter, lastDel); 
     currPath = path.substr(lastDel, delIndex); 
     frc::SmartDashboard::PutString("current instruction", currPath); 
+    frc::SmartDashboard::PutNumber("path length", path.length()); 
     frc::SmartDashboard::PutNumber("delimiter index", delIndex);
     frc::SmartDashboard::PutNumber("last deleted index", lastDel);
     frc::SmartDashboard::PutNumber("run count", runCount);
@@ -531,19 +526,26 @@ void DriveBaseModule::autonomousSequence() {
      theta = theta - robTheta; //robTheta inited to zero
      robTheta += theta;
      //check with gyro get displacement
-     PIDTurn(theta, 0, keepVelocity.at(index)); //expiriment with true
+     PIDTurn(theta, 0, keepVelocity.at(index)); //experiment with true
      PIDDrive(d, keepVelocity.at(index));
      lineIndex++;
 
     } else { 
       // retrieving angle and radius of turn 
-      angle = radiusTurnPoints.at(curveIndex).angle + 90; // robot's 0 deg is 90 deg on polar graph?
+      angle = radiusTurnPoints.at(curveIndex).angle; // robot starts at 180 deg
       radius = radiusTurnPoints.at(curveIndex).radius; 
 
-      robPos.x += (radius * cos(angle*PI/180));
-      robPos.y += (radius * sin(angle*PI/180));  
-      frc::SmartDashboard::PutNumber("x after adding", robPos.x);
-      frc::SmartDashboard::PutNumber("y after adding", robPos.y);
+      if (angle < 0){ // left turn 
+        center = robPos.x - radius;
+      }
+      else { // right turn 
+        center = robPos.x + radius; 
+      }
+
+      robPos.x = center + (radius * cos(angle/180 * PI)); 
+      robPos.y = radius * sin(angle/180 * PI);  
+      frc::SmartDashboard::PutNumber("x after turn", robPos.x); 
+      frc::SmartDashboard::PutNumber("y after turn", robPos.y);
 
       PIDTurn(angle, radius, keepVelocity.at(index));
       curveIndex++;
@@ -651,12 +653,18 @@ void DriveBaseModule::runInit() {
   lEncoder.SetPosition(0);
   rEncoder.SetPositionConversionFactor(1.96); //check if this works! [look at other code, converts rotations to feet, might not need]
   lEncoder.SetPositionConversionFactor(1.96); //gear ratio?
+
+  // setting auto options on Smart Dashboard 
+  chooser.SetDefaultOption(autoDefault, autoDefault);
+  chooser.AddOption(autoCustom, autoCustom); 
+  frc::SmartDashboard::PutData("Auto Paths", &chooser);
 }
 
 void DriveBaseModule::run() {
   runInit();
   bool test = true;
   int counter = 0;
+
   while(true) { 
     auto nextRun = std::chrono::steady_clock::now() + std::chrono::milliseconds(5); //change milliseconds at telop
     frc::SmartDashboard::PutNumber("timesRun", ++counter);
