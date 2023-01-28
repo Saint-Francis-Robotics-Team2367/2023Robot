@@ -18,15 +18,27 @@ uint32_t ColorSensor::getProximity(){
     return proximity;
 }
 
+double ColorSensor::getIR(){
+    double ir = colorSensor.GetIR();
+    frc::SmartDashboard::PutNumber("IR", ir);
+    return ir;
+}
+
+bool ColorSensor::alignedIR(double ir){
+    bool aligned = ir > minIR;
+    frc::SmartDashboard::PutBoolean("IR Aligned", aligned);
+    return aligned;
+}
+
 bool ColorSensor::matchesCubeColor(rev::ColorSensorV3::RawColor matchColor){
     bool match = matchesTarget(matchColor, cubeColorTarget);
-    frc::SmartDashboard::PutNumber("Cube", match);
+    frc::SmartDashboard::PutBoolean("Cube", match);
     return match;
 }
 
 bool ColorSensor::matchesConeColor(rev::ColorSensorV3::RawColor matchColor){
     bool match = matchesTarget(matchColor, coneColorTarget);
-    frc::SmartDashboard::PutNumber("Cone", match);
+    frc::SmartDashboard::PutBoolean("Cone", match);
     return match;
 }
 

@@ -19,15 +19,17 @@ class ColorSensor{
     {
     }
   };
+  double minIR = 100;
   colorTarget coneColorTarget = colorTarget(6,7,8,8,8);
   colorTarget cubeColorTarget = colorTarget(1,1,1,1,7);
   ColorSensor();
   rev::ColorSensorV3::RawColor getColor();
   uint32_t getProximity();
+  double getIR();
+  bool alignedIR(double);
   std::array<int, 3> rgbTohsv(frc::Color);
   bool matchesCubeColor(rev::ColorSensorV3::RawColor);
   bool matchesConeColor(rev::ColorSensorV3::RawColor);
   bool matchesTarget(rev::ColorSensorV3::RawColor, colorTarget);
-
   private:
 };
