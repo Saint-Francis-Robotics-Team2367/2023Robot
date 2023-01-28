@@ -561,15 +561,13 @@ void DriveBaseModule::run() {
   bool test = true;
   int counter = 0;
   while(true) { 
-
-    // Testing ColorSensor
-    frc::Color detectedColor = colorSensor->getColor();
-    colorSensor->getProximity();
-    // colorSensor->matchesConeColor(detectedColor);
-    // colorSensor->matchesCubeColor(detectedColor);
-
     auto nextRun = std::chrono::steady_clock::now() + std::chrono::milliseconds(5); //change milliseconds at telop
     frc::SmartDashboard::PutNumber("timesRun", ++counter);
+
+    rev::ColorSensorV3::RawColor detectedColor = colorSensor->getColor();
+    uint32_t proximity = colorSensor->getProximity();
+    colorSensor->matchesConeColor(detectedColor);
+    colorSensor->matchesCubeColor(detectedColor);
 
 
     //need mutex to stop

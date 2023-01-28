@@ -1,24 +1,33 @@
 #include "rev/ColorSensorV3.h"
 #include "rev/ColorMatch.h"
 #include <frc/SmartDashboard/SmartDashboard.h>
-#include <set>
+#include <array>
+#include <cmath>
 
 class ColorSensor{
+  public: 
   static constexpr auto i2cPort = frc::I2C::Port::kOnboard;
   rev::ColorSensorV3 colorSensor{i2cPort};
-
-  double minMatchConfidence = 0.95;
-
-  rev::ColorMatch coneColorMatcher;
-  rev::ColorMatch cubeColorMatcher;
-
-  std::set<frc::Color> coneColorTargets = {};
-  std::set<frc::Color> cubeColorTargets = {};
-
-  public:
+  struct colorTarget{
+    double minH;
+    double maxH;
+    double minS;
+    double minV;
+    double minTotal;
+    colorTarget(double minH, double maxH, double minS, double minV, double minTotal):
+    minH(minH), maxH(maxH), minS(minS), minV(minV), minTotal(minTotal)
+    {
+    }
+  };
+  colorTarget coneColorTarget = colorTarget(6,7,8,8,8);
+  colorTarget cubeColorTarget = colorTarget(1,1,1,1,7);
   ColorSensor();
-  frc::Color getColor();
+  rev::ColorSensorV3::RawColor getColor();
   uint32_t getProximity();
-  bool matchesCubeColor(frc::Color);
-  bool matchesConeColor(frc::Color);
+  std::array<int, 3> rgbTohsv(frc::Color);
+  bool matchesCubeColor(rev::ColorSensorV3::RawColor);
+  bool matchesConeColor(rev::ColorSensorV3::RawColor);
+  bool matchesTarget(rev::ColorSensorV3::RawColor, colorTarget);
+
+  private:
 };
