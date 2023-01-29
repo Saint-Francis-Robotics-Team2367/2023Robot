@@ -565,8 +565,10 @@ void DriveBaseModule::run() {
     frc::SmartDashboard::PutNumber("timesRun", ++counter);
 
     rev::ColorSensorV3::RawColor detectedColor = colorSensor->getColor();
-    double IR = colorSensor->getIR();
-    bool alignedIR = colorSensor->alignedIR(IR);
+    double colorIR = colorSensor->getIR();
+    bool alignedIR = colorSensor->alignedIR(colorIR);
+    bool IR = irSensor->getIR();
+    bool isPole = irSensor->isPole(IR);
     bool isCone = colorSensor->matchesConeColor(detectedColor);
     bool isCube = colorSensor->matchesCubeColor(detectedColor);
 

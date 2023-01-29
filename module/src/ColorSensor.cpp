@@ -20,7 +20,7 @@ uint32_t ColorSensor::getProximity(){
 
 double ColorSensor::getIR(){
     double ir = colorSensor.GetIR();
-    frc::SmartDashboard::PutNumber("IR", ir);
+    frc::SmartDashboard::PutNumber("ColorIR", ir);
     return ir;
 }
 
@@ -47,24 +47,25 @@ bool ColorSensor::matchesTarget(rev::ColorSensorV3::RawColor rawColor, ColorSens
     double factor = max > 255? max : 255;
     frc::Color color = frc::Color(((double)rawColor.red)/(factor), 
                                   ((double)rawColor.green)/(factor), 
-                                  ((double)rawColor.blue)/(factor));
+                                  ((double)rawColor.blue)/(factor));                             
     double total = (rawColor.red + rawColor.green + rawColor.blue)/3;
-    std::array<int, 3> hsv = ColorSensor::rgbTohsv(color);
+    std::array<double, 3> hsv = ColorSensor::rgbTohsv(color);
     frc::SmartDashboard::PutNumber("H", hsv[0]);
     frc::SmartDashboard::PutNumber("S", hsv[1]);
     frc::SmartDashboard::PutNumber("V", hsv[2]);
+    frc::SmartDashboard::PutNumber("Total Color", total);
 
-
-    bool match = target.minH < hsv[0] < target.maxH &&
-       hsv[1] > target.minS &&
-       hsv[2] > target.minV &&
-       total > target.minTotal;
+    bool match = target.minH < hsv[0] &&
+                 hsv[0] < target.maxH &&
+                 hsv[1] > target.minS &&
+                 hsv[2] > target.minV &&
+                 total > target.minTotal;
 
     return match;
 }
 
 
-std::array<int, 3> ColorSensor::rgbTohsv(frc::Color color){
+std::array<double, 3> ColorSensor::rgbTohsv(frc::Color color){
     double r = color.red;
     double g = color.green;
     double b = color.blue;
@@ -91,5 +92,5 @@ std::array<int, 3> ColorSensor::rgbTohsv(frc::Color color){
         h /= 6;
     }
 
-    return {h, s, v};
+    return {h*360, s*100, v*100};
 }

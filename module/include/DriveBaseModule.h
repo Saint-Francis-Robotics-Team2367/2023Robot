@@ -12,6 +12,7 @@
 #include<mutex>
 #include <atomic>
 #include "ColorSensor.h"
+#include "IRSensor.h"
 
 #define driverStickPort 0
 #define operatorStickPort 1
@@ -50,6 +51,7 @@ class DriveBaseModule{ //needed for gyroPIDDrive implementation
 
   ElevatorModule* elev = new ElevatorModule(10); //Elevator
   ColorSensor* colorSensor = new ColorSensor();
+  IRSensor* irSensor = new IRSensor();
 
   double maxAcc =  20.0;
   double maxVelocity = 30.0;
