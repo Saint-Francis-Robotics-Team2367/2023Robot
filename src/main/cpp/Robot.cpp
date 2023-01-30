@@ -34,7 +34,7 @@ void Robot::RobotPeriodic()
   double in_angle = arm.inner_enc.GetPosition();
   double out_angle = arm.outter_enc.GetPosition();
   frc::SmartDashboard::PutNumber("Inner", in_angle);
-  frc::SmartDashboard::PutNumber("Outter", out_angle);
+  frc::SmartDashboard::PutNumber("Outter", out_angle);  
   frc::SmartDashboard::PutNumber("XPOS", arm.Angles_to_XY(in_angle, out_angle).at(0));
   frc::SmartDashboard::PutNumber("YPOS", arm.Angles_to_XY(in_angle, out_angle).at(1));
   
