@@ -33,8 +33,8 @@ void Robot::RobotPeriodic()
 {
   double in_angle = arm.inner_enc.GetPosition();
   double out_angle = arm.outter_enc.GetPosition();
-  frc::SmartDashboard::PutNumber("Inner", in_angle);
-  frc::SmartDashboard::PutNumber("Outter", out_angle);  
+  frc::SmartDashboard::PutNumber("Inner", arm.clampAngle(in_angle));
+  frc::SmartDashboard::PutNumber("Outter", arm.clampAngle(out_angle));  
   frc::SmartDashboard::PutNumber("XPOS", arm.Angles_to_XY(in_angle, out_angle).at(0));
   frc::SmartDashboard::PutNumber("YPOS", arm.Angles_to_XY(in_angle, out_angle).at(1));
   
@@ -48,7 +48,7 @@ void Robot::AutonomousPeriodic()
   double x = frc::SmartDashboard::GetNumber("x", 0);
   double y = frc::SmartDashboard::GetNumber("y", 0);
   if (ctr->GetAButton()) {
-    arm.movetoXY(x, y);
+    //arm.movetoXY(x, y);
   }
   if (ctr->GetBButton()) {
     arm.inner->Set(0);
@@ -73,8 +73,8 @@ void Robot::TeleopInit()
 
 void Robot::TeleopPeriodic()
 {
-  arm.inner->Set(ctr->GetLeftY() / 4);
-  arm.outter->Set(ctr->GetRightY() / 4);
+  arm.inner->Set(ctr->GetLeftY() / 6);
+  arm.outter->Set(ctr->GetRightY() / 6);
 }
 
 void Robot::DisabledInit() {

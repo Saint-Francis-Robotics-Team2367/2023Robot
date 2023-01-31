@@ -7,6 +7,8 @@
 void ScaraArmModule::ArmInit() {
   inner_enc.SetPositionConversionFactor(innerConv);
   outter_enc.SetPositionConversionFactor(outterConv);
+  inner_enc.SetPosition(0);
+  outter_enc.SetPosition(0);
   innerPID.SetP(0.5);
   innerPID.SetI(0.5);
   innerPID.SetD(0.5);
@@ -245,7 +247,7 @@ void ScaraArmModule::movetoXY(double x, double y) {
       innerPID.SetReference(angles.at(2), rev::CANSparkMax::ControlType::kPosition);
       outterPID.SetReference(angles.at(3), rev::CANSparkMax::ControlType::kPosition);
     } else {
-      innerPID.SetReference(angles.at(0), rev::CANSparkMax::ControlType::kPosition);
+      innerPID.SetReference(angles.at(0), rev::CANSparkMax::ControlType::kPosition); 
       outterPID.SetReference(angles.at(1), rev::CANSparkMax::ControlType::kPosition);
     }
   } else {
