@@ -540,6 +540,7 @@ void DriveBaseModule::autonomousSequence() {
       }
       else { // right turn 
         center = robPos.x + radius; 
+        angle = -(angle - 180);
       }
 
       robPos.x = center + (radius * cos(angle/180 * PI)); 
