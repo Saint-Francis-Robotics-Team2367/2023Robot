@@ -56,11 +56,11 @@ class DriveBaseModule{ //needed for gyroPIDDrive implementation
   double tuningPrevTime = 0;
   
   frc::Joystick* driverStick = new frc::Joystick(driverStickPort);
-  //frc::Joystick* operatorStick = new frc::Joystick(operatorStickPort);
-  rev::CANSparkMax* lMotor = new rev::CANSparkMax(lMotorLeaderID, rev::CANSparkMax::MotorType::kBrushless);
-  rev::CANSparkMax* lMotorFollower = new rev::CANSparkMax(lMotorFollowerID, rev::CANSparkMax::MotorType::kBrushless);
-  rev::CANSparkMax* rMotor = new rev::CANSparkMax(rMotorLeaderID, rev::CANSparkMax::MotorType::kBrushless);
-  rev::CANSparkMax* rMotorFollower = new rev::CANSparkMax(rMotorFollowerID, rev::CANSparkMax::MotorType::kBrushless);
+  frc::Joystick* operatorStick = new frc::Joystick(operatorStickPort);
+  rev::CANSparkMax* lMotor = new rev::CANSparkMax(5, rev::CANSparkMax::MotorType::kBrushless);
+  rev::CANSparkMax* lMotorFollower = new rev::CANSparkMax(5, rev::CANSparkMax::MotorType::kBrushless);
+  rev::CANSparkMax* rMotor = new rev::CANSparkMax(6, rev::CANSparkMax::MotorType::kBrushless);
+  rev::CANSparkMax* rMotorFollower = new rev::CANSparkMax(6, rev::CANSparkMax::MotorType::kBrushless);
   //if you don't include getEncoder here, it doesn't build?
   rev::SparkMaxRelativeEncoder lEncoder = lMotor->GetEncoder();
   rev::SparkMaxRelativeEncoder rEncoder = rMotor->GetEncoder();

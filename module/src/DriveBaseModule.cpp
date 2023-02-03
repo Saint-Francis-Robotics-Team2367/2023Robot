@@ -15,12 +15,13 @@ bool DriveBaseModule::setPowerBudget(rev::CANSparkMax* motor, float iPeak, float
 }
 
 bool DriveBaseModule::setDriveCurrLimit(float iPeak, float iRated, int limitCycles) {
-  bool setlFront = setPowerBudget(lMotor, iPeak, iRated, limitCycles);
-  bool setrFront = setPowerBudget(rMotor, iPeak, iRated, limitCycles);
-  bool setlBack = setPowerBudget(lMotorFollower, iPeak, iRated, limitCycles);
-  bool setrBack = setPowerBudget(rMotorFollower, iPeak, iRated, limitCycles);
+  // bool setlFront = setPowerBudget(lMotor, iPeak, iRated, limitCycles);
+  // bool setrFront = setPowerBudget(rMotor, iPeak, iRated, limitCycles);
+  // bool setlBack = setPowerBudget(5, iPeak, iRated, limitCycles);
+  // bool setrBack = setPowerBudget(6, iPeak, iRated, limitCycles);
 
-  return setlFront && setrFront && setlBack && setrBack; // Failure on false
+ // return setlFront && setrFront && setlBack && setrBack; // Failure on false
+ return true;
 }
 
 void DriveBaseModule::LimitRate(double& s, double& t) {
@@ -524,13 +525,13 @@ void DriveBaseModule::autonomousSequence() {
 }
 
 void DriveBaseModule::runInit() {
-  if (!(initDriveMotor(lMotor, lMotorFollower, lInvert) && initDriveMotor(rMotor, rMotorFollower, rInvert))) {
-    frc::SmartDashboard::PutBoolean("Drive Motor Inits", false);
-  }
+  // if (!(initDriveMotor(lMotor, lMotorFollower, lInvert) && initDriveMotor(rMotor, rMotorFollower, rInvert))) {
+  //   frc::SmartDashboard::PutBoolean("Drive Motor Inits", false);
+  // }
 
-  if (!setDriveCurrLimit(motorInitMaxCurrent, motorInitRatedCurrent, motorInitLimitCycles)) {
-    frc::SmartDashboard::PutBoolean("Drive Curr Limits", false);
-  }
+  // if (!setDriveCurrLimit(motorInitMaxCurrent, motorInitRatedCurrent, motorInitLimitCycles)) {
+  //   frc::SmartDashboard::PutBoolean("Drive Curr Limits", false);
+  // }
   //auto drive PID controllers
   lPID.SetP(PIDProportional);
   lPID.SetI(PIDIntegral);
