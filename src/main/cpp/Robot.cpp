@@ -58,7 +58,7 @@ if(ctr->GetLeftY()) {
   arm.outter_enc.SetPosition(0);
 }
 //std::vector<double> hi = arm.XY_to_Arm(24.625, 24.5, 24.625, 24.5);
-
+arm.movetoXY(arm.innerSize, arm.outterSize);
 //frc::SmartDashboard::PutNumber("hi 0", hi.at(0));
 
 frc::SmartDashboard::PutNumber("XPOS", arm.Angles_to_XY(0, 0).at(0));
