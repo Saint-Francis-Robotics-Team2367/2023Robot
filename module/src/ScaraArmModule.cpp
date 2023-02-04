@@ -176,6 +176,7 @@ std::vector<double> ScaraArmModule::XY_to_Arm(double x, double y, double length1
     //std::cout << "Intersection point(s)\n";
     if(i_points == 0) {
       std::vector<double> null {};
+      frc::SmartDashboard::PutBoolean("0INTERSECTIONS", true);
       return null;
     }
     
