@@ -53,7 +53,7 @@ class DriveBaseModule{ //needed for gyroPIDDrive implementation
   double kS = 0.5;
   double kV = 0.5;
   double kA = 0.5;
-  frc::SimpleMotorFeedforward<double> feedforward(kS, kV, kA);
+  //frc::SimpleMotorFeedforward<double> feedforward(kS, kV, kA);
   
   //motor->Set(feedforward.Calculate(next velo, next accel))
 
