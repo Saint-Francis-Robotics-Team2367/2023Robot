@@ -20,11 +20,11 @@
 class ScaraArmModule {
     public:
 
-    int innerID = 16;
+    int innerID = 10;
     int outterID = 14;
 
-    const int innerConv = 180 / (M_PI * 30);
-    const int outterConv = 180 / (M_PI * 30);
+    double innerConv = 4096/70/360;
+    double outterConv = 4096/70/360;
 
     const double innerSize = 24.625;
     const double outterSize = 24.500;

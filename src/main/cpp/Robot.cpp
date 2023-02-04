@@ -15,13 +15,13 @@
 ScaraArmModule arm = ScaraArmModule();
 //moved instantiation to h file
 
-frc::XboxController* ctr = new frc::XboxController(0);
+frc::XboxController* ctr = new frc::XboxController(0); //cpr number pulses (4096) per rev, 70 to 1 / 360
 
 void Robot::RobotInit()
 {
   arm.ArmInit();
   frc::SmartDashboard::PutNumber("x", 0);
-  frc::SmartDashboard::PutNumber("y", 0);
+  frc::SmartDashboard::PutNumber("x", 0);
   //compRobotDrive.periodicInit();
 
   //need drive inits
@@ -31,21 +31,54 @@ void Robot::RobotInit()
 
 void Robot::RobotPeriodic()
 {
-  double in_angle = arm.inner_enc.GetPosition();
-  double out_angle = arm.outter_enc.GetPosition();
-  frc::SmartDashboard::PutNumber("Inner", arm.clampAngle(in_angle));
-  frc::SmartDashboard::PutNumber("Outter", arm.clampAngle(out_angle));  
-  frc::SmartDashboard::PutNumber("XPOS", arm.Angles_to_XY(in_angle, out_angle).at(0));
-  frc::SmartDashboard::PutNumber("YPOS", arm.Angles_to_XY(in_angle, out_angle).at(1));
+  frc::SmartDashboard::PutNumber("inner enc", arm.inner_enc.GetPosition());
+  frc::SmartDashboard::PutNumber("outer enc", arm.outter_enc.GetPosition());
+  // arm.inner_enc.SetPositionConversionFactor(1);
+  // arm.outter_enc.SetPositionConversionFactor(1);
+  // double in_angle = arm.inner_enc.GetPosition();
+  // double out_angle = arm.outter_enc.GetPosition();
+  // frc::SmartDashboard::PutNumber("Inner", in_angle);
+  // frc::SmartDashboard::PutNumber("Outter", out_angle);
+  // frc::SmartDashboard::PutNumber("XPOS", arm.Angles_to_XY(in_angle, out_angle).at(0));
+  // frc::SmartDashboard::PutNumber("YPOS", arm.Angles_to_XY(in_angle, out_angle).at(1));
   
 }
 void Robot::AutonomousInit()
 {
   //drive.state = 'a';
+  arm.inner_enc.SetPosition(0);
+  arm.outter_enc.SetPosition(0);
+  
 }
 void Robot::AutonomousPeriodic()
 {
-  
+
+if(ctr->GetLeftY()) {
+  arm.inner_enc.SetPosition(0);
+  arm.outter_enc.SetPosition(0);
+}
+//std::vector<double> hi = arm.XY_to_Arm(24.625, 24.5, 24.625, 24.5);
+
+//frc::SmartDashboard::PutNumber("hi 0", hi.at(0));
+
+frc::SmartDashboard::PutNumber("XPOS", arm.Angles_to_XY(0, 0).at(0));
+frc::SmartDashboard::PutNumber("YPOS", arm.Angles_to_XY(0, 0).at(1));
+ set = frc::SmartDashboard::GetNumber("setpoint", set);
+  arm.outterPID.SetReference(set, rev::CANSparkMax::ControlType::kPosition);
+  frc::SmartDashboard::PutNumber("setpoint", set);
+
+  double in_angle = arm.inner_enc.GetPosition();
+
+
+  // double out_angle = arm.outter_enc.GetPosition();
+  // frc::SmartDashboard::PutNumber("Inner", in_angle);
+  // frc::SmartDashboard::PutNumber("Outter", out_angle);
+  // frc::SmartDashboard::PutNumber("XPOS", arm.Angles_to_XY(in_angle, out_angle).at(0));
+  // frc::SmartDashboard::PutNumber("YPOS", arm.Angles_to_XY(in_angle, out_angle).at(1));
+
+
+  // testLeftMotor->Set(0.2);
+  // testRightMotor->Set(0.2);
 }
 
 
@@ -54,36 +87,26 @@ void Robot::TeleopInit()
   
 
   //drive.state = 't'; //add codes in while loops to break if state change
+  frc::SmartDashboard::PutNumber("setpoint", 0);
 }
 
 void Robot::TeleopPeriodic()
 {
-  double x = frc::SmartDashboard::GetNumber("x", 0);
-  double y = frc::SmartDashboard::GetNumber("y", 0);
-  if (ctr->GetAButtonPressed()) {
-    frc::SmartDashboard::PutBoolean("AButton", true);
-    //arm.outterPID.SetReference(90, rev::CANSparkMax::ControlType::kPosition);
-    arm.movetoXY(x, y);
-  } else {frc::SmartDashboard::PutBoolean("AButton", false);}
-  if (ctr->GetBButtonPressed()) {
-    arm.inner->Set(0);
-    arm.outter->Set(0);
-    frc::SmartDashboard::PutBoolean("AButton", false);
-  }
-  frc::SmartDashboard::PutNumber("x", x);
-  frc::SmartDashboard::PutNumber("y", y);
+  frc::SmartDashboard::PutNumber("left y", ctr->GetLeftY());
+  arm.inner->Set(ctr->GetLeftY() / 5);
+  //arm.innerPID.SetReference(10, rev::CANSparkMax::ControlType::kPosition);
+  //arm->innerPID.SetReference(10, rev::CANSparkMax::ControlType::kPosition);
+  frc::SmartDashboard::PutNumber("right y", ctr->GetRightY());
+ arm.outter->Set(ctr->GetRightY()/ 5);
+  
 
+  //arm.innerPID.SetReference(set, rev::CANSparkMax::ControlType::kPosition);
+  
 
-
-  // testLeftMotor->Set(0.2);
-  // testRightMotor->Set(0.2);
-  if (ctr->GetXButton()) {
-    arm.inner->Set(ctr->GetLeftY() / 6);
-    arm.outter->Set(ctr->GetRightY() / 6);
-    frc::SmartDashboard::PutBoolean("AButton", false);
-
-  }
-  //
+  frc::SmartDashboard::PutNumber("Encoder Pos", arm.outter_enc.GetPosition());
+  frc::SmartDashboard::PutNumber("Voltage/PID Output", arm.outter->GetBusVoltage());
+  //current pos, setpoint, outputPID, voltage
+ //arm.inner->Set(0.4);
 }
 
 void Robot::DisabledInit() {

@@ -7,17 +7,20 @@
 void ScaraArmModule::ArmInit() {
   inner_enc.SetPositionConversionFactor(innerConv);
   outter_enc.SetPositionConversionFactor(outterConv);
-  inner->SetInverted(true);
-  outterPID.SetOutputRange(-0.25, 0.25);
-  outter->SetInverted(true);
+ // inner->SetInverted(true);
+  //outterPID.SetOutputRange(-0.25, 0.25);
+  //outter->SetInverted(true);
   inner_enc.SetPosition(0);
   outter_enc.SetPosition(0);
   innerPID.SetP(0.1);
-  innerPID.SetI(0.5);
-  innerPID.SetD(0.5);
+  innerPID.SetI(0.0);
+  innerPID.SetD(0.0);
   outterPID.SetP(0.1);
-  outterPID.SetI(0.1);
-  outterPID.SetD(0.1);
+  outterPID.SetI(0.0);
+  outterPID.SetD(0.0);
+
+  outter->SetSmartCurrentLimit(10);
+  inner->SetSmartCurrentLimit(10);
 }
 /*
 void ScaraArmModule::ArmPeriodic() {

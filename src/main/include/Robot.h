@@ -9,7 +9,7 @@
 
 class Robot : public frc::TimedRobot {
 
-
+double set = 0;
 
  public:
   void RobotInit() override;
