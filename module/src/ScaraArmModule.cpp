@@ -166,11 +166,11 @@ std::vector<double> ScaraArmModule::XY_to_Arm(double x, double y, double length1
     Circle c2(length1, 0, 0);
     Point2d i1, i2;
      
-    std::cout << c1 << "\n" << c2 << "\n";
+    //std::cout << c1 << "\n" << c2 << "\n";
     // intersections point(s)
     size_t i_points = c1.intersect(c2, i1, i2);
      
-    std::cout << "Intersection point(s)\n";
+    //std::cout << "Intersection point(s)\n";
     if(i_points == 0) {
       std::vector<double> null {};
       return null;
@@ -180,7 +180,7 @@ std::vector<double> ScaraArmModule::XY_to_Arm(double x, double y, double length1
 
     
     //Compute angles
-    double theta1 = (atan2(i1.y(), i1.x()));
+    double theta1 = (atan2(i1.y(), i1.x())) * 180 / 3.141592;
     Point2d ab, ac;
     ab.X = i1.x() - 0;
     ab.Y = i1.y() - 0;
@@ -189,7 +189,7 @@ std::vector<double> ScaraArmModule::XY_to_Arm(double x, double y, double length1
     double angba = atan2(ab.Y, ab.X);
     double angbc = atan2(ac.Y, ac.X);
     double rslt = angba - angbc;
-    std::cout << rslt;
+    //std::cout << rslt;
     double rs = (rslt * 180) / 3.141592;
     //std::cout << rs;
     double theta2 = rs;
@@ -198,7 +198,7 @@ std::vector<double> ScaraArmModule::XY_to_Arm(double x, double y, double length1
 
 
     if (i_points == 2) {
-      double theta1 = (atan2(i2.y(), i2.x()));
+      double theta1 = (atan2(i2.y(), i2.x())) * 180 / 3.141592;
       Point2d ab, ac;
       ab.X = i2.x() - 0;
       ab.Y = i2.y() - 0;
@@ -207,7 +207,7 @@ std::vector<double> ScaraArmModule::XY_to_Arm(double x, double y, double length1
       double angba = atan2(ab.Y, ab.X);
       double angbc = atan2(ac.Y, ac.X);
       double rslt = angba - angbc;
-      std::cout << rslt;
+      //std::cout << rslt;
       double rs = (rslt * 180) / 3.141592;
       //std::cout << rs;
       double theta2 = rs;
@@ -215,11 +215,9 @@ std::vector<double> ScaraArmModule::XY_to_Arm(double x, double y, double length1
       output.push_back(theta2);
     }
     
-    std::cout << "Theta1: " << theta1 * 180/ M_PI << "Theta2: " << theta2;
+    //std::cout << "Theta1: " << theta1 * 180/ M_PI << "Theta2: " << theta2;
     
     return output;
-
-
 
 }
 
@@ -240,6 +238,7 @@ void ScaraArmModule::movetoXY(double x, double y) {
   double currPos = clampAngle(inner_enc.GetPosition());
   for (int i = 0; i < angles.size(); i++) {
     angles.at(i) = clampAngle(angles.at(i));
+    std::cout << angles.at(i);
   }
   
   if (angles.size() == 2) {
@@ -262,21 +261,17 @@ void ScaraArmModule::movetoXY(double x, double y) {
 }
 
 double ScaraArmModule::clampAngle(double inp) {
-  double out;
-  if (fabs(inp) > 180) {
-    out = fmod(inp, 360);
-    if (fabs(out) > 180) {
-      if (out > 0) {
-        return 360 - out;
-      }
+double out;
+  out = fmod(inp, 360);
+  if (fabs(out) > 180) {
+    if (out > 0) {
+      return out - 360;
+    } else {
       return 360 + out;
-      //pos (360 + 270) -> 270
-      //neg, -(360 + 270) -> -270
-
-
     }
+
   } else {
-    return inp;
+    return out;
   }
 
 }
