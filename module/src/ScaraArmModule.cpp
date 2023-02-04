@@ -241,9 +241,21 @@ void ScaraArmModule::movetoXY(double x, double y) {
   double currPos = clampAngle(inner_enc.GetPosition());
   for (int i = 0; i < angles.size(); i++) {
     angles.at(i) = clampAngle(angles.at(i));
-    std::cout << angles.at(i);
+    //std::cout << angles.at(i);
   }
-  
+  frc::SmartDashboard::PutNumber("NumSol", angles.size());
+  frc::SmartDashboard::PutNumber("InnerCalc1", angles.at(0));
+  frc::SmartDashboard::PutNumber("OutterCalc1", angles.at(1));
+  if (angles.size() == 4) {
+    frc::SmartDashboard::PutNumber("InnerCalc2", angles.at(2));
+    frc::SmartDashboard::PutNumber("OutterCalc2", angles.at(3));
+  } else {
+    frc::SmartDashboard::PutNumber("InnerCalc2", -1);
+    frc::SmartDashboard::PutNumber("OutterCalc2", -1);
+  }
+
+
+  /*
   if (angles.size() == 2) {
     innerPID.SetReference(angles.at(0), rev::CANSparkMax::ControlType::kPosition);
     outterPID.SetReference(angles.at(1), rev::CANSparkMax::ControlType::kPosition);
@@ -260,6 +272,7 @@ void ScaraArmModule::movetoXY(double x, double y) {
     outter->Set(0);
 
   }
+  */
 
 }
 
