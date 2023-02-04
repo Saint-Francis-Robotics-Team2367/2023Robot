@@ -34,7 +34,7 @@ void Robot::RobotPeriodic()
   double in_angle = arm.inner_enc.GetPosition();
   double out_angle = arm.outter_enc.GetPosition();
   frc::SmartDashboard::PutNumber("Inner", arm.clampAngle(in_angle));
-  frc::SmartDashboard::PutNumber("Outter", out_angle);  
+  frc::SmartDashboard::PutNumber("Outter", arm.clampAngle(out_angle));  
   frc::SmartDashboard::PutNumber("XPOS", arm.Angles_to_XY(in_angle, out_angle).at(0));
   frc::SmartDashboard::PutNumber("YPOS", arm.Angles_to_XY(in_angle, out_angle).at(1));
   
@@ -62,8 +62,8 @@ void Robot::TeleopPeriodic()
   double y = frc::SmartDashboard::GetNumber("y", 0);
   if (ctr->GetAButtonPressed()) {
     frc::SmartDashboard::PutBoolean("AButton", true);
-    arm.outterPID.SetReference(90, rev::CANSparkMax::ControlType::kPosition);
-    //arm.movetoXY(x, y);
+    //arm.outterPID.SetReference(90, rev::CANSparkMax::ControlType::kPosition);
+    arm.movetoXY(x, y);
   } else {frc::SmartDashboard::PutBoolean("AButton", false);}
   if (ctr->GetBButtonPressed()) {
     arm.inner->Set(0);
