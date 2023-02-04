@@ -1,6 +1,7 @@
 #include "frc/AnalogInput.h"
 #include <cmath>
 #include <frc/SmartDashboard/SmartDashboard.h>
+#include <optional>
 
 class IRSensor{
     public:
