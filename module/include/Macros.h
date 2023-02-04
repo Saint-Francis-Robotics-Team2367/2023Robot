@@ -21,9 +21,7 @@
 #define IntakeModuleRunInterval 30
 #define ShooterModuleRunInterval 25
 
-//motorIDs
-#define Shooter1 1
-#define Shooter2 7
+//motorIDs 
 #define shooterIndexer 2
 #define intakeActionID 10
 #define intakeRollerID 14
@@ -32,7 +30,7 @@
 #define indexID2 13
 #define lMotorLeaderID 1
 #define lMotorFollowerID 2
-#define rMotorLeaderID 3
-#define rMotorFollowerID 4
+#define rMotorLeaderID 4
+#define rMotorFollowerID 3
 // #define testLeft 14
 // #define testRight 1

@@ -11,6 +11,7 @@
 #include <chrono>
 #include<mutex>
 #include <atomic>
+#include <frc/controller/SimpleMotorFeedforward.h>
 
 #define driverStickPort 0
 #define operatorStickPort 1
@@ -29,7 +30,7 @@
 #define motorInitRatedCurrent 60 // The inital rated current settings
 #define motorInitLimitCycles 2000 // The inital number of allowed ms at peak current
 #define lInvert false // Inversion setings for sides (invert this if opposite side)
-#define rInvert true 
+#define rInvert true; 
 
 #define xDeadband 0.025
 #define yDeadband 0.025
@@ -46,6 +47,19 @@ class DriveBaseModule{ //needed for gyroPIDDrive implementation
   AHRS *ahrs; //needs to be intialized in constructor
 
   ElevatorModule* elev = new ElevatorModule(10); //Elevator
+
+  // Trajectory stuffs
+  
+  double kS = 0.5;
+  double kV = 0.5;
+  double kA = 0.5;
+  frc::SimpleMotorFeedforward<double> feedforward(kS, kV, kA);
+  
+  //motor->Set(feedforward.Calculate(next velo, next accel))
+
+
+
+  //End of Trajectory stuffs
 
   double maxAcc =  20.0;
   double maxVelocity = 30.0;
