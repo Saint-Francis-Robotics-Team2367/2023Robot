@@ -2,7 +2,7 @@
 
 IRSensor::IRSensor(int port){
     this->port = port;
-    irsensor = &frc::AnalogInput(port);
+    irsensor = frc::AnalogInput(port);
 }
 
 double IRSensor::getCM(){
