@@ -4,10 +4,11 @@
 
 class IRSensor{
     public:
-    int port = 0;
-    double maxdist = 25;
-    frc::AnalogInput irsensor{port};
-    double getIR();
+    IRSensor(int);
+    double polemaxdist = 25;
+    frc::AnalogInput *irsensor = NULL;
+    int port;
+    double getCM();
     bool isPole(double);
     private:
 };
