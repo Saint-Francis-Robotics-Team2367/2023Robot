@@ -20,13 +20,6 @@
 class ScaraArmModule {
     public:
 
-    class Point2d{
-
-    };
-    class Circle {
-
-    };
-
     int innerID = 10;
     int outterID = 14;
 
