@@ -53,32 +53,14 @@ void Robot::AutonomousInit()
 void Robot::AutonomousPeriodic()
 {
 
-if(ctr->GetLeftY()) {
-  arm.inner_enc.SetPosition(0);
-  arm.outter_enc.SetPosition(0);
-}
-//std::vector<double> hi = arm.XY_to_Arm(24.625, 24.5, 24.625, 24.5);
-arm.movetoXY(arm.innerSize, arm.outterSize);
-//frc::SmartDashboard::PutNumber("hi 0", hi.at(0));
-
-frc::SmartDashboard::PutNumber("XPOS", arm.Angles_to_XY(0, 0).at(0));
-frc::SmartDashboard::PutNumber("YPOS", arm.Angles_to_XY(0, 0).at(1));
- set = frc::SmartDashboard::GetNumber("setpoint", set);
-  arm.outterPID.SetReference(set, rev::CANSparkMax::ControlType::kPosition);
-  frc::SmartDashboard::PutNumber("setpoint", set);
-
-  double in_angle = arm.inner_enc.GetPosition();
+//arm.movetoXY(arm.innerSize, arm.outterSize);
+//arm.movetoXY(35, 15);
+arm.movetoXY(-35, 15);
+//arm.movetoXY(35, 15);
+//arm.movetoXY(40, 15);
 
 
-  // double out_angle = arm.outter_enc.GetPosition();
-  // frc::SmartDashboard::PutNumber("Inner", in_angle);
-  // frc::SmartDashboard::PutNumber("Outter", out_angle);
-  // frc::SmartDashboard::PutNumber("XPOS", arm.Angles_to_XY(in_angle, out_angle).at(0));
-  // frc::SmartDashboard::PutNumber("YPOS", arm.Angles_to_XY(in_angle, out_angle).at(1));
 
-
-  // testLeftMotor->Set(0.2);
-  // testRightMotor->Set(0.2);
 }
 
 
@@ -87,7 +69,7 @@ void Robot::TeleopInit()
   
 
   //drive.state = 't'; //add codes in while loops to break if state change
-  frc::SmartDashboard::PutNumber("setpoint", 0);
+  //frc::SmartDashboard::PutNumber("setpoint", 0);
 }
 
 void Robot::TeleopPeriodic()

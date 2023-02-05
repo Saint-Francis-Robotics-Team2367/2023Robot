@@ -134,6 +134,10 @@ std::vector<double> ScaraArmModule::Angles_to_XY(double innerAngleDeg, double ou
 }
 
 void ScaraArmModule::movetoXY(double x, double y) {
+  // inner_enc.SetPosition(0); //ignore and have a global one so we bing chilling
+  // outter_enc.SetPosition(0); //will need to change this system to clamp and add to stuff
+  inner_enc.SetPositionConversionFactor(innerConv);
+  outter_enc.SetPositionConversionFactor(outterConv);
   std::vector<double> angles = XY_to_Arm(x, y, innerSize, outterSize);
   double currPos = clampAngle(inner_enc.GetPosition());
   for (int i = 0; i < angles.size(); i++) {
@@ -141,15 +145,32 @@ void ScaraArmModule::movetoXY(double x, double y) {
     //std::cout << angles.at(i);
   }
   frc::SmartDashboard::PutNumber("NumSol", angles.size());
+
   frc::SmartDashboard::PutNumber("InnerCalc1", angles.at(0));
   frc::SmartDashboard::PutNumber("OutterCalc1", angles.at(1));
+  if(angles.size() == 2) {
+    // innerPID.SetReference(angles.at(0), rev::CANSparkMax::ControlType::kPosition);
+    // outterPID.SetReference(angles.at(1), rev::CANSparkMax::ControlType::kPosition);
+  }
   if (angles.size() == 4) {
+    
     frc::SmartDashboard::PutNumber("InnerCalc2", angles.at(2));
     frc::SmartDashboard::PutNumber("OutterCalc2", angles.at(3));
+    frc::SmartDashboard::PutBoolean("OOOOOGGGAAABOOGGGGAAA", true);
+    //add the chooser here to choose which one to do
+    if ((currPos - angles[0]) > (currPos - angles[2])) {
+      //  innerPID.SetReference(angles.at(2), rev::CANSparkMax::ControlType::kPosition);
+      // outterPID.SetReference(angles.at(3), rev::CANSparkMax::ControlType::kPosition);
+    } else {
+    //   innerPID.SetReference(angles.at(0), rev::CANSparkMax::ControlType::kPosition);
+    // outterPID.SetReference(angles.at(1), rev::CANSparkMax::ControlType::kPosition);
+    }
+   
   } else {
     frc::SmartDashboard::PutNumber("InnerCalc2", -1);
     frc::SmartDashboard::PutNumber("OutterCalc2", -1);
   }
+
 
 
   /*
