@@ -5,6 +5,7 @@
 
 bool DriveBaseModule::initDriveMotor(rev::CANSparkMax* motor, rev::CANSparkMax* follower, bool invert) {
   motor->SetIdleMode(rev::CANSparkMax::IdleMode::kBrake);
+  follower->SetIdleMode(rev::CANSparkMax::IdleMode::kBrake);
   motor->SetInverted(invert);
   follower->Follow(*motor, false);
   return motor->GetLastError() == rev::REVLibError::kOk;
@@ -60,8 +61,8 @@ void DriveBaseModule::arcadeDrive(double xSpeedi, double zRotationi) {
     if (fabs(zRotationi) < yDeadband)
         zRotationi = 0;
 
-    double xSpeed = std::copysign(pow(fabs(xSpeedi), 1.8), xSpeedi);
-    double zRotation = std::copysign(pow(fabs(zRotationi), 2), zRotationi);
+    double xSpeed = std::copysign(pow(fabs(xSpeedi), 2.5), xSpeedi);//was 1.8^2 before, now made 2
+    double zRotation = std::copysign(pow(fabs(zRotationi), 2.5), zRotationi); //was 2 before
 
     LimitRate(xSpeed, zRotation);
 
@@ -492,7 +493,7 @@ void DriveBaseModule::initPath() {
   }
 }
 
-void DriveBaseModule::autonomousSequence() {
+void DriveBaseModule::autonomousSequence() { 
   initPath();
   int index = 0;
   int lineIndex = 0;
@@ -528,7 +529,8 @@ void DriveBaseModule::autonomousSequence() {
      //check with gyro get displacement
      PIDTurn(theta, 0, keepVelocity.at(index)); //experiment with true
      PIDDrive(d, keepVelocity.at(index));
-     lineIndex++;
+     lineIndex++; 
+     //PIDDrive(d, keepVelocity.at(index));
 
     } else { 
       // retrieving angle and radius of turn 
@@ -536,7 +538,8 @@ void DriveBaseModule::autonomousSequence() {
       radius = radiusTurnPoints.at(curveIndex).radius; 
 
       if (angle < 0){ // left turn 
-        center = robPos.x - radius;
+        center = robPos.x - radius; // center x pos
+        angle = -angle;
       }
       else { // right turn 
         center = robPos.x + radius; 
@@ -544,7 +547,7 @@ void DriveBaseModule::autonomousSequence() {
       }
 
       robPos.x = center + (radius * cos(angle/180 * PI)); 
-      robPos.y = radius * sin(angle/180 * PI);  
+      robPos.y = center + (radius * sin(angle/180 * PI));  
       frc::SmartDashboard::PutNumber("x after turn", robPos.x); 
       frc::SmartDashboard::PutNumber("y after turn", robPos.y);
 
@@ -652,8 +655,8 @@ void DriveBaseModule::runInit() {
 
   rEncoder.SetPosition(0);
   lEncoder.SetPosition(0);
-  rEncoder.SetPositionConversionFactor(1.96); //check if this works! [look at other code, converts rotations to feet, might not need]
-  lEncoder.SetPositionConversionFactor(1.96); //gear ratio?
+  rEncoder.SetPositionConversionFactor(2.35); //check if this works! [look at other code, converts rotations to feet, might not need]
+  lEncoder.SetPositionConversionFactor(2.35); //gear ratio?
 
   // setting auto options on Smart Dashboard 
   chooser.SetDefaultOption(autoDefault, autoDefault);

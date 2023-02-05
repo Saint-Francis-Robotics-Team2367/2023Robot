@@ -21,7 +21,7 @@
 #define PIDIZone 0
 
 #define driveTurningGain 0.25
-#define driveProportional 0.9
+#define driveProportional 0.73
 #define driveIntegral 0
 #define driveDerivitive 0.13
 
@@ -33,7 +33,7 @@
 
 #define xDeadband 0.025
 #define yDeadband 0.025
-#define centerToWheel 1.08333 //Center of the robot to outer side of the wheel?
+#define centerToWheel 1.208333 //Center of the robot to outer side of the wheel?
 #define PI 3.141592654
 #define wheelDiameter 4 //inches
 #define maxOffsetAngle 1
