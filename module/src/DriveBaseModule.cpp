@@ -106,15 +106,15 @@ void DriveBaseModule::PIDTuning() {
 
 
   //frc::SmartDashboard::PutNumber("Total Current", currentLeftLead+currentRightLead);
-  ShuffleUI::MakeWidget("Total Current", "PLACEHOLDER", currentLeftLead+currentRightLead);
+  ShuffleUI::MakeWidget("Total Current", "PID Tuning", currentLeftLead+currentRightLead);
   //frc::SmartDashboard::PutNumber("Total Voltage", voltageOverall);
-  ShuffleUI::MakeWidget("Total Voltage", "PLACEHOLDER", voltageOverall);
+  ShuffleUI::MakeWidget("Total Voltage", "PID Tuning", voltageOverall);
 
   //Making it so you can manually set m_p and positionTotal: m_p is essential with PID, change by an order of magnitude to start run
   //double m_P = frc::SmartDashboard::GetNumber("Pd", 1);
   //bool isNegative;
 
-  nt::GenericEntry *pSlider = ShuffleUI::MakeSlider("PID Tuning", "P Value", -1, 2, 0.0);
+  nt::GenericEntry *pSlider = ShuffleUI::MakeSlider("P Value", "PID Tuning", -1, 2, 0.0);
   double m_P = pSlider->GetDouble(0.0);
   lPID.SetP(m_P);
   rPID.SetP(m_P);
@@ -123,7 +123,7 @@ void DriveBaseModule::PIDTuning() {
   //double m_D = frc::SmartDashboard::GetNumber("D Value", 0);
   //bool isNegative;
 
-  nt::GenericEntry *dSlider = ShuffleUI::MakeSlider("PID Tuning", "D Value", -1, 2, 0.0);
+  nt::GenericEntry *dSlider = ShuffleUI::MakeSlider("D Value", "PID Tuning", -1, 2, 0.0);
   double m_D = dSlider->GetDouble(0.0);
   lPID.SetD(m_D);
   rPID.SetD(m_D);
@@ -132,7 +132,7 @@ void DriveBaseModule::PIDTuning() {
   //double m_I = frc::SmartDashboard::GetNumber("I Value", 0);
   //bool isNegative;
 
-  nt::GenericEntry *iSlider = ShuffleUI::MakeSlider("PID Tuning", "I Value", -1, 2, 0.0);
+  nt::GenericEntry *iSlider = ShuffleUI::MakeSlider("I Value", "PID Tuning", -1, 2, 0.0);
   double m_I = iSlider->GetDouble(0.0);
   lPID.SetI(m_I);
   rPID.SetI(m_I);
@@ -140,7 +140,7 @@ void DriveBaseModule::PIDTuning() {
 
   //double I_Zone = frc::SmartDashboard::GetNumber("I_Zone", 0);
 
-  nt::GenericEntry *iZoneSlider = ShuffleUI::MakeSlider("PID Tuning", "I Zone", -1, 2, 0.0);
+  nt::GenericEntry *iZoneSlider = ShuffleUI::MakeSlider("I Zone", "PID Tuning", -1, 2, 0.0);
   double I_Zone = iZoneSlider->GetDouble(0.0);
 
   //bool isNegative;
@@ -153,7 +153,7 @@ void DriveBaseModule::PIDTuning() {
   //double waitTime = frc::SmartDashboard::GetNumber("waitTime", 4);
   //frc::SmartDashboard::PutNumber("waitTime", waitTime);
 
-  nt::GenericEntry *waitTimeSlider = ShuffleUI::MakeSlider("PID Tuning", "Wait Time", -5, 5, 0.0);
+  nt::GenericEntry *waitTimeSlider = ShuffleUI::MakeSlider("Wait Time", "PID Tuning", -5, 5, 0.0);
   double waitTime = waitTimeSlider->GetDouble(0.0);
 
   double currTime = frc::Timer::GetFPGATimestamp().value();

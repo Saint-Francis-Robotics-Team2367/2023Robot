@@ -30,9 +30,9 @@
 #define indexID0 12
 #define indexID1 11
 #define indexID2 13
-#define lMotorLeaderID 15
-#define lMotorFollowerID 16
-#define rMotorLeaderID 9
+#define lMotorLeaderID 1
+#define lMotorFollowerID 2
+#define rMotorLeaderID 4
 #define rMotorFollowerID 3
 // #define testLeft 14
 // #define testRight 1

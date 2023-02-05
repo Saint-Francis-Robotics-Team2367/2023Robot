@@ -83,7 +83,7 @@ nt::GenericEntry *ShuffleUI::MakeSlider(std::string name, std::string tab, doubl
     UIWidget *widget = new UIWidget(entry, tab, name);
     ShuffleUI::AddEntry(widget);
     return entry;
-} //to-do: add to widgetlist
+} 
 
 void ShuffleUI::AddEntry(UIWidget *widget) {
     ShuffleUI::widgetList.push_back(widget);
@@ -117,6 +117,18 @@ nt::GenericEntry *ShuffleUI::MakeGraph(std::string name, std::string tab, double
     }
     nt::GenericEntry *entry = frc::Shuffleboard::GetTab(tab).Add(name, value)
         .WithWidget(frc::BuiltInWidgets::kGraph)
+        .GetEntry();
+    UIWidget *widget = new UIWidget(entry, tab, name);
+    ShuffleUI::AddEntry(widget);
+    return entry;
+}
+
+nt::GenericEntry *ShuffleUI::MakeButton(std::string name, std::string tab, bool defaultState) {
+    if (GetEntry(name, tab) != NULL) { 
+        return GetEntry(name, tab);
+    }
+    nt::GenericEntry *entry = frc::Shuffleboard::GetTab(tab).Add(name, defaultState)
+        .WithWidget(frc::BuiltInWidgets::kToggleButton)
         .GetEntry();
     UIWidget *widget = new UIWidget(entry, tab, name);
     ShuffleUI::AddEntry(widget);

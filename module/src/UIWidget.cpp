@@ -13,10 +13,6 @@ nt::GenericEntry *UIWidget::GetEntry() {
     return this->entry;
 }
 
-void UIWidget::SetValue(double newVal) {
-    this->GetEntry()->SetDouble(newVal);
-}
-
 std::string UIWidget::GetName() {
     return this->name;
 }

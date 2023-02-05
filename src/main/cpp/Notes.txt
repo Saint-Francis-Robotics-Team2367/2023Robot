@@ -10,6 +10,7 @@ DONE
 - See if it works in continous operation
 - Test boolean box
 - Test graph
+- Write documentation
 
 TO DO
-- Write an explainer (Shuffleboard docs are terrible)
+- Test PID tuning with shuffleboard
