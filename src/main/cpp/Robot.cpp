@@ -41,11 +41,7 @@ void Robot::AutonomousPeriodic()
 
 void Robot::TeleopInit()
 {
-<<<<<<< Updated upstream
   drive.state = 't';
-=======
-  
->>>>>>> Stashed changes
 }
 
 void Robot::TeleopPeriodic()
