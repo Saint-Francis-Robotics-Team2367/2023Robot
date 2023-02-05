@@ -52,122 +52,18 @@ void ScaraArmModule::ArmPeriodic() {
 
 
 
-class Point2d : public ScaraArmModule {
-    public:
-    Point2d() {}
-    Point2d(double x, double y)
-        : X(x), Y(y) {}
-     
-    double x() const { return X; }
-    double y() const { return Y; }
-     
-    /**
-     * Returns the norm of this vector.
-     * @return the norm
-    */
-    double norm() const {
-        return sqrt( X * X + Y * Y );
-    }
-     
-    void setCoords(double x, double y) {
-        X = x; Y = y;
-    }
-     
-    // Print point
-    friend std::ostream& operator << ( std::ostream& s, const Point2d& p )  {
-      s << p.x() << " " << p.y();
-      return s;
-    }
-    double X;
-    double Y;
-};
 
 
 
-class Circle : public ScaraArmModule {
-public:
-    /**
-     * @param R - radius
-     * @param C - center
-     */
-    Circle(double R, Point2d& C) 
-        : r(R), c(C) {}
-         
-    /**
-     * @param R - radius
-     * @param X - center's x coordinate
-     * @param Y - center's y coordinate
-     */
-    Circle(double R, double X, double Y) 
-        : r(R), c(X, Y) {}    
-     
-    Point2d getC() const { return c; }
-    double getR() const { return r; }
-     
-    size_t intersect(const Circle& C2, Point2d& i1, Point2d& i2) {
-        // distance between the centers
-        double d = Point2d(c.x() - C2.c.x(), 
-                c.y() - C2.c.y()).norm();
-         
-        // find number of solutions
-        if(d > r + C2.r) // circles are too far apart, no solution(s)
-        {
-            std::cout << "Circles are too far apart\n";
-            return 0;
-        }
-        else if(d == 0 && r == C2.r) // circles coincide
-        {
-            std::cout << "Circles coincide\n";
-            return 0;
-        }
-        // one circle contains the other
-        else if(d + min(r, C2.r) < max(r, C2.r))
-        {
-            std::cout << "One circle contains the other\n";
-            return 0;
-        }
-        else
-        {
-            double a = (r*r - C2.r*C2.r + d*d)/ (2.0*d);
-            double h = sqrt(r*r - a*a);
-             
-            // find p2
-            Point2d p2( c.x() + (a * (C2.c.x() - c.x())) / d,
-                    c.y() + (a * (C2.c.y() - c.y())) / d);
-             
-            // find intersection points p3
-            i1.setCoords( p2.x() + (h * (C2.c.y() - c.y())/ d),
-                    p2.y() - (h * (C2.c.x() - c.x())/ d)
-            );
-            i2.setCoords( p2.x() - (h * (C2.c.y() - c.y())/ d),
-                    p2.y() + (h * (C2.c.x() - c.x())/ d)
-            );
-             
-            if(d == r + C2.r)
-                return 1;
-            return 2;
-        }
-    }
-     
-    // Print circle
-    friend std::ostream& operator << ( std::ostream& s, const Circle& C )  {
-      s << "Center: " << C.getC() << ", r = " << C.getR();
-      return s;
-    }
-private:
-    // radius
-    double r;
-    // center
-    Point2d c;
-     
-};
+
+
 
 std::vector<double> ScaraArmModule::XY_to_Arm(double x, double y, double length1, double length2) {
 
 
     Circle c1(length2, x, y);
     Circle c2(length1, 0, 0);
-    Point2d i1, i2;
+    Circle::Point2d i1, i2;
      
     //std::cout << c1 << "\n" << c2 << "\n";
     // intersections point(s)
@@ -185,7 +81,7 @@ std::vector<double> ScaraArmModule::XY_to_Arm(double x, double y, double length1
     
     //Compute angles
     double theta1 = (atan2(i1.y(), i1.x())) * 180 / 3.141592;
-    Point2d ab, ac;
+    Circle::Point2d ab, ac;
     ab.X = i1.x() - 0;
     ab.Y = i1.y() - 0;
     ac.X = i1.x() - x;
@@ -203,7 +99,7 @@ std::vector<double> ScaraArmModule::XY_to_Arm(double x, double y, double length1
 
     if (i_points == 2) {
       double theta1 = (atan2(i2.y(), i2.x())) * 180 / 3.141592;
-      Point2d ab, ac;
+      Circle::Point2d ab, ac;
       ab.X = i2.x() - 0;
       ab.Y = i2.y() - 0;
       ac.X = i2.x() - x;
