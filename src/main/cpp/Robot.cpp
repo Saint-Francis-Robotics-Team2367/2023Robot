@@ -21,7 +21,7 @@ void Robot::RobotInit()
 {
   arm.ArmInit();
   frc::SmartDashboard::PutNumber("x", 0);
-  frc::SmartDashboard::PutNumber("x", 0);
+  frc::SmartDashboard::PutNumber("y", 0);
   //compRobotDrive.periodicInit();
 
   //need drive inits
@@ -55,7 +55,7 @@ void Robot::AutonomousPeriodic()
 
 //arm.movetoXY(arm.innerSize, arm.outterSize);
 //arm.movetoXY(35, 15);
-arm.movetoXY(-35, 15);
+arm.movetoXY(arm.innerSize, arm.outterSize);
 //arm.movetoXY(35, 15);
 //arm.movetoXY(40, 15);
 

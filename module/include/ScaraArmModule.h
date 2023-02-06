@@ -20,24 +20,40 @@
 class ScaraArmModule {
     public:
 
-    int innerID = 10;
-    int outterID = 14;
+    const double startX = 24.625;
+    const double startY = 0;
 
-    double innerConv = 6.15; //1/(4096/70/360);
-    double outterConv = 6.15; //1/(4096/70/360);
+    const int innerID = 10;
+    const int outterID = 14;
+
+    const double innerConv = 6.15234; //1/(4096/70/360);
+    const double outterConv = 6.15234; //1/(4096/70/360);
 
     const double innerSize = 24.625;
     const double outterSize = 24.500;
     
     void ArmInit();
 
-    std::vector<double> XY_to_Arm(double x, double y, double length1, double length2);
+    struct armPos {
+        double inner_angle;
+        double outter_angle;
+        double armX;
+        double armY;
+        bool PossibleReach = true;
+    };
+
+    std::vector<armPos> XY_to_Arm(double x, double y, double length1, double length2);
 
     std::vector<double> Angles_to_XY(double inner, double outter);
 
     double clampAngle(double inp);
 
     void movetoXY(double x, double y);
+
+
+    armPos currentPosition = {0.0, 0.0, startX, startY};
+    armPos calculatedPosition = {0.0, 0.0, startX, startY};
+    
 
     rev::CANSparkMax* inner = new rev::CANSparkMax(innerID, rev::CANSparkMax::MotorType::kBrushless);
     rev::SparkMaxRelativeEncoder inner_enc = inner->GetEncoder();

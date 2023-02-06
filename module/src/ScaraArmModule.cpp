@@ -7,9 +7,9 @@
 void ScaraArmModule::ArmInit() {
   inner_enc.SetPositionConversionFactor(innerConv);
   outter_enc.SetPositionConversionFactor(outterConv);
- // inner->SetInverted(true);
+  inner->SetInverted(true);
   //outterPID.SetOutputRange(-0.25, 0.25);
-  //outter->SetInverted(true);
+  outter->SetInverted(true);
   inner_enc.SetPosition(0);
   outter_enc.SetPosition(0);
   innerPID.SetP(0.1);
@@ -22,6 +22,8 @@ void ScaraArmModule::ArmInit() {
   outter->SetSmartCurrentLimit(10);
   inner->SetSmartCurrentLimit(10);
 }
+
+
 /*
 void ScaraArmModule::ArmPeriodic() {
   double sensor_position = lArmEncoder.GetPosition();
@@ -58,9 +60,7 @@ void ScaraArmModule::ArmPeriodic() {
 
 
 
-std::vector<double> ScaraArmModule::XY_to_Arm(double x, double y, double length1, double length2) {
-
-
+std::vector<ScaraArmModule::armPos> ScaraArmModule::XY_to_Arm(double x, double y, double length1, double length2) {
     Circle c1(length2, x, y);
     Circle c2(length1, 0, 0);
     Circle::Point2d i1, i2;
@@ -71,12 +71,18 @@ std::vector<double> ScaraArmModule::XY_to_Arm(double x, double y, double length1
      
     //std::cout << "Intersection point(s)\n";
     if(i_points == 0) {
+      /*
       std::vector<double> null {};
       frc::SmartDashboard::PutBoolean("0INTERSECTIONS", true);
       return null;
+      */
+     //armPos no_reach;
+     //no_reach.PossibleReach = false;
+     std::vector<armPos> out { };
+     return out;
     }
     
-    std::vector<double> output = { };
+    std::vector<armPos> output = { };
 
     
     //Compute angles
@@ -93,8 +99,12 @@ std::vector<double> ScaraArmModule::XY_to_Arm(double x, double y, double length1
     double rs = (rslt * 180) / 3.141592;
     //std::cout << rs;
     double theta2 = rs;
-    output.push_back(theta1);
-    output.push_back(theta2);
+    armPos first_intersection;
+    first_intersection.inner_angle = theta1;
+    first_intersection.outter_angle = 180 - theta2;
+    //output.push_back(theta1);
+    //output.push_back(theta2);
+    output.push_back(first_intersection);
 
 
     if (i_points == 2) {
@@ -111,8 +121,12 @@ std::vector<double> ScaraArmModule::XY_to_Arm(double x, double y, double length1
       double rs = (rslt * 180) / 3.141592;
       //std::cout << rs;
       double theta2 = rs;
-      output.push_back(theta1);
-      output.push_back(theta2);
+      armPos second_intersection;
+      second_intersection.inner_angle = theta1;
+      second_intersection.outter_angle = 180 - theta2;
+      //output.push_back(theta1);
+      //output.push_back(theta2);
+      output.push_back(second_intersection);
     }
     
     //std::cout << "Theta1: " << theta1 * 180/ M_PI << "Theta2: " << theta2;
@@ -136,42 +150,42 @@ std::vector<double> ScaraArmModule::Angles_to_XY(double innerAngleDeg, double ou
 void ScaraArmModule::movetoXY(double x, double y) {
   // inner_enc.SetPosition(0); //ignore and have a global one so we bing chilling
   // outter_enc.SetPosition(0); //will need to change this system to clamp and add to stuff
-  inner_enc.SetPositionConversionFactor(innerConv);
-  outter_enc.SetPositionConversionFactor(outterConv);
-  std::vector<double> angles = XY_to_Arm(x, y, innerSize, outterSize);
+  std::vector<armPos> angles = XY_to_Arm(x, y, innerSize, outterSize);
   double currPos = clampAngle(inner_enc.GetPosition());
   for (int i = 0; i < angles.size(); i++) {
-    angles.at(i) = clampAngle(angles.at(i));
-    //std::cout << angles.at(i);
+    angles.at(i).inner_angle = clampAngle(angles.at(i).inner_angle);
+    angles.at(i).outter_angle = clampAngle(angles.at(i).outter_angle);
   }
   frc::SmartDashboard::PutNumber("NumSol", angles.size());
 
-  frc::SmartDashboard::PutNumber("InnerCalc1", angles.at(0));
-  frc::SmartDashboard::PutNumber("OutterCalc1", angles.at(1));
+  if (angles.size() > 0) {
+    frc::SmartDashboard::PutNumber("InnerCalc1", angles.at(0).inner_angle);
+    frc::SmartDashboard::PutNumber("OutterCalc1", angles.at(0).outter_angle);
+  }
+
+  /*
   if(angles.size() == 2) {
     // innerPID.SetReference(angles.at(0), rev::CANSparkMax::ControlType::kPosition);
     // outterPID.SetReference(angles.at(1), rev::CANSparkMax::ControlType::kPosition);
   }
-  if (angles.size() == 4) {
+  */
+  if (angles.size() == 2) {
     
-    frc::SmartDashboard::PutNumber("InnerCalc2", angles.at(2));
-    frc::SmartDashboard::PutNumber("OutterCalc2", angles.at(3));
-    frc::SmartDashboard::PutBoolean("OOOOOGGGAAABOOGGGGAAA", true);
+    frc::SmartDashboard::PutNumber("InnerCalc2", angles.at(1).inner_angle);
+    frc::SmartDashboard::PutNumber("OutterCalc2", angles.at(1).outter_angle);
+    frc::SmartDashboard::PutBoolean("SecondSolution?", true);
     //add the chooser here to choose which one to do
-    if ((currPos - angles[0]) > (currPos - angles[2])) {
-      //  innerPID.SetReference(angles.at(2), rev::CANSparkMax::ControlType::kPosition);
-      // outterPID.SetReference(angles.at(3), rev::CANSparkMax::ControlType::kPosition);
-    } else {
-    //   innerPID.SetReference(angles.at(0), rev::CANSparkMax::ControlType::kPosition);
-    // outterPID.SetReference(angles.at(1), rev::CANSparkMax::ControlType::kPosition);
-    }
    
   } else {
     frc::SmartDashboard::PutNumber("InnerCalc2", -1);
     frc::SmartDashboard::PutNumber("OutterCalc2", -1);
+    frc::SmartDashboard::PutBoolean("SecondSolution?", false);
   }
 
-
+  innerPID.SetOutputRange(-0.1, 0.1);
+  outterPID.SetOutputRange(-0.1, 0.1);
+  innerPID.SetReference(angles.at(0).inner_angle, rev::CANSparkMax::ControlType::kPosition);
+  outterPID.SetReference(angles.at(0).outter_angle, rev::CANSparkMax::ControlType::kPosition);
 
   /*
   if (angles.size() == 2) {
