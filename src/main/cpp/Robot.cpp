@@ -20,8 +20,8 @@ frc::XboxController* ctr = new frc::XboxController(0); //cpr number pulses (4096
 void Robot::RobotInit()
 {
   arm.ArmInit();
-  frc::SmartDashboard::PutNumber("x", 0);
-  frc::SmartDashboard::PutNumber("y", 0);
+  frc::SmartDashboard::PutNumber("x", arm.innerSize);
+  frc::SmartDashboard::PutNumber("y", arm.outterSize);
   //compRobotDrive.periodicInit();
 
   //need drive inits
@@ -53,9 +53,18 @@ void Robot::AutonomousInit()
 void Robot::AutonomousPeriodic()
 {
 
-//arm.movetoXY(arm.innerSize, arm.outterSize);
+ double x = frc::SmartDashboard::GetNumber("x", arm.innerSize);
+ frc::SmartDashboard::PutNumber("x", x);
+
+ double y = frc::SmartDashboard::GetNumber("y",  arm.outterSize); //CATCH NULL SO VECtor DOeSN'T GO OUT OF RangE!!!!
+ frc::SmartDashboard::PutNumber("y", y);
+
+
+arm.movetoXY(x, y);
 //arm.movetoXY(35, 15);
-arm.movetoXY(arm.innerSize, arm.outterSize);
+
+
+//arm.movetoXY(arm.innerSize, arm.outterSize);
 //arm.movetoXY(35, 15);
 //arm.movetoXY(40, 15);
 

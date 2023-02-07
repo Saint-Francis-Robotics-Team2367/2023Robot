@@ -26,8 +26,8 @@ class ScaraArmModule {
     const int innerID = 10;
     const int outterID = 14;
 
-    const double innerConv = 6.15234; //1/(4096/70/360);
-    const double outterConv = 6.15234; //1/(4096/70/360);
+    const double innerConv = 6.15234; //1/(4096/70/360); 
+    const double outterConv = 4.394; //1/(4096/70/360); //50 now
 
     const double innerSize = 24.625;
     const double outterSize = 24.500;

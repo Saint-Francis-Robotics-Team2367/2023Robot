@@ -169,23 +169,30 @@ void ScaraArmModule::movetoXY(double x, double y) {
     // outterPID.SetReference(angles.at(1), rev::CANSparkMax::ControlType::kPosition);
   }
   */
+
+  innerPID.SetOutputRange(-0.1, 0.1);
+  outterPID.SetOutputRange(-0.1, 0.1);
+
   if (angles.size() == 2) {
     
     frc::SmartDashboard::PutNumber("InnerCalc2", angles.at(1).inner_angle);
     frc::SmartDashboard::PutNumber("OutterCalc2", angles.at(1).outter_angle);
     frc::SmartDashboard::PutBoolean("SecondSolution?", true);
     //add the chooser here to choose which one to do
+    innerPID.SetReference(angles.at(1).inner_angle, rev::CANSparkMax::ControlType::kPosition);
+    outterPID.SetReference(angles.at(1).outter_angle, rev::CANSparkMax::ControlType::kPosition);
    
   } else {
     frc::SmartDashboard::PutNumber("InnerCalc2", -1);
     frc::SmartDashboard::PutNumber("OutterCalc2", -1);
     frc::SmartDashboard::PutBoolean("SecondSolution?", false);
+
+    innerPID.SetReference(angles.at(0).inner_angle, rev::CANSparkMax::ControlType::kPosition);
+    outterPID.SetReference(angles.at(0).outter_angle, rev::CANSparkMax::ControlType::kPosition);
   }
 
-  innerPID.SetOutputRange(-0.1, 0.1);
-  outterPID.SetOutputRange(-0.1, 0.1);
-  innerPID.SetReference(angles.at(0).inner_angle, rev::CANSparkMax::ControlType::kPosition);
-  outterPID.SetReference(angles.at(0).outter_angle, rev::CANSparkMax::ControlType::kPosition);
+ 
+ 
 
   /*
   if (angles.size() == 2) {
