@@ -12,12 +12,6 @@
 //moved instantiation to h file
 
 
-double getAngle(double ir1, double ir2) {
-    double d = 8.0;
-    double result = atan(d/(abs(ir1-ir2)));
-    frc::SmartDashboard::PutNumber("Angle", 90-result*(180/3.14159265398979));
-    return (90-result*(180/3.14159265398979));
-}
 void Robot::RobotInit()
 {
   //compRobotDrive.periodicInit();
@@ -52,7 +46,7 @@ void Robot::TeleopPeriodic()
   double ir2 = proxSensor2->getCM2();
   frc::SmartDashboard::PutNumber("IR1", ir1);
   frc::SmartDashboard::PutNumber("IR2", ir2);
-  getAngle(ir1, ir2);
+  IRSensor::getAngle(ir1, ir2);
 }
 
 void Robot::DisabledInit() {

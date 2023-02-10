@@ -11,6 +11,7 @@ class IRSensor{
     int port;
     double getCM1();
     double getCM2();
+    static double getAngle(double, double);
     bool isPole(double);
     private:
 };
