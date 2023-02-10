@@ -62,7 +62,7 @@ class DriveBaseModule{ //needed for gyroPIDDrive implementation
   double tuningPrevTime = 0;
   
   frc::Joystick* driverStick = new frc::Joystick(driverStickPort);
-  //frc::Joystick* operatorStick = new frc::Joystick(operatorStickPort);
+  frc::Joystick* operatorStick = new frc::Joystick(operatorStickPort);
   rev::CANSparkMax* lMotor = new rev::CANSparkMax(lMotorLeaderID, rev::CANSparkMax::MotorType::kBrushless);
   rev::CANSparkMax* lMotorFollower = new rev::CANSparkMax(lMotorFollowerID, rev::CANSparkMax::MotorType::kBrushless);
   rev::CANSparkMax* rMotor = new rev::CANSparkMax(rMotorLeaderID, rev::CANSparkMax::MotorType::kBrushless);
@@ -72,6 +72,8 @@ class DriveBaseModule{ //needed for gyroPIDDrive implementation
   rev::SparkMaxRelativeEncoder rEncoder = rMotor->GetEncoder();
   rev::SparkMaxPIDController lPID = lMotor->GetPIDController();
   rev::SparkMaxPIDController rPID = rMotor->GetPIDController();
+  
+
 
   bool initDriveMotor(rev::CANSparkMax* motor, rev::CANSparkMax* follower, bool invert); //loads initial values into motors such as current limit and phase direction
   bool setPowerBudget(rev::CANSparkMax* motor, float iPeak, float iRated, int limitCycles); //changes the current limits on the motors 
@@ -128,7 +130,7 @@ class DriveBaseModule{ //needed for gyroPIDDrive implementation
 
   char state = 't';
 
- frc2::PIDController* rightStickPID = new frc2::PIDController(driveProportional, driveIntegral, driveDerivitive);
+  frc2::PIDController* rightStickPID = new frc2::PIDController(driveProportional, driveIntegral, driveDerivitive);
 
   private:
 	    double m_out;
