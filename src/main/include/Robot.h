@@ -4,8 +4,8 @@
 
 #pragma once
 
-#include <frc/TimedRobot.h>
-
+#include "frc/TimedRobot.h"
+#include "IRSensor.h"
 
 class Robot : public frc::TimedRobot {
 
@@ -26,8 +26,6 @@ class Robot : public frc::TimedRobot {
 
   void TestInit() override;
   void TestPeriodic() override;
-
-  
+  IRSensor * proxSensor1 = new IRSensor(1);
+  IRSensor * proxSensor2 = new IRSensor(2);
 };
-
-

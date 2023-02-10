@@ -567,8 +567,8 @@ void DriveBaseModule::run() {
     rev::ColorSensorV3::RawColor detectedColor = colorSensor->getColor();
     double colorIR = colorSensor->getIR();
     bool alignedIR = colorSensor->alignedIR(colorIR);
-    bool IR = irSensor->getCM();
-    bool isPole = irSensor->isPole(IR);
+    //bool IR = irSensor->getCM();
+    //bool isPole = irSensor->isPole(IR);
     bool isCone = colorSensor->matchesConeColor(detectedColor);
     bool isCube = colorSensor->matchesCubeColor(detectedColor);
 

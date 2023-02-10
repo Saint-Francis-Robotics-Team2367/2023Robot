@@ -9,7 +9,8 @@ class IRSensor{
     double polemaxdist = 25;
     std::optional<frc::AnalogInput> irsensor;
     int port;
-    double getCM();
+    double getCM1();
+    double getCM2();
     bool isPole(double);
     private:
 };
