@@ -27,7 +27,7 @@ class Robot : public frc::TimedRobot {
   void TestInit() override;
   void TestPeriodic() override;
   //rev::SparkMaxLimitSwitch * limitSwitch = new rev::SparkMaxLimitSwitch();
-  frc::DigitalInput * LimitSwitch = new frc::DigitalInput(0);
+  frc::DigitalInput * LimitSwitch = new frc::DigitalInput(9);
 };
 
 
