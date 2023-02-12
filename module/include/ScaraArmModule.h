@@ -20,8 +20,7 @@
 class ScaraArmModule {
     public:
 
-    const double startX = 24.625;
-    const double startY = 0;
+
 
     const int innerID = 10;
     const int outterID = 14;
@@ -31,6 +30,9 @@ class ScaraArmModule {
 
     const double innerSize = 24.625;
     const double outterSize = 24.500;
+
+    const double startX = 49.125;
+    const double startY = 0;
     
     void ArmInit();
 

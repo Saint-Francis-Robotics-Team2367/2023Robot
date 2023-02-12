@@ -4,6 +4,7 @@
 
 #include "Robot.h"
 #include <frc2/command/PIDCommand.h>
+#include <iostream>
 
 // // All Module Includes
 //#include "DriveBaseModule.h"
@@ -20,6 +21,8 @@ frc::XboxController* ctr = new frc::XboxController(0); //cpr number pulses (4096
 void Robot::RobotInit()
 {
   arm.ArmInit();
+  arm.innerPID.SetOutputRange(-0.2, 0.2);
+  arm.outterPID.SetOutputRange(-0.2, 0.2);
   frc::SmartDashboard::PutNumber("x", arm.innerSize);
   frc::SmartDashboard::PutNumber("y", arm.outterSize);
   //compRobotDrive.periodicInit();
@@ -59,9 +62,10 @@ void Robot::AutonomousPeriodic()
  double y = frc::SmartDashboard::GetNumber("y",  arm.outterSize); //CATCH NULL SO VECtor DOeSN'T GO OUT OF RangE!!!!
  frc::SmartDashboard::PutNumber("y", y);
 
-
-arm.movetoXY(x, y);
-//arm.movetoXY(35, 15);
+  //std::cout << 
+  std::cout << "preMove";
+  arm.movetoXY(x, y);
+  //arm.movetoXY(35, 15);
 
 
 //arm.movetoXY(arm.innerSize, arm.outterSize);
