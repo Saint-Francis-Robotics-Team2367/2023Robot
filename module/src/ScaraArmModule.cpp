@@ -129,6 +129,34 @@ void ScaraArmModule::movetoXY(double x, double y) {
   outterPID.SetReference(angles.at(0).outter_angle, rev::CANSparkMax::ControlType::kPosition);
 }
 
+void ScaraArmModule::moveOnPath(double radius) {
+  double start_inner = inner_enc.GetPosition();
+  double start_outter = inner_enc.GetPosition();
+  double current_inner = start_inner;
+  double current_outter = start_outter;
+
+  
+
+
+
+  //Determine side of approach
+
+
+
+
+
+  while (current_inner) {
+
+  }
+  /*
+  Pseudocode
+  1. Move to start of arc
+  2. Generate points
+  3. Nitish work on rest
+  */
+
+}
+
 double ScaraArmModule::clampAngle(double inp) {
 double out;
   out = fmod(inp, 360);

@@ -52,6 +52,8 @@ class ScaraArmModule {
 
     void movetoXY(double x, double y);
 
+    void moveOnPath(double radius);
+
 
     armPos currentPosition = {0.0, 0.0, startX, startY};
     armPos calculatedPosition = {0.0, 0.0, startX, startY};
