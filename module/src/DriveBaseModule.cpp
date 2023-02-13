@@ -564,13 +564,27 @@ void DriveBaseModule::run() {
     auto nextRun = std::chrono::steady_clock::now() + std::chrono::milliseconds(5); //change milliseconds at telop
     frc::SmartDashboard::PutNumber("timesRun", ++counter);
 
+    // TESTS
     rev::ColorSensorV3::RawColor detectedColor = colorSensor->getColor();
     double colorIR = colorSensor->getIR();
     bool alignedIR = colorSensor->alignedIR(colorIR);
-    //bool IR = irSensor->getCM();
-    //bool isPole = irSensor->isPole(IR);
+
+    bool IR = irSensor->getCM();
+    frc::SmartDashboard::PutNumber("IR0", IR);
+    bool isPole = irSensor->isPole(IR);
+    frc::SmartDashboard::PutBoolean("Pole", isPole);
+
     bool isCone = colorSensor->matchesConeColor(detectedColor);
     bool isCube = colorSensor->matchesCubeColor(detectedColor);
+
+    double ir1 = proxSensor1->getCM();
+    double ir2 = proxSensor2->getCM();
+    frc::SmartDashboard::PutNumber("IR1", ir1);
+    frc::SmartDashboard::PutNumber("IR2", ir2);
+
+    double angle = IRSensor::getAngle(ir1, ir2);
+
+    // TESTS
 
 
     //need mutex to stop

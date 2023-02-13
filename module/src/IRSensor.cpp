@@ -6,19 +6,19 @@ IRSensor::IRSensor(int port){
     irsensor = frc::AnalogInput(port);
 }
 
-double IRSensor::getCM1(){
+double IRSensor::getCM(){
     double ir = (pow(irsensor->GetAverageVoltage(), -1.2045)) * 27.726;
-    frc::SmartDashboard::PutNumber("IR1", ir);
-    return ir;
-}
-double IRSensor::getCM2(){
-    double ir = (pow(irsensor->GetAverageVoltage(), -1.2045)) * 27.726;
-    frc::SmartDashboard::PutNumber("IR2", ir);
     return ir;
 }
 
 bool IRSensor::isPole(double ir){
     bool pole = ir <= polemaxdist;
-    frc::SmartDashboard::PutBoolean("Pole", pole);
     return pole;
+}
+
+double IRSensor::getAngle(double ir1, double ir2) {
+    double d = 8.0;
+    double result = atan(d/(abs(ir1-ir2)));
+    frc::SmartDashboard::PutNumber("Angle", 90-result*(180/3.14159265398979));
+    return (90-result*(180/3.14159265398979));
 }

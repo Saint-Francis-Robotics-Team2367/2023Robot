@@ -52,6 +52,8 @@ class DriveBaseModule{ //needed for gyroPIDDrive implementation
   ElevatorModule* elev = new ElevatorModule(10); //Elevator
   ColorSensor* colorSensor = new ColorSensor();
   IRSensor* irSensor = new IRSensor(0);
+  IRSensor* proxSensor1 = new IRSensor(1);
+  IRSensor* proxSensor2 = new IRSensor(2);
 
   double maxAcc =  20.0;
   double maxVelocity = 30.0;
