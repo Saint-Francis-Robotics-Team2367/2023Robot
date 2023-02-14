@@ -565,17 +565,17 @@ void DriveBaseModule::run() {
     frc::SmartDashboard::PutNumber("timesRun", ++counter);
 
     // TESTS
-    rev::ColorSensorV3::RawColor detectedColor = colorSensor->getColor();
-    double colorIR = colorSensor->getIR();
-    bool alignedIR = colorSensor->alignedIR(colorIR);
+    // rev::ColorSensorV3::RawColor detectedColor = colorSensor->getColor();
+    // double colorIR = colorSensor->getIR();
+    // bool alignedIR = colorSensor->alignedIR(colorIR);
 
     bool IR = irSensor->getCM();
     frc::SmartDashboard::PutNumber("IR0", IR);
     bool isPole = irSensor->isPole(IR);
     frc::SmartDashboard::PutBoolean("Pole", isPole);
 
-    bool isCone = colorSensor->matchesConeColor(detectedColor);
-    bool isCube = colorSensor->matchesCubeColor(detectedColor);
+    // bool isCone = colorSensor->matchesConeColor(detectedColor);
+    // bool isCube = colorSensor->matchesCubeColor(detectedColor);
 
     double ir1 = proxSensor1->getCM();
     double ir2 = proxSensor2->getCM();
@@ -584,6 +584,7 @@ void DriveBaseModule::run() {
 
     double angle = IRSensor::getAngle(ir1, ir2);
 
+    frc::SmartDashboard::PutBoolean("LS", limitSwitch->limit());
     // TESTS
 
 

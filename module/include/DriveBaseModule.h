@@ -1,18 +1,23 @@
 #include "Macros.h"
+#include "AHRS.h"
+
 #include <vector>
 #include <math.h> 
-#include <rev/CANSparkMax.h>
-#include <frc/Joystick.h>
-#include "ElevatorModule.h"
-#include <frc/SmartDashboard/SmartDashboard.h>
-#include "AHRS.h"
-#include <frc/controller/PIDController.h>
 #include <thread>
 #include <chrono>
-#include<mutex>
+#include <mutex>
 #include <atomic>
+
+#include <rev/CANSparkMax.h>
+#include <frc/Joystick.h>
+#include <frc/SmartDashboard/SmartDashboard.h>
+#include <frc/controller/PIDController.h>
+
+#include "ElevatorModule.h"
 #include "ColorSensor.h"
 #include "IRSensor.h"
+#include "LimitSwitch.h"
+
 
 #define driverStickPort 0
 #define operatorStickPort 1
@@ -50,10 +55,11 @@ class DriveBaseModule{ //needed for gyroPIDDrive implementation
   AHRS *ahrs; //needs to be intialized in constructor
 
   ElevatorModule* elev = new ElevatorModule(10); //Elevator
-  ColorSensor* colorSensor = new ColorSensor();
+  //ColorSensor* colorSensor = new ColorSensor();
   IRSensor* irSensor = new IRSensor(0);
   IRSensor* proxSensor1 = new IRSensor(1);
   IRSensor* proxSensor2 = new IRSensor(2);
+  LimitSwitch* limitSwitch = new LimitSwitch(9);
 
   double maxAcc =  20.0;
   double maxVelocity = 30.0;
@@ -75,8 +81,6 @@ class DriveBaseModule{ //needed for gyroPIDDrive implementation
   rev::SparkMaxPIDController lPID = lMotor->GetPIDController();
   rev::SparkMaxPIDController rPID = rMotor->GetPIDController();
   
-
-
   bool initDriveMotor(rev::CANSparkMax* motor, rev::CANSparkMax* follower, bool invert); //loads initial values into motors such as current limit and phase direction
   bool setPowerBudget(rev::CANSparkMax* motor, float iPeak, float iRated, int limitCycles); //changes the current limits on the motors 
   bool setDriveCurrLimit(float iPeak, float iRated, int limitCycles);

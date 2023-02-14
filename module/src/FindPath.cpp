@@ -28,9 +28,9 @@ double FindPath::diamToPower(double radius){
 
 FindPath::Instruction FindPath::circlePath(int pointFromOrigin[2], double angleStart, double angleEnd){
     
-    int pointFromOrigin[2] = {4,-5};
-    double angleStart = 0.6;
-    double angleEnd = 0.5;
+    // int pointFromOrigin[2] = {4,-5};
+    // double angleStart = 0.6;
+    // double angleEnd = 0.5;
     
     double dist = sqrt(pow(pointFromOrigin[0],2) + pow(pointFromOrigin[1],2));
     double angle = atan2(pointFromOrigin[1],pointFromOrigin[0]) / M_PI;
