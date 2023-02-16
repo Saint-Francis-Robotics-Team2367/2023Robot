@@ -6,6 +6,7 @@
 
 #include <rev/CANSparkMax.h>
 #include <frc/SmartDashboard/SmartDashboard.h>
+#include <frc/DigitalInput.h>
 
 #ifndef max
   #define max(a,b) (((a) > (b)) ? (a) : (b))
@@ -66,6 +67,9 @@ class ScaraArmModule {
     rev::CANSparkMax* outter = new rev::CANSparkMax(outterID, rev::CANSparkMax::MotorType::kBrushless);
     rev::SparkMaxRelativeEncoder outter_enc = outter->GetEncoder();
     rev::SparkMaxPIDController outterPID = outter->GetPIDController();
+
+    frc::DigitalInput * innerLeftSwitch = new frc::DigitalInput(9);
+
 
 
 
