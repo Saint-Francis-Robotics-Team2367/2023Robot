@@ -71,3 +71,4 @@ void ElevatorModule::AutoPeriodic() {
         frc::SmartDashboard::PutNumber("position", getPos());
         frc::SmartDashboard::PutNumber("height", height);
 }
+
