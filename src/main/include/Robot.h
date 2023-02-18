@@ -5,11 +5,11 @@
 #pragma once
 
 #include <frc/TimedRobot.h>
+#include <Vision.h>
+#include <Macros.h>
 
 
 class Robot : public frc::TimedRobot {
-
-
 
  public:
   void RobotInit() override;
@@ -26,6 +26,12 @@ class Robot : public frc::TimedRobot {
 
   void TestInit() override;
   void TestPeriodic() override;
+
+  int visionTarget_x;
+  int visionTarget_y;
+  int visionTarget_msgLen;
+  
+  Vision * vision = new Vision(Vision_BCAST_PORT);
 
   
 };

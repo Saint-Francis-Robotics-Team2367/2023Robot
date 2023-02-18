@@ -24,6 +24,10 @@ void Robot::RobotInit()
 
 void Robot::RobotPeriodic()
 {
+  visionTarget_msgLen = vision->ReceiveCoords(visionTarget_x, visionTarget_y);
+  frc::SmartDashboard::PutNumber("visionX", visionTarget_x);
+  frc::SmartDashboard::PutNumber("visionY", visionTarget_y);
+
 }
 void Robot::AutonomousInit()
 {

@@ -36,3 +36,6 @@
 #define rMotorFollowerID 3
 // #define testLeft 14
 // #define testRight 1
+
+// defining ports
+#define Vision_BCAST_PORT 5800
