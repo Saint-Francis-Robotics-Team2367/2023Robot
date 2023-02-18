@@ -38,4 +38,5 @@
 // #define testRight 1
 
 // defining ports
-#define Vision_BCAST_PORT 5800
+#define Vision_BCAST_RECVPORT 5800
+#define Vision_BCAST_SENDPORT 5801

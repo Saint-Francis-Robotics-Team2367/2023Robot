@@ -33,5 +33,7 @@ class Vision {
     void SetupServer();
     void broadcast(int socket, const char *mess);
 
+    int sockfd;
+
 
 };
