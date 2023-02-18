@@ -15,7 +15,7 @@ class ElevatorModule {
 
     //Mech/Electronics Setup
    // int m_ID = 10;
-    int m_ID = 15;
+    int m_ID = 11;
     
     rev::CANSparkMax* elevatorMotor = new rev::CANSparkMax(m_ID, rev::CANSparkMax::MotorType::kBrushless);
     rev::SparkMaxRelativeEncoder enc = elevatorMotor->GetEncoder();
@@ -25,7 +25,7 @@ class ElevatorModule {
 
     //constants
     double kElevatorMinHeight = 0.0;
-    double kElevatorMaxHeight = 11;
+    double kElevatorMaxHeight = 47; //inches
 
 
     //no feedforward in this case...
