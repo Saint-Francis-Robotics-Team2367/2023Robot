@@ -8,9 +8,11 @@
 #include <unistd.h>
 #include <sys/time.h>
 #include <cassert>
+#include <DriveBaseModule.h>
 
 #define MAXBUFSIZE 1024
 #define BCAST_PORT 5800
+#define MAXLINE 1024
 
 class Vision {
     // public constants and variables
@@ -26,4 +28,10 @@ class Vision {
     int ReceivePacket();
     int ReceiveInt();
     int ReceiveCoords(int &x, int &y);
+    int SwitchCameraStream();
+    void SetupClient(int port);
+    void SetupServer();
+    void broadcast(int socket, const char *mess);
+
+
 };

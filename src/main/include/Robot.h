@@ -31,7 +31,7 @@ class Robot : public frc::TimedRobot {
   int visionTarget_y;
   int visionTarget_msgLen;
   
-  Vision * vision = new Vision(Vision_BCAST_PORT);
+  Vision * vision = new Vision(Vision_BCAST_RECVPORT);
 
   
 };

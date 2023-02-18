@@ -55,7 +55,7 @@ class DriveBaseModule{ //needed for gyroPIDDrive implementation
   double delta =10;
   double tuningPrevTime = 0;
   
-  frc::Joystick* driverStick = new frc::Joystick(driverStickPort);
+  
   //frc::Joystick* operatorStick = new frc::Joystick(operatorStickPort);
   rev::CANSparkMax* lMotor = new rev::CANSparkMax(lMotorLeaderID, rev::CANSparkMax::MotorType::kBrushless);
   rev::CANSparkMax* lMotorFollower = new rev::CANSparkMax(lMotorFollowerID, rev::CANSparkMax::MotorType::kBrushless);
@@ -72,6 +72,7 @@ class DriveBaseModule{ //needed for gyroPIDDrive implementation
   bool setDriveCurrLimit(float iPeak, float iRated, int limitCycles);
 
   public: 
+  frc::Joystick* driverStick = new frc::Joystick(driverStickPort);
   std::thread driveThread;
   double stopAuto = false;
   DriveBaseModule() {
