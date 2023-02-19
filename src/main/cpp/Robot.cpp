@@ -9,22 +9,34 @@
 // // All Module Includes
 //#include "DriveBaseModule.h"
 
+<<<<<<< HEAD
 //DriveBaseModule drive;
 
 #include "ScaraArmModule.h"
 #include<frc/XboxController.h>
 ScaraArmModule arm = ScaraArmModule();
+=======
+#include "ElevatorModule.h"
+#include <frc/XboxController.h>
+frc::XboxController* ctr = new frc::XboxController(0);
+ElevatorModule elev = ElevatorModule(11);
+//DriveBaseModule drive;
+>>>>>>> feature/ElevatorTests
 //moved instantiation to h file
 
 frc::XboxController* ctr = new frc::XboxController(0); //cpr number pulses (4096) per rev, 70 to 1 / 360
 
 void Robot::RobotInit()
 {
+<<<<<<< HEAD
   arm.ArmInit();
   arm.innerPID.SetOutputRange(-0.2, 0.2);
   arm.outterPID.SetOutputRange(-0.2, 0.2);
   frc::SmartDashboard::PutNumber("x", arm.innerSize);
   frc::SmartDashboard::PutNumber("y", arm.outterSize);
+=======
+  elev.Init();
+>>>>>>> feature/ElevatorTests
   //compRobotDrive.periodicInit();
 
   //need drive inits
@@ -44,6 +56,7 @@ void Robot::RobotPeriodic()
   // frc::SmartDashboard::PutNumber("Outter", out_angle);
   // frc::SmartDashboard::PutNumber("XPOS", arm.Angles_to_XY(in_angle, out_angle).at(0));
   // frc::SmartDashboard::PutNumber("YPOS", arm.Angles_to_XY(in_angle, out_angle).at(1));
+  frc::SmartDashboard::PutNumber("encoderPeriodic", elev.enc.GetPosition());
   
 }
 void Robot::AutonomousInit()
@@ -71,8 +84,7 @@ void Robot::AutonomousPeriodic()
 //arm.movetoXY(arm.innerSize, arm.outterSize);
 //arm.movetoXY(35, 15);
 //arm.movetoXY(40, 15);
-
-
+elev.AutoPeriodic();
 
 }
 
