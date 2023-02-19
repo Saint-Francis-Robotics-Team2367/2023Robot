@@ -54,3 +54,4 @@ FindPath::Instruction FindPath::circlePath(int pointFromOrigin[2], double angleS
 
     return FindPath::Instruction(turns[0],turns[1],diamToPower(dist/2));
 }
+
