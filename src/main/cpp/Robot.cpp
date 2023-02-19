@@ -9,34 +9,28 @@
 // // All Module Includes
 //#include "DriveBaseModule.h"
 
-<<<<<<< HEAD
 //DriveBaseModule drive;
 
 #include "ScaraArmModule.h"
 #include<frc/XboxController.h>
 ScaraArmModule arm = ScaraArmModule();
-=======
 #include "ElevatorModule.h"
 #include <frc/XboxController.h>
 frc::XboxController* ctr = new frc::XboxController(0);
 ElevatorModule elev = ElevatorModule(11);
 //DriveBaseModule drive;
->>>>>>> feature/ElevatorTests
 //moved instantiation to h file
 
 frc::XboxController* ctr = new frc::XboxController(0); //cpr number pulses (4096) per rev, 70 to 1 / 360
 
 void Robot::RobotInit()
 {
-<<<<<<< HEAD
   arm.ArmInit();
   arm.innerPID.SetOutputRange(-0.2, 0.2);
   arm.outterPID.SetOutputRange(-0.2, 0.2);
   frc::SmartDashboard::PutNumber("x", arm.innerSize);
   frc::SmartDashboard::PutNumber("y", arm.outterSize);
-=======
   elev.Init();
->>>>>>> feature/ElevatorTests
   //compRobotDrive.periodicInit();
 
   //need drive inits
