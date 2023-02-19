@@ -44,10 +44,16 @@ void ElevatorModule::setPos(double setpoint) {
 }
 
 void ElevatorModule::Init() {
-   //elevatorMotor->SetIdleMode(rev::CANSparkMax::IdleMode::kBrake);
+    elevatorMotor->SetIdleMode(rev::CANSparkMax::IdleMode::kBrake);
     elevatorPID.SetP(pUp);
     elevatorPID.SetD(dUp);
-    //enc.SetPosition(0);
+    enc.SetPosition(0);
+    //elevatorPID.SetOutputRange(-0.1, 0.1);
+    elevatorMotor->SetInverted(false);
+    //enc.SetPositionConversionFactor(conversion_factor);
+    frc::SmartDashboard::PutBoolean("Inverted", elevatorMotor->GetInverted());
+
+    
     //resetPos();
     height = enc.GetPosition(); //don't close dashboard
 }

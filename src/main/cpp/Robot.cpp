@@ -29,6 +29,7 @@ void Robot::RobotInit()
 
 void Robot::RobotPeriodic()
 {
+  frc::SmartDashboard::PutNumber("encoderPeriodic", elev.enc.GetPosition());
   
 }
 void Robot::AutonomousInit()

@@ -11,7 +11,7 @@ class ElevatorModule {
     //Conversion Factors:
     double pitch_diameter = 1.273;
     double pitch_circum = pitch_diameter * PI;
-    double conversion_factor = pitch_circum / (30); //Ratio 30:1
+    double conversion_factor = pitch_circum / (5); //Ratio 30:1
 
     //Mech/Electronics Setup
    // int m_ID = 10;
