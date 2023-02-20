@@ -16,7 +16,7 @@ class ElevatorModule {
 
     //Mech/Electronics Setup
    // int m_ID = 10;
-    const int m_ID = ElevatorID;
+    int m_ID = ElevatorID;
     
     rev::CANSparkMax* elevatorMotor = new rev::CANSparkMax(m_ID, rev::CANSparkMax::MotorType::kBrushless);
     rev::SparkMaxRelativeEncoder enc = elevatorMotor->GetEncoder();
