@@ -172,3 +172,23 @@ double out;
   }
 
 }
+
+void ScaraArmModule::TeleopControl(double dPadInput) {// Angle from 0 - 315
+  if (dPadInput == -1) {
+    return;
+  }
+  
+  std::vector<double> curr_xy = Angles_to_XY(inner_enc.GetPosition(), outter_enc.GetPosition()); // 0 is x, 1 is y
+
+  if (dPadInput == 0) {
+    curr_xy.at(1) += 1;
+  } else if (dPadInput == 90) {
+    curr_xy.at(0) += 1;
+  } else if (dPadInput == 180) {
+    curr_xy.at(1) -= 1;
+  } else if (dPadInput == 360) {
+    curr_xy.at(0) -= 1;
+  }
+  movetoXY(curr_xy.at(0), curr_xy.at(1));
+
+}

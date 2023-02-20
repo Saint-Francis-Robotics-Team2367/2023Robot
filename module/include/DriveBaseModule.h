@@ -3,8 +3,6 @@
 #include <math.h> 
 #include <rev/CANSparkMax.h>
 #include <frc/Joystick.h>
-#include "ElevatorModule.h"
-#include "ScaraArmModule.h"
 #include <frc/SmartDashboard/SmartDashboard.h>
 #include "AHRS.h"
 #include <frc/controller/PIDController.h>
@@ -12,7 +10,10 @@
 #include <chrono>
 #include<mutex>
 #include <atomic>
+#include <frc/XboxController.h>
 
+#include "ElevatorModule.h"
+#include "ScaraArmModule.h"
 
 #define driverStickPort 0
 #define operatorStickPort 1
@@ -47,7 +48,7 @@ class DriveBaseModule{ //needed for gyroPIDDrive implementation
 
   AHRS *ahrs; //needs to be intialized in constructor
 
-  ElevatorModule* elev = new ElevatorModule(10); //Elevator
+  ElevatorModule* elev = new ElevatorModule(ElevatorID); //Elevator
 
   ScaraArmModule* arm = new ScaraArmModule();
 
@@ -61,6 +62,7 @@ class DriveBaseModule{ //needed for gyroPIDDrive implementation
 
   
   frc::Joystick* driverStick = new frc::Joystick(driverStickPort);
+  frc::XboxController* driverCtr = new frc::XboxController(driverStickPort);
   //frc::Joystick* operatorStick = new frc::Joystick(operatorStickPort);
   rev::CANSparkMax* lMotor = new rev::CANSparkMax(lMotorLeaderID, rev::CANSparkMax::MotorType::kBrushless);
   rev::CANSparkMax* lMotorFollower = new rev::CANSparkMax(lMotorFollowerID, rev::CANSparkMax::MotorType::kBrushless);

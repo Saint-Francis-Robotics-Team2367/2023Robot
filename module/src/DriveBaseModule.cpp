@@ -551,6 +551,7 @@ void DriveBaseModule::runInit() {
 void DriveBaseModule::run() {
   runInit();
   arm->ArmInit();
+  elev->Init();
   bool test = true;
   int counter = 0;
   while(true) { 
@@ -578,10 +579,9 @@ void DriveBaseModule::run() {
     }
 
     if(state == 't') {
-      //perioidic routines
       gyroDriving();
-      //honestly let's move to xbox joystick maybe
-      //elev->TeleopPeriodic(driverStick->GetLeftTriggerAxis(), driverStick->GetRightTriggerAxis()); 
+      elev->TeleopPeriodic(driverCtr->GetLeftTriggerAxis(), driverCtr->GetRightTriggerAxis());
+      arm->TeleopControl(driverCtr->GetPOV());
       
       test = true;
       stopAuto = true;

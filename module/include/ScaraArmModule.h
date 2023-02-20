@@ -3,6 +3,7 @@
 #include <vector>
 #include <iostream>
 #include <tuple>
+#include "Macros.h"
 
 #include <rev/CANSparkMax.h>
 #include <frc/SmartDashboard/SmartDashboard.h>
@@ -23,8 +24,8 @@ class ScaraArmModule {
 
 
 
-    const int innerID = 10;
-    const int outterID = 14;
+    const int innerID = InnerArmID;
+    const int outterID = OutterArmID;
 
     const double innerConv = 6.15234; //1/(4096/70/360); 
     const double outterConv = 4.394; //1/(4096/70/360); //50 now
@@ -54,6 +55,8 @@ class ScaraArmModule {
     void movetoXY(double x, double y);
 
     void moveOnPath(double radius);
+
+    void TeleopControl(double dPadInput);
 
 
     armPos currentPosition = {0.0, 0.0, startX, startY};

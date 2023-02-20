@@ -1,5 +1,6 @@
 #include <rev/CANSparkMax.h>
 #include <frc/SmartDashboard/SmartDashboard.h>
+#include "Macros.h"
 
 #define triggerDeadband 0.1
 #define PI 3.1415926
@@ -15,7 +16,7 @@ class ElevatorModule {
 
     //Mech/Electronics Setup
    // int m_ID = 10;
-    int m_ID = 11;
+    const int m_ID = ElevatorID;
     
     rev::CANSparkMax* elevatorMotor = new rev::CANSparkMax(m_ID, rev::CANSparkMax::MotorType::kBrushless);
     rev::SparkMaxRelativeEncoder enc = elevatorMotor->GetEncoder();
