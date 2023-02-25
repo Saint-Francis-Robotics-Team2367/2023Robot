@@ -173,6 +173,15 @@ double out;
 
 }
 
+void ScaraArmModule::TeleopInit() {
+  currentPosition.inner_angle = inner_enc.GetPosition();
+  currentPosition.outter_angle = outter_enc.GetPosition();
+  std::vector<double> curr_xy = Angles_to_XY(inner_enc.GetPosition(), outter_enc.GetPosition());
+  currentPosition.armX = curr_xy.at(0);
+  currentPosition.armY = curr_xy.at(1);
+
+}
+
 void ScaraArmModule::TeleopControl(int POV) {// Angle from 0 - 315
   /*
   if (fabs(in) > 0.1) {
@@ -186,23 +195,22 @@ void ScaraArmModule::TeleopControl(int POV) {// Angle from 0 - 315
     outter->Set(0);
   }
   */
-  int dPadInput = POV;
-  if (dPadInput == -1) {
-    return;
-  }
+  //int dPadInput = POV;
+  if (POV == -1) {
+    movetoXY(currentPosition.armX, currentPosition.armY);
+  } else {
+    double x_increment = cos(POV * M_PI / 180);
+    double y_increment = sin(POV * M_PI / 180);
   
-  std::vector<double> curr_xy = Angles_to_XY(inner_enc.GetPosition(), outter_enc.GetPosition()); // 0 is x, 1 is y
+    currentPosition.armX += x_increment;
+    currentPosition.armY += y_increment;
 
-  if (dPadInput == 0) {
-    curr_xy.at(1) += 1;
-  } else if (dPadInput == 90) {
-    curr_xy.at(0) += 1;
-  } else if (dPadInput == 180) {
-    curr_xy.at(1) -= 1;
-  } else if (dPadInput == 270) {
-    curr_xy.at(0) -= 1;
+    movetoXY(currentPosition.armX, currentPosition.armY);
   }
-  movetoXY(curr_xy.at(0), curr_xy.at(1));
+    
+
+
+
   
 
 }

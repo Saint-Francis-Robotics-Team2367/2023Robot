@@ -56,6 +56,8 @@ class ScaraArmModule {
 
     void moveOnPath(double radius);
 
+    void TeleopInit();
+
     void TeleopControl(int POV);
 
 
