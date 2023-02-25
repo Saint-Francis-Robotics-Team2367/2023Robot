@@ -173,7 +173,20 @@ double out;
 
 }
 
-void ScaraArmModule::TeleopControl(double dPadInput) {// Angle from 0 - 315
+void ScaraArmModule::TeleopControl(int POV) {// Angle from 0 - 315
+  /*
+  if (fabs(in) > 0.1) {
+    inner->Set(in / 6);
+  } else {
+    inner->Set(0);
+  }
+  if (fabs(out) > 0.1) {
+    outter->Set(out / 6);
+  } else {
+    outter->Set(0);
+  }
+  */
+  int dPadInput = POV;
   if (dPadInput == -1) {
     return;
   }
@@ -186,9 +199,10 @@ void ScaraArmModule::TeleopControl(double dPadInput) {// Angle from 0 - 315
     curr_xy.at(0) += 1;
   } else if (dPadInput == 180) {
     curr_xy.at(1) -= 1;
-  } else if (dPadInput == 360) {
+  } else if (dPadInput == 270) {
     curr_xy.at(0) -= 1;
   }
   movetoXY(curr_xy.at(0), curr_xy.at(1));
+  
 
 }

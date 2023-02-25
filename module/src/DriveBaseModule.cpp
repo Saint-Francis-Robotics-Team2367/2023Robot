@@ -579,8 +579,13 @@ void DriveBaseModule::run() {
     }
 
     if(state == 't') {
-      gyroDriving();
+      //gyroDriving();
+      frc::SmartDashboard::PutBoolean("L follow", lMotorFollower->GetInverted());
+      frc::SmartDashboard::PutBoolean("L lead", lMotor->GetInverted());
+      frc::SmartDashboard::PutBoolean("R follow", rMotorFollower->GetInverted());
+      frc::SmartDashboard::PutBoolean("R lead", rMotor->GetInverted());
       elev->TeleopPeriodic(driverCtr->GetLeftTriggerAxis(), driverCtr->GetRightTriggerAxis());
+      frc::SmartDashboard::PutNumber("POV", driverCtr->GetPOV());
       arm->TeleopControl(driverCtr->GetPOV());
       
       test = true;

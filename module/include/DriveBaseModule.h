@@ -63,6 +63,7 @@ class DriveBaseModule{ //needed for gyroPIDDrive implementation
   
   frc::Joystick* driverStick = new frc::Joystick(driverStickPort);
   frc::XboxController* driverCtr = new frc::XboxController(driverStickPort);
+  frc::XboxController* armStick = new frc::XboxController(operatorStickPort);
   //frc::Joystick* operatorStick = new frc::Joystick(operatorStickPort);
   rev::CANSparkMax* lMotor = new rev::CANSparkMax(lMotorLeaderID, rev::CANSparkMax::MotorType::kBrushless);
   rev::CANSparkMax* lMotorFollower = new rev::CANSparkMax(lMotorFollowerID, rev::CANSparkMax::MotorType::kBrushless);

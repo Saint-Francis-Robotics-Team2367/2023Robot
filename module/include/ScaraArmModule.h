@@ -56,7 +56,7 @@ class ScaraArmModule {
 
     void moveOnPath(double radius);
 
-    void TeleopControl(double dPadInput);
+    void TeleopControl(int POV);
 
 
     armPos currentPosition = {0.0, 0.0, startX, startY};
