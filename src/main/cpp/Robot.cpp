@@ -43,6 +43,12 @@ void Robot::TeleopInit()
 
 void Robot::TeleopPeriodic()
 {
+  frc::SmartDashboard::PutNumber("Horizontal", targetOffsetAngle_Horizontal);
+  frc::SmartDashboard::PutNumber("Vertical", targetOffsetAngle_Vertical);
+  frc::SmartDashboard::PutNumber("Area", targetArea);
+  frc::SmartDashboard::PutNumber("Skew", targetSkew);
+  frc::SmartDashboard::PutNumber("Angle To Goal", angleToGoalDegrees);
+  
 }
 
 void Robot::DisabledInit() {
