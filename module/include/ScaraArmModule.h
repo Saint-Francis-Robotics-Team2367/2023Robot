@@ -46,6 +46,8 @@ class ScaraArmModule {
         bool PossibleReach = true;
     };
 
+    void placement(double x, double y, double incr, double time1, double waitTime, double incrTime, bool (*stop)());
+
     std::vector<armPos> XY_to_Arm(double x, double y, double length1, double length2);
 
     std::vector<double> Angles_to_XY(double inner, double outter);

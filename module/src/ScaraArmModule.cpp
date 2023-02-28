@@ -3,6 +3,7 @@
 #include <iostream>
 #include <tuple>
 #include "ScaraArmModule.h"
+#include "frc/Timer.h"
 
 void ScaraArmModule::ArmInit() {
   inner_enc.SetPositionConversionFactor(innerConv);
@@ -191,4 +192,27 @@ void ScaraArmModule::TeleopControl(double dPadInput) {// Angle from 0 - 315
   }
   movetoXY(curr_xy.at(0), curr_xy.at(1));
 
+}
+
+void ScaraArmModule::placement(double x, double y, double incr, double time1, double waitTime, double incrTime, bool (*stop)()){
+  
+  double start = frc::Timer::GetFPGATimestamp().value();
+  while ((frc::Timer::GetFPGATimestamp().value() - start) < time1){
+    movetoXY(x,y);
+  }
+
+  double outerangle = XY_to_Arm(x,y,innerSize,outterSize)[1].outter_angle;
+  incr *= outerangle < 0? -1:1;
+
+  while (!stop()){
+
+    start = frc::Timer::GetFPGATimestamp().value();
+    while ((frc::Timer::GetFPGATimestamp().value() - start) < waitTime){}
+
+    start = frc::Timer::GetFPGATimestamp().value();
+    while ((frc::Timer::GetFPGATimestamp().value() - start) < incrTime){
+      outterPID.SetReference(outter_enc.GetPosition() + incr, rev::ControlType::kPosition);
+    }
+
+  }
 }
