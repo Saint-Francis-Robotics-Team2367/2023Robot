@@ -59,6 +59,8 @@ class ScaraArmModule {
     void TeleopInit();
 
     void TeleopControl(int POV);
+    
+    bool XYInRange(double x, double y);
 
 
     armPos currentPosition = {0.0, 0.0, startX, startY};

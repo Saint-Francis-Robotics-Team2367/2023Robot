@@ -93,6 +93,9 @@ std::vector<double> ScaraArmModule::Angles_to_XY(double innerAngleDeg, double ou
 
 void ScaraArmModule::movetoXY(double x, double y) {
 
+  double current_outer = outter_enc.GetPosition();
+  double current_inner = inner_enc.GetPosition();
+
   std::vector<armPos> angles = XY_to_Arm(x, y, innerSize, outterSize);
   std::cout << angles.at(0).inner_angle;
   double currPos = clampAngle(inner_enc.GetPosition());
@@ -110,23 +113,29 @@ void ScaraArmModule::movetoXY(double x, double y) {
 
 
   if (angles.size() == 2) {
-    //Compute faster one here
+
     frc::SmartDashboard::PutNumber("InnerCalc2", angles.at(1).inner_angle);
     frc::SmartDashboard::PutNumber("OutterCalc2", angles.at(1).outter_angle);
-    frc::SmartDashboard::PutBoolean("SecondSolution?", true);
-    std::cout << "118";
-    innerPID.SetReference(angles.at(1).inner_angle, rev::CANSparkMax::ControlType::kPosition);
-    outterPID.SetReference(angles.at(1).outter_angle, rev::CANSparkMax::ControlType::kPosition);
+
+    /*Decision Code*/
+    if (fabs(angles.at(0).outter_angle - current_outer) > fabs(angles.at(1).outter_angle - current_outer)) {
+      innerPID.SetReference(angles.at(1).inner_angle, rev::CANSparkMax::ControlType::kPosition);
+      outterPID.SetReference(angles.at(1).outter_angle, rev::CANSparkMax::ControlType::kPosition);
+    } else {
+      innerPID.SetReference(angles.at(0).inner_angle, rev::CANSparkMax::ControlType::kPosition);
+      outterPID.SetReference(angles.at(0).outter_angle, rev::CANSparkMax::ControlType::kPosition);
+    }
   } else {
     frc::SmartDashboard::PutNumber("InnerCalc2", -1);
     frc::SmartDashboard::PutNumber("OutterCalc2", -1);
+
     frc::SmartDashboard::PutBoolean("SecondSolution?", false);
+
     innerPID.SetReference(angles.at(0).inner_angle, rev::CANSparkMax::ControlType::kPosition);
     outterPID.SetReference(angles.at(0).outter_angle, rev::CANSparkMax::ControlType::kPosition);
   }
 
-  innerPID.SetReference(angles.at(0).inner_angle, rev::CANSparkMax::ControlType::kPosition);
-  outterPID.SetReference(angles.at(0).outter_angle, rev::CANSparkMax::ControlType::kPosition);
+
 }
 
 void ScaraArmModule::moveOnPath(double radius) {
@@ -177,8 +186,13 @@ void ScaraArmModule::TeleopInit() {
   currentPosition.inner_angle = inner_enc.GetPosition();
   currentPosition.outter_angle = outter_enc.GetPosition();
   std::vector<double> curr_xy = Angles_to_XY(inner_enc.GetPosition(), outter_enc.GetPosition());
-  currentPosition.armX = curr_xy.at(0);
-  currentPosition.armY = curr_xy.at(1);
+  if (XYInRange(curr_xy.at(0), curr_xy.at(1))) {
+    currentPosition.armX = curr_xy.at(0);
+    currentPosition.armY = curr_xy.at(1);
+  } else {
+    frc::SmartDashboard::PutBoolean("Init Failed", true);
+  }
+  
 
 }
 
@@ -197,20 +211,55 @@ void ScaraArmModule::TeleopControl(int POV) {// Angle from 0 - 315
   */
   //int dPadInput = POV;
   if (POV == -1) {
-    movetoXY(currentPosition.armX, currentPosition.armY);
+    frc::SmartDashboard::PutNumber("movetoX", currentPosition.armX);
+    frc::SmartDashboard::PutNumber("movetoY", currentPosition.armY);
+    if (XYInRange(currentPosition.armX, currentPosition.armY)) {
+      movetoXY(currentPosition.armX, currentPosition.armY);
+      frc::SmartDashboard::PutBoolean("Invalid Point", false);
+
+    } else {
+      frc::SmartDashboard::PutBoolean("Invalid Point", true);
+    }
+    
   } else {
     double x_increment = cos(POV * M_PI / 180);
     double y_increment = sin(POV * M_PI / 180);
+
+    frc::SmartDashboard::PutNumber("movetoX", currentPosition.armX);
+    frc::SmartDashboard::PutNumber("movetoY", currentPosition.armY);
+
+    frc::SmartDashboard::PutNumber("X_inc", x_increment);
+    frc::SmartDashboard::PutNumber("Y_inc", y_increment);
   
     currentPosition.armX += x_increment;
     currentPosition.armY += y_increment;
 
-    movetoXY(currentPosition.armX, currentPosition.armY);
+
+    if (XYInRange(currentPosition.armX, currentPosition.armY)) {
+      movetoXY(currentPosition.armX, currentPosition.armY);
+      frc::SmartDashboard::PutBoolean("Invalid Point", false);
+    } else {
+      frc::SmartDashboard::PutBoolean("Invalid Point", true);
+    }
+   
   }
     
 
 
 
   
+
+}
+
+bool ScaraArmModule::XYInRange(double x, double y) {
+  double circle_x = 0;
+  double circle_y = 0;
+  double rad = outterSize + innerSize;
+  if ((x - circle_x) * (x - circle_x) +
+        (y - circle_y) * (y - circle_y) <= rad * rad)
+        return true;
+    else
+        return false;
+  //Check if x,y is valid 
 
 }
