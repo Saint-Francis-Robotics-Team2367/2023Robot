@@ -62,6 +62,8 @@ class ScaraArmModule {
     
     bool XYInRange(double x, double y);
 
+    void checkArmBounds(double outter_pos, double outter_neg, double inner_pos, double inner_neg);
+
 
     armPos currentPosition = {0.0, 0.0, startX, startY};
     armPos calculatedPosition = {0.0, 0.0, startX, startY};

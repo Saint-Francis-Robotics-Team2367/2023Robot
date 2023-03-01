@@ -263,3 +263,23 @@ bool ScaraArmModule::XYInRange(double x, double y) {
   //Check if x,y is valid 
 
 }
+
+void ScaraArmModule::checkArmBounds(double outter_pos, double outter_neg, double inner_pos, double inner_neg) {
+  double out_pos  = outter_enc.GetPosition();
+  double in_pos = inner_enc.GetPosition();
+  frc::SmartDashboard::PutBoolean("Arm Bounded?", true);
+
+  if (out_pos > outter_pos || out_pos < outter_neg) {
+    outter->Set(0);
+    frc::SmartDashboard::PutBoolean("Arm Bounded?", true);
+
+  } else {
+    frc::SmartDashboard::PutBoolean("Arm Bounded?", false);
+  }
+  if (in_pos > inner_pos || in_pos < inner_neg) {
+    inner->Set(0);
+    frc::SmartDashboard::PutBoolean("Arm Bounded?", true);
+  } else {
+    frc::SmartDashboard::PutBoolean("Arm Bounded?", false);
+  }
+}
