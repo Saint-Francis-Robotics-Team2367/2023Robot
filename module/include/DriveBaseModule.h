@@ -45,6 +45,7 @@
 #define wheelDiameter 4 //inches
 #define maxOffsetAngle 1
 
+// CHANGE TO BUTTON "B"
 #define inverseButtonID 1
 
 // #define maxAcc = 7.0
@@ -56,10 +57,16 @@ class DriveBaseModule{ //needed for gyroPIDDrive implementation
 
   ElevatorModule* elev = new ElevatorModule(10); //Elevator
   //ColorSensor* colorSensor = new ColorSensor();
-  IRSensor* irSensor = new IRSensor(0);
-  IRSensor* proxSensor1 = new IRSensor(1);
-  IRSensor* proxSensor2 = new IRSensor(2);
+  // IRSensor* irSensor = new IRSensor(0);
+  // IRSensor* proxSensor1 = new IRSensor(1);
+  // IRSensor* proxSensor2 = new IRSensor(2);
   LimitSwitch* limitSwitch = new LimitSwitch(9);
+
+  // Position IR Sensors
+  IRSensor* irPos0 = new IRSensor(0);
+  IRSensor* irPos1 = new IRSensor(1);
+  IRSensor* irPos2 = new IRSensor(2);
+
 
   double maxAcc =  20.0;
   double maxVelocity = 30.0;
