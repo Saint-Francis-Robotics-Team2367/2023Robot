@@ -4,6 +4,11 @@
 #include <tuple>
 #include "ScaraArmModule.h"
 
+ScaraArmModule::ScaraArmModule(frc::XboxController* controller) {
+  ctr = controller;
+  scaraArmThread = std::thread(&ScaraArmModule::run, this); //initializing thread so can detach in robot init
+}
+
 void ScaraArmModule::ArmInit() {
   inner_enc.SetPositionConversionFactor(innerConv);
   outter_enc.SetPositionConversionFactor(outterConv);
@@ -228,5 +233,18 @@ double out;
   } else {
     return out;
   }
+}
 
+void ScaraArmModule::runInit() {
+
+}
+
+void ScaraArmModule::run(){
+   runInit();
+    while(true) {
+        auto nextRun = std::chrono::steady_clock::now() + std::chrono::milliseconds(5); //change milliseconds at telop
+        frc::SmartDashboard::PutBoolean("scara arm module", true);
+        std::this_thread::sleep_until(nextRun);
+        frc::SmartDashboard::PutNumber("left y scara arm", ctr->GetLeftY());
+    }
 }

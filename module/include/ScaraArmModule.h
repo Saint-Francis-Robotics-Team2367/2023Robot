@@ -6,6 +6,14 @@
 
 #include <rev/CANSparkMax.h>
 #include <frc/SmartDashboard/SmartDashboard.h>
+#include <thread>
+#include <chrono>
+#include<mutex>
+#include <atomic>
+#include "Macros.h"
+#include<frc/XboxController.h>
+
+#pragma once
 
 #ifndef max
   #define max(a,b) (((a) > (b)) ? (a) : (b))
@@ -23,8 +31,8 @@ class ScaraArmModule {
     const double startX = 24.625;
     const double startY = 0;
 
-    const int innerID = 10;
-    const int outterID = 14;
+    // const int innerID = 10;
+    // const int outterID = 14;
 
     const double innerConv = 6.15234; //1/(4096/70/360); 
     const double outterConv = 4.394; //1/(4096/70/360); //50 now
@@ -32,8 +40,16 @@ class ScaraArmModule {
     const double innerSize = 24.625;
     const double outterSize = 24.500;
     
-    void ArmInit();
 
+    std::thread scaraArmThread;
+    double stopAuto = false;
+
+    frc::XboxController* ctr;
+    ScaraArmModule(frc::XboxController* controller);
+    void ArmInit();
+    void run();
+    void runInit();
+    
     struct armPos {
         double inner_angle;
         double outter_angle;
@@ -55,11 +71,11 @@ class ScaraArmModule {
     armPos calculatedPosition = {0.0, 0.0, startX, startY};
     
 
-    rev::CANSparkMax* inner = new rev::CANSparkMax(innerID, rev::CANSparkMax::MotorType::kBrushless);
+    rev::CANSparkMax* inner = new rev::CANSparkMax(scaraArmInner, rev::CANSparkMax::MotorType::kBrushless);
     rev::SparkMaxRelativeEncoder inner_enc = inner->GetEncoder();
     rev::SparkMaxPIDController innerPID = inner->GetPIDController();
     
-    rev::CANSparkMax* outter = new rev::CANSparkMax(outterID, rev::CANSparkMax::MotorType::kBrushless);
+    rev::CANSparkMax* outter = new rev::CANSparkMax(scaraArmOutter, rev::CANSparkMax::MotorType::kBrushless);
     rev::SparkMaxRelativeEncoder outter_enc = outter->GetEncoder();
     rev::SparkMaxPIDController outterPID = outter->GetPIDController();
 

@@ -6,33 +6,43 @@
 #include <frc2/command/PIDCommand.h>
 
 // // All Module Includes
-//#include "DriveBaseModule.h"
-
-//DriveBaseModule drive;
-
+#include "DriveBaseModule.h"
+#include "ElevatorModule.h"
 #include "ScaraArmModule.h"
-#include<frc/XboxController.h>
-ScaraArmModule arm = ScaraArmModule();
+
+frc::XboxController* ctr = new frc::XboxController(0); 
+
+DriveBaseModule drive;
+ElevatorModule elev(ctr);
+ScaraArmModule arm(ctr);
+
+// #include "ScaraArmModule.h"
+
+// ScaraArmModule arm = ScaraArmModule();
 //moved instantiation to h file
 
-frc::XboxController* ctr = new frc::XboxController(0); //cpr number pulses (4096) per rev, 70 to 1 / 360
+//cpr number pulses (4096) per rev, 70 to 1 / 360
+//frc::Joystick* driverStick = new frc::Joystick(0);
 
 void Robot::RobotInit()
 {
-  arm.ArmInit();
-  frc::SmartDashboard::PutNumber("x", arm.innerSize);
-  frc::SmartDashboard::PutNumber("y", arm.outterSize);
-  //compRobotDrive.periodicInit();
+  // arm.ArmInit();
+  
+  // frc::SmartDashboard::PutNumber("x", arm.innerSize);
+  // frc::SmartDashboard::PutNumber("y", arm.outterSize);
+  // //compRobotDrive.periodicInit();
 
-  //need drive inits
-  //drive.driveThread.detach(); 
+  // //need drive inits
+  drive.driveThread.detach(); 
+  arm.scaraArmThread.detach();
+  elev.elevatorThread.detach();
  
 }
 
 void Robot::RobotPeriodic()
 {
-  frc::SmartDashboard::PutNumber("inner enc", arm.inner_enc.GetPosition());
-  frc::SmartDashboard::PutNumber("outer enc", arm.outter_enc.GetPosition());
+  // frc::SmartDashboard::PutNumber("inner enc", arm.inner_enc.GetPosition());
+  // frc::SmartDashboard::PutNumber("outer enc", arm.outter_enc.GetPosition());
   // arm.inner_enc.SetPositionConversionFactor(1);
   // arm.outter_enc.SetPositionConversionFactor(1);
   // double in_angle = arm.inner_enc.GetPosition();
@@ -46,21 +56,21 @@ void Robot::RobotPeriodic()
 void Robot::AutonomousInit()
 {
   //drive.state = 'a';
-  arm.inner_enc.SetPosition(0);
-  arm.outter_enc.SetPosition(0);
+  // arm.inner_enc.SetPosition(0);
+  // arm.outter_enc.SetPosition(0);
   
 }
 void Robot::AutonomousPeriodic()
 {
 
- double x = frc::SmartDashboard::GetNumber("x", arm.innerSize);
- frc::SmartDashboard::PutNumber("x", x);
+//  double x = frc::SmartDashboard::GetNumber("x", arm.innerSize);
+//  frc::SmartDashboard::PutNumber("x", x);
 
- double y = frc::SmartDashboard::GetNumber("y",  arm.outterSize); //CATCH NULL SO VECtor DOeSN'T GO OUT OF RangE!!!!
- frc::SmartDashboard::PutNumber("y", y);
+//  double y = frc::SmartDashboard::GetNumber("y",  arm.outterSize); //CATCH NULL SO VECtor DOeSN'T GO OUT OF RangE!!!!
+//  frc::SmartDashboard::PutNumber("y", y);
 
 
-arm.movetoXY(x, y);
+// arm.movetoXY(x, y);
 //arm.movetoXY(35, 15);
 
 
@@ -83,19 +93,19 @@ void Robot::TeleopInit()
 
 void Robot::TeleopPeriodic()
 {
-  frc::SmartDashboard::PutNumber("left y", ctr->GetLeftY());
-  arm.inner->Set(ctr->GetLeftY() / 5);
-  //arm.innerPID.SetReference(10, rev::CANSparkMax::ControlType::kPosition);
-  //arm->innerPID.SetReference(10, rev::CANSparkMax::ControlType::kPosition);
-  frc::SmartDashboard::PutNumber("right y", ctr->GetRightY());
- arm.outter->Set(ctr->GetRightY()/ 5);
+//   frc::SmartDashboard::PutNumber("left y", ctr->GetLeftY());
+//   arm.inner->Set(ctr->GetLeftY() / 5);
+//   //arm.innerPID.SetReference(10, rev::CANSparkMax::ControlType::kPosition);
+//   //arm->innerPID.SetReference(10, rev::CANSparkMax::ControlType::kPosition);
+//   frc::SmartDashboard::PutNumber("right y", ctr->GetRightY());
+//  arm.outter->Set(ctr->GetRightY()/ 5);
   
 
-  //arm.innerPID.SetReference(set, rev::CANSparkMax::ControlType::kPosition);
+//   //arm.innerPID.SetReference(set, rev::CANSparkMax::ControlType::kPosition);
   
 
-  frc::SmartDashboard::PutNumber("Encoder Pos", arm.outter_enc.GetPosition());
-  frc::SmartDashboard::PutNumber("Voltage/PID Output", arm.outter->GetBusVoltage());
+//   frc::SmartDashboard::PutNumber("Encoder Pos", arm.outter_enc.GetPosition());
+//   frc::SmartDashboard::PutNumber("Voltage/PID Output", arm.outter->GetBusVoltage());
   //current pos, setpoint, outputPID, voltage
  //arm.inner->Set(0.4);
 }

@@ -1,6 +1,11 @@
 #include "DriveBaseModule.h"
 #include <iostream>
 
+DriveBaseModule::DriveBaseModule() {
+    ahrs = new AHRS(frc::SerialPort::kMXP);
+    driveThread = std::thread(&DriveBaseModule::run, this); //initializing thread so can detach in robot init
+}
+
 bool DriveBaseModule::initDriveMotor(rev::CANSparkMax* motor, rev::CANSparkMax* follower, bool invert) {
   motor->SetIdleMode(rev::CANSparkMax::IdleMode::kBrake);
   motor->SetInverted(invert);
@@ -550,13 +555,14 @@ void DriveBaseModule::runInit() {
 
 void DriveBaseModule::run() {
   runInit();
-  arm->ArmInit();
+  // arm->ArmInit();
   bool test = true;
   int counter = 0;
   while(true) { 
     auto nextRun = std::chrono::steady_clock::now() + std::chrono::milliseconds(5); //change milliseconds at telop
     frc::SmartDashboard::PutNumber("timesRun", ++counter);
-
+    
+    frc::SmartDashboard::PutNumber("drivebase y", driverStick->GetRawAxis(1));
 
     //need mutex to stop
 
@@ -570,7 +576,7 @@ void DriveBaseModule::run() {
 
         test = false;
       }
-      elev->AutoPeriodic();
+      // elev->AutoPeriodic();
       
     } else {
       test = true;

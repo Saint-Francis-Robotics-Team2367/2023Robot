@@ -5,13 +5,16 @@
 #pragma once
 
 #include <frc/TimedRobot.h>
+#include<frc/XboxController.h>
 
 
 class Robot : public frc::TimedRobot {
 
 double set = 0;
 
+
  public:
+
   void RobotInit() override;
   void RobotPeriodic() override;
 

@@ -47,9 +47,9 @@ class DriveBaseModule{ //needed for gyroPIDDrive implementation
 
   AHRS *ahrs; //needs to be intialized in constructor
 
-  ElevatorModule* elev = new ElevatorModule(10); //Elevator
+  //ElevatorModule* elev = new ElevatorModule(10); //Elevator
 
-  ScaraArmModule* arm = new ScaraArmModule();
+  //ScaraArmModule* arm = new ScaraArmModule();
 
   double maxAcc =  20.0;
   double maxVelocity = 30.0;
@@ -61,6 +61,7 @@ class DriveBaseModule{ //needed for gyroPIDDrive implementation
 
   
   frc::Joystick* driverStick = new frc::Joystick(driverStickPort);
+  // frc::Joystick* driverStick;
   //frc::Joystick* operatorStick = new frc::Joystick(operatorStickPort);
   rev::CANSparkMax* lMotor = new rev::CANSparkMax(lMotorLeaderID, rev::CANSparkMax::MotorType::kBrushless);
   rev::CANSparkMax* lMotorFollower = new rev::CANSparkMax(lMotorFollowerID, rev::CANSparkMax::MotorType::kBrushless);
@@ -84,10 +85,7 @@ class DriveBaseModule{ //needed for gyroPIDDrive implementation
   public: 
   std::thread driveThread;
   double stopAuto = false;
-  DriveBaseModule() {
-    ahrs = new AHRS(frc::SerialPort::kMXP);
-    driveThread = std::thread(&DriveBaseModule::run, this); //initializing thread so can detach in robot init
-  }
+  DriveBaseModule(); 
   void LimitRate(double& s, double& t);
   void arcadeDrive(double vel, double dir); //takes two values from the joystick and converts them into motor output %
   bool PIDDrive(float totalFeet, bool keepVelocity);

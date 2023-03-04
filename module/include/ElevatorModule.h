@@ -1,10 +1,18 @@
 #include <rev/CANSparkMax.h>
+#include "Macros.h"
 #include <frc/SmartDashboard/SmartDashboard.h>
-
+#include <thread>
+#include <chrono>
+#include<mutex>
+#include<frc/XboxController.h>
+#include <atomic>
+#pragma once
 #define triggerDeadband 0.1
 #define PI 3.1415926
 
 class ElevatorModule {
+
+    frc::XboxController* ctr;
     int run_counter = 0;
     double slowCoefficient = 4;
     public:
@@ -12,12 +20,15 @@ class ElevatorModule {
     double pitch_diameter = 1.273;
     double pitch_circum = pitch_diameter * PI;
     double conversion_factor = pitch_circum / (30); //Ratio 30:1
+    std::thread elevatorThread;
+    double stopAuto = false;
 
     //Mech/Electronics Setup
    // int m_ID = 10;
-    int m_ID = 15;
+    //int m_ID = 15;
     
-    rev::CANSparkMax* elevatorMotor = new rev::CANSparkMax(m_ID, rev::CANSparkMax::MotorType::kBrushless);
+
+    rev::CANSparkMax* elevatorMotor = new rev::CANSparkMax(elevatorID, rev::CANSparkMax::MotorType::kBrushless);
     rev::SparkMaxRelativeEncoder enc = elevatorMotor->GetEncoder();
     rev::SparkMaxPIDController elevatorPID = elevatorMotor->GetPIDController();
 
@@ -38,7 +49,7 @@ class ElevatorModule {
     bool oneRun = false;
 
 
-    ElevatorModule(int motorID);
+    ElevatorModule(frc::XboxController* controller);
     void Init();
     void TeleopPeriodic(double Linput, double Rinput);
     void AutoPeriodic();
@@ -47,6 +58,8 @@ class ElevatorModule {
     double manualMove(double Linput, double Rinput);
     void setPos(double setpoint);
     double getHeight();
+    void run();
+    void runInit();
 
 
 };

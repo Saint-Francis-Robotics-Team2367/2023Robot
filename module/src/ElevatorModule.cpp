@@ -1,7 +1,9 @@
 #include "ElevatorModule.h"
 
-ElevatorModule::ElevatorModule(int motorID) {
-    m_ID = motorID;
+ElevatorModule::ElevatorModule(frc::XboxController* controller) { //pass in joystick too
+    //m_ID = motorID;
+    ctr = controller;
+    elevatorThread = std::thread(&ElevatorModule::run, this); //initializing thread so can detach in robot init
 }
 
 
@@ -70,4 +72,19 @@ void ElevatorModule::AutoPeriodic() {
 
         frc::SmartDashboard::PutNumber("position", getPos());
         frc::SmartDashboard::PutNumber("height", height);
+}
+
+void ElevatorModule::runInit() {
+
+}
+
+void ElevatorModule::run() {
+    runInit();
+    while(true) {
+        auto nextRun = std::chrono::steady_clock::now() + std::chrono::milliseconds(5); //change milliseconds at telop
+        frc::SmartDashboard::PutBoolean("elevator module", true);
+        frc::SmartDashboard::PutNumber("elev left y", ctr->GetLeftY());
+        std::this_thread::sleep_until(nextRun);
+    }
+
 }
