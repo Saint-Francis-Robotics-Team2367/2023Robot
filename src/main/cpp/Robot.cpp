@@ -46,10 +46,18 @@ void Robot::RobotPeriodic()
 
   double ax = atan2(1,x);
   double ay = atan2(1,y);
+  
+  double axr = (ax * PI)/180;
+  double ayr = (ay * PI)/180;
+
+  double d = 4;
+  double rx = d * tan(axr);
+  double ry = sqrt(d*d + rx*rx) * tan(ayr);
 
   frc::SmartDashboard::PutNumber("AX", ax);
   frc::SmartDashboard::PutNumber("AY", ay);
-
+  frc::SmartDashboard::PutNumber("RX", rx);
+  frc::SmartDashboard::PutNumber("RY", ry);
 }
 void Robot::AutonomousInit()
 {
