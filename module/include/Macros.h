@@ -22,7 +22,7 @@
 #define ShooterModuleRunInterval 25
 
 //motorIDs
-#define InnerArmID 10
+#define InnerArmID 12
 #define OutterArmID 14
 #define ElevatorID 4
 #define indexID1 11
