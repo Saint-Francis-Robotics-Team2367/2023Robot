@@ -25,10 +25,11 @@ class ElevatorModule {
     std::thread elevatorThread;
     char state = 't';
     double stopAuto = false;
+    bool test = true;
 
 
-    double maxVelocity = 7;
-    double maxAcc = 7;
+    double maxVelocity = 15470;
+    double maxAcc = 15390;
     //Mech/Electronics Setup
     //int m_ID = 10;
     //int m_ID = 15;

@@ -31,7 +31,7 @@ void ElevatorModule::resetPos() {
 }
 
 bool ElevatorModule::setPos(double setpoint, bool isMotionProfiled) {
-    float timeElapsed, distanceToDeccelerate, setpoint, currentVelocity = 0.0; //currentPosition is the set point
+    float timeElapsed, distanceToDeccelerate, currentVelocity = 0.0; //currentPosition is the set point
     double currentPosition = 0; //current velocity is a class variable
     float prevTime = frc::Timer::GetFPGATimestamp().value();
     if(setpoint > getPos()) { //could use height here too
@@ -109,8 +109,9 @@ void ElevatorModule::TeleopPeriodic(double Linput, double Rinput) {
 }
 
 void ElevatorModule::AutoPeriodic() {
-        double set = frc::SmartDashboard::GetNumber("setpoint", 10);
-        setPos(set);
+        double set = frc::SmartDashboard::GetNumber("setpoint", 25);
+
+        setPos(set, true);
         frc::SmartDashboard::PutNumber("setpoint", set);
 
         frc::SmartDashboard::PutNumber("position", getPos());
@@ -131,7 +132,12 @@ void ElevatorModule::run() {
             TeleopPeriodic(ctr->GetLeftTriggerAxis(), ctr->GetRightTriggerAxis());
         }
         if(state == 'a') {
-            AutoPeriodic();
+            //AutoPeriodic();
+            if(test) {
+                 setPos(25, true);
+                test = false;
+
+            }
         }
         std::this_thread::sleep_until(nextRun);
     }

@@ -25,8 +25,8 @@
 #define Shooter1 1
 #define Shooter2 7
 #define shooterIndexer 2
-#define elevatorID 22
-#define scaraArmInner 10
+#define elevatorID 13
+#define scaraArmInner 12
 #define scaraArmOutter 14
 #define indexID0 12
 #define indexID1 11
