@@ -7,6 +7,8 @@
 ScaraArmModule::ScaraArmModule(frc::XboxController* controller) {
   ctr = controller;
   scaraArmThread = std::thread(&ScaraArmModule::run, this); //initializing thread so can detach in robot init
+  inner->SetSmartCurrentLimit(20);
+  outter->SetSmartCurrentLimit(20);
 }
 
 void ScaraArmModule::ArmInit() {

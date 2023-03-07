@@ -30,10 +30,53 @@ void ElevatorModule::resetPos() {
     height = 0;
 }
 
+bool ElevatorModule::setPos(double setpoint, bool isMotionProfiled) {
+    float timeElapsed, distanceToDeccelerate, setpoint, currentVelocity = 0.0; //currentPosition is the set point
+    double currentPosition = 0; //current velocity is a class variable
+    float prevTime = frc::Timer::GetFPGATimestamp().value();
+    if(setpoint > getPos()) { //could use height here too
+        elevatorPID.SetP(pUp);
+        elevatorPID.SetD(dUp);
+    } else {
+        elevatorPID.SetP(pDown);
+        elevatorPID.SetD(dDown);
+    }
+    while(fabs(currentPosition) < fabs(setpoint)){
+        if(stopAuto) {
+          break;
+        }
+        timeElapsed = frc::Timer::GetFPGATimestamp().value() - prevTime;
+        distanceToDeccelerate = (3 * currentVelocity * currentVelocity) / (2 * maxAcc); //change
+        if (fabs(distanceToDeccelerate) > fabs(setpoint - currentPosition)) {
+          currentVelocity -= (maxAcc * timeElapsed);
+        }
+        else //increase velocity
+        {
+          currentVelocity += (maxAcc * timeElapsed);
+          if (fabs(currentVelocity) > fabs(maxVelocity))
+          {
+            currentVelocity = maxVelocity;
+          }
+        }
+
+        currentPosition += currentVelocity * timeElapsed;
+        if(fabs(currentPosition) > fabs(setpoint)) {
+          currentPosition = setpoint;
+        }
+        frc::SmartDashboard::PutNumber("setpoint", setpoint);
+        elevatorPID.SetReference(std::copysign(currentPosition, setpoint), rev::CANSparkMax::ControlType::kPosition); //setpoint uses encoder
+        prevTime = frc::Timer::GetFPGATimestamp().value();
+        frc::SmartDashboard::PutNumber("prevTime", prevTime);
+    }
+      height = setpoint; 
+      return true;
+  }
+
+
 void ElevatorModule::setPos(double setpoint) {
     setpoint = std::clamp(setpoint, kElevatorMinHeight, kElevatorMaxHeight); //clamps b/t two pts
     frc::SmartDashboard::PutNumber("inSetPos", setpoint);
-    if(setpoint > height) {
+    if(setpoint > getPos()) {
         elevatorPID.SetP(pUp);
         elevatorPID.SetD(dUp);
     } else {
@@ -52,6 +95,7 @@ void ElevatorModule::Init() {
     //enc.SetPosition(0);
     //resetPos();
     height = enc.GetPosition(); //don't close dashboard
+    elevatorMotor->SetSmartCurrentLimit(40); //Pranav gave me this number
 }
 
 
@@ -62,7 +106,6 @@ void ElevatorModule::TeleopPeriodic(double Linput, double Rinput) {
         // elevatorMotor->Set(output);
         // height = getPos();
         setPos(height + output);
-        
 }
 
 void ElevatorModule::AutoPeriodic() {
@@ -84,6 +127,12 @@ void ElevatorModule::run() {
         auto nextRun = std::chrono::steady_clock::now() + std::chrono::milliseconds(5); //change milliseconds at telop
         frc::SmartDashboard::PutBoolean("elevator module", true);
         frc::SmartDashboard::PutNumber("elev left y", ctr->GetLeftY());
+        if(state == 't') {
+            TeleopPeriodic(ctr->GetLeftTriggerAxis(), ctr->GetRightTriggerAxis());
+        }
+        if(state == 'a') {
+            AutoPeriodic();
+        }
         std::this_thread::sleep_until(nextRun);
     }
 

@@ -27,9 +27,9 @@
 #define driveIntegral 0
 #define driveDerivitive 0.13
 
-#define motorInitMaxCurrent 100 // The initial max current setting
-#define motorInitRatedCurrent 60 // The inital rated current settings
-#define motorInitLimitCycles 2000 // The inital number of allowed ms at peak current
+#define motorInitMaxCurrent 40 // The initial max current setting
+#define motorInitRatedCurrent 30 // The inital rated current settings
+#define motorInitLimitCycles 200 // The inital number of allowed ms at peak current
 #define lInvert false // Inversion setings for sides (invert this if opposite side)
 #define rInvert true 
 

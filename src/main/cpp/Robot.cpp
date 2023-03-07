@@ -55,14 +55,14 @@ void Robot::RobotPeriodic()
 }
 void Robot::AutonomousInit()
 {
-  //drive.state = 'a';
+  drive.state = 'a';
+  elev.state = 'a';
   // arm.inner_enc.SetPosition(0);
   // arm.outter_enc.SetPosition(0);
   
 }
 void Robot::AutonomousPeriodic()
 {
-
 //  double x = frc::SmartDashboard::GetNumber("x", arm.innerSize);
 //  frc::SmartDashboard::PutNumber("x", x);
 
@@ -79,15 +79,13 @@ void Robot::AutonomousPeriodic()
 //arm.movetoXY(40, 15);
 
 
-
 }
 
 
 void Robot::TeleopInit()
 {
-  
-
-  //drive.state = 't'; //add codes in while loops to break if state change
+  drive.state = 't'; //add codes in while loops to break if state change
+  elev.state = 't';
   //frc::SmartDashboard::PutNumber("setpoint", 0);
 }
 
@@ -111,14 +109,14 @@ void Robot::TeleopPeriodic()
 }
 
 void Robot::DisabledInit() {
-  //drive.stopAuto = true;
+  drive.stopAuto = true;
 }
 void Robot::DisabledPeriodic() {
 }
 
 void Robot::TestInit()
 {
-  //drive.state = 'd';
+  drive.state = 'd';
 }
 
 void Robot::TestPeriodic()
