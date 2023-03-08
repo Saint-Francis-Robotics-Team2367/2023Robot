@@ -24,7 +24,7 @@
 //motorIDs
 #define InnerArmID 12
 #define OutterArmID 14
-#define ElevatorID 4
+#define ElevatorID 13
 #define indexID1 11
 #define indexID2 13
 #define lMotorLeaderID 2

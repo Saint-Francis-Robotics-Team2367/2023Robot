@@ -25,7 +25,7 @@ void ScaraArmModule::ArmInit() {
   outterPID.SetD(0.0);
 
   outter->SetSmartCurrentLimit(10);
-  inner->SetSmartCurrentLimit(10);
+  inner->SetSmartCurrentLimit(20);
 }
 
 std::vector<ScaraArmModule::armPos> ScaraArmModule::XY_to_Arm(double x, double y, double length1, double length2) {
