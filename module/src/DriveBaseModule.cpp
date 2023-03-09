@@ -454,10 +454,6 @@ void DriveBaseModule::initPath() {
     delIndex = path.find(delimiter, lastDel); 
     currPath = path.substr(lastDel, delIndex); 
     frc::SmartDashboard::PutString("current instruction", currPath); 
-    frc::SmartDashboard::PutNumber("path length", path.length()); 
-    frc::SmartDashboard::PutNumber("delimiter index", delIndex);
-    frc::SmartDashboard::PutNumber("last deleted index", lastDel);
-    frc::SmartDashboard::PutNumber("run count", runCount);
 
     // adding turning to path order 
     straight = (currPath[0] == 's') ? true : false; 
@@ -470,8 +466,8 @@ void DriveBaseModule::initPath() {
       currPath.erase(0, currPath.find(",") + 1);
       point.y = std::stoi(currPath.substr(0, currPath.find(",")));
       currPath.erase(0, currPath.find(",") + 1);
-      frc::SmartDashboard::PutNumber("straight x", point.x); 
-      frc::SmartDashboard::PutNumber("straight y", point.y);
+      // frc::SmartDashboard::PutNumber("straight x", point.x); 
+      // frc::SmartDashboard::PutNumber("straight y", point.y);
       straightLinePoints.push_back(point);
     }
     else {
@@ -480,8 +476,8 @@ void DriveBaseModule::initPath() {
       currPath.erase(0, currPath.find(",") + 1); 
       rpoint.radius = std::stoi(currPath.substr(0, currPath.find(",")));
       currPath.erase(0, currPath.find(",") + 1);
-      frc::SmartDashboard::PutNumber("rpoint radius", rpoint.radius); 
-      frc::SmartDashboard::PutNumber("rpoint angle", rpoint.angle); 
+      // frc::SmartDashboard::PutNumber("rpoint radius", rpoint.radius); 
+      // frc::SmartDashboard::PutNumber("rpoint angle", rpoint.angle); 
       radiusTurnPoints.push_back(rpoint);
     }
 
@@ -503,54 +499,25 @@ void DriveBaseModule::autonomousSequence() {
       break;
     }
     if(pathOrder.at(index)) {
-      //straight line, doing turn
-      pathPoint delta;
-      delta.x = (straightLinePoints.at(lineIndex).x - robPos.x);
-      delta.y = (straightLinePoints.at(lineIndex).y - robPos.y);
+     // theta = theta - robTheta; //robTheta inited to zero
+     // robTheta += theta;
 
-      d = sqrt(pow(delta.x, 2) + pow(delta.y, 2));  
-
-      // pathPoint unitDir;
-      // // unitDir.x = delta.x / d;
-      // // unitDir.y = delta.y / d;
-
-      // // delta.x = delta.x + unitDir.x * coordOffset; 
-      // // delta.y = delta.y + unitDir.y * coordOffset;
-
-     theta = atan2(delta.x, delta.y) * (180/(3.14159265)); 
-     frc::SmartDashboard::PutNumber("theta", theta);
-     frc::SmartDashboard::PutNumber("d", d);
-
-     robPos.x += delta.x;
-     robPos.y += delta.y;
-
-     theta = theta - robTheta; //robTheta inited to zero
-     robTheta += theta;
-     //check with gyro get displacement
-     PIDTurn(theta, 0, keepVelocity.at(index)); //experiment with true
+     // PIDTurn(theta, 0, keepVelocity.at(index)); 
      PIDDrive(d, keepVelocity.at(index));
      lineIndex++; 
-     //PIDDrive(d, keepVelocity.at(index));
-
-    } else { 
+     } 
+     else { 
       // retrieving angle and radius of turn 
-      angle = radiusTurnPoints.at(curveIndex).angle; // robot starts at 180 deg
+      angle = radiusTurnPoints.at(curveIndex).angle; 
       radius = radiusTurnPoints.at(curveIndex).radius; 
 
-      if (angle < 0){ // left turn 
-        center = robPos.x - radius; // center x pos
-        angle = -angle;
-      }
-      else { // right turn 
-        center = robPos.x + radius; 
+      if (angle > 0){ // robot starts at 180 deg for right turns 
         angle = -(angle - 180);
       }
 
-      robPos.x = center + (radius * cos(angle/180 * PI)); 
-      robPos.y = center + (radius * sin(angle/180 * PI));  
-      frc::SmartDashboard::PutNumber("x after turn", robPos.x); 
-      frc::SmartDashboard::PutNumber("y after turn", robPos.y);
-
+      robTheta += angle; 
+      frc::SmartDashboard::PutNumber("robTheta after adding", robTheta);
+    
       PIDTurn(angle, radius, keepVelocity.at(index));
       curveIndex++;
     }
