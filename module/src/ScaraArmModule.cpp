@@ -197,6 +197,7 @@ void ScaraArmModule::TeleopInit() {
 }
 
 void ScaraArmModule::TeleopControl(int POV) {// Angle from 0 - 315
+  
   /*
   if (fabs(in) > 0.1) {
     inner->Set(in / 6);
@@ -210,6 +211,8 @@ void ScaraArmModule::TeleopControl(int POV) {// Angle from 0 - 315
   }
   */
   //int dPadInput = POV;
+
+  /*
   
   if (POV == -1) {
     frc::SmartDashboard::PutNumber("movetoX", currentPosition.armX);
@@ -244,6 +247,10 @@ void ScaraArmModule::TeleopControl(int POV) {// Angle from 0 - 315
     }
    
   }
+  */
+
+
+
     
 
 

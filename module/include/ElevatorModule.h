@@ -28,6 +28,13 @@ class ElevatorModule {
     double kElevatorMinHeight = 0.0;
     double kElevatorMaxHeight = 29; //inches
 
+    //Scoring heights:
+    const double kLowScoreHeight = 10;
+    const double kHighScoreHeight = 20;
+    const double kHighIntakeHeight = 15;
+    const double kLowestHeight = 5;
+
+
 
     //no feedforward in this case...
     double pDown = 0.05;

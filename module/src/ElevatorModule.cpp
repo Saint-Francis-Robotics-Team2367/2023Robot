@@ -66,6 +66,8 @@ void ElevatorModule::TeleopPeriodic(double Linput, double Rinput) {
         // elevatorMotor->Set(output);
         // height = getPos();
         setPos(height + output);
+
+        
         
 }
 
