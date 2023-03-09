@@ -117,6 +117,7 @@ class DriveBaseModule{ //needed for gyroPIDDrive implementation
   float theta = 0;
   float angle = 0; 
   float radius = 0; 
+  float langle = 0; 
   float center = 0; 
   //bool PIDGyroTurn(float angle, float radius, float maxAcc, float maxVelocity);
   float prevTime; //all for limit rate
