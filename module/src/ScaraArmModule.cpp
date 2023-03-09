@@ -237,6 +237,8 @@ double out;
   }
 }
 
+
+
 void ScaraArmModule::runInit() {
 
 }
@@ -246,7 +248,20 @@ void ScaraArmModule::run(){
     while(true) {
         auto nextRun = std::chrono::steady_clock::now() + std::chrono::milliseconds(5); //change milliseconds at telop
         frc::SmartDashboard::PutBoolean("scara arm module", true);
+
+        if(state = 't') {
+          frc::SmartDashboard::PutNumber("left y scara arm", ctr->GetLeftY());
+          inner->Set(ctr->GetLeftY() / 5);
+          frc::SmartDashboard::PutNumber("right y", ctr->GetRightY());
+          outter->Set(ctr->GetRightY()/ 5);
+        }
+
+        if(state = 'a') {
+          
+        }
+
+
         std::this_thread::sleep_until(nextRun);
-        frc::SmartDashboard::PutNumber("left y scara arm", ctr->GetLeftY());
+        
     }
 }

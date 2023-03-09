@@ -46,6 +46,8 @@ class ScaraArmModule {
 
     frc::XboxController* ctr;
     ScaraArmModule(frc::XboxController* controller);
+    char state = 't';
+    bool test = true;
     void ArmInit();
     void run();
     void runInit();

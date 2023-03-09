@@ -33,7 +33,7 @@ void Robot::RobotInit()
   // //compRobotDrive.periodicInit();
 
   // //need drive inits
-  drive.driveThread.detach(); 
+  //drive.driveThread.detach(); 
   arm.scaraArmThread.detach();
   elev.elevatorThread.detach();
  
@@ -57,6 +57,7 @@ void Robot::AutonomousInit()
 {
   drive.state = 'a';
   elev.state = 'a';
+  arm.state = 'a';
   // arm.inner_enc.SetPosition(0);
   // arm.outter_enc.SetPosition(0);
   
@@ -86,6 +87,7 @@ void Robot::TeleopInit()
 {
   drive.state = 't'; //add codes in while loops to break if state change
   elev.state = 't';
+  arm.state = 't';
   //frc::SmartDashboard::PutNumber("setpoint", 0);
 }
 
