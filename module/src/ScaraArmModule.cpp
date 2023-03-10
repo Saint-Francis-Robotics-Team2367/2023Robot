@@ -393,6 +393,7 @@ void ScaraArmModule::run(){
     while(true) {
         auto nextRun = std::chrono::steady_clock::now() + std::chrono::milliseconds(5); //change milliseconds at telop
         frc::SmartDashboard::PutBoolean("scara arm module", true);
+        armTab.Add("Test", 1);
 
         if(state = 't') {
           /* Teleop 1:

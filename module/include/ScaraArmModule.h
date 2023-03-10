@@ -12,6 +12,8 @@
 #include <atomic>
 #include "Macros.h"
 #include<frc/XboxController.h>
+#include <frc/shuffleboard/Shuffleboard.h>
+#include <frc/shuffleboard/ShuffleboardTab.h>
 
 #pragma once
 
@@ -48,10 +50,17 @@ class ScaraArmModule {
 
     //Grabber grabber;
     
+    //Shuffleboard Tabs:
+    //NetworkTableEntry myBoolean = Shuffleboard.getTab("Example Tab").add("My Boolean", false)
+
+
+
+    // Can also use a different widget type:
+    // .WithWidget(&frc::BuiltInWidgets::kSplitButtonChooser);
 
     std::thread scaraArmThread;
     double stopAuto = false;
-
+    frc::ShuffleboardTab& armTab = frc::Shuffleboard::GetTab("Arm");
     frc::XboxController* ctr;
     ScaraArmModule(frc::XboxController* controller);
     char state = 't';
