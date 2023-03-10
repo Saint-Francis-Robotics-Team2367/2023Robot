@@ -31,8 +31,9 @@ void ElevatorModule::resetPos() {
 }
 
 bool ElevatorModule::setPos(double setpoint, bool isMotionProfiled) {
+    setpoint = std::clamp(setpoint, kElevatorMinHeight, kElevatorMaxHeight); //have this hear check
     float timeElapsed, distanceToDeccelerate, currentVelocity = 0.0; //currentPosition is the set point
-    double currentPosition = 0; //current velocity is a class variable
+    double currentPosition = getPos(); //current velocity is a class variable
     float prevTime = frc::Timer::GetFPGATimestamp().value();
     if(setpoint > getPos()) { //could use height here too
         elevatorPID.SetP(pUp);
@@ -92,7 +93,7 @@ void ElevatorModule::Init() {
    //elevatorMotor->SetIdleMode(rev::CANSparkMax::IdleMode::kBrake);
     elevatorPID.SetP(pUp);
     elevatorPID.SetD(dUp);
-    //enc.SetPosition(0);
+    enc.SetPosition(0);
     //resetPos();
     height = enc.GetPosition(); //don't close dashboard
     elevatorMotor->SetSmartCurrentLimit(40); //Pranav gave me this number
@@ -128,16 +129,41 @@ void ElevatorModule::run() {
         auto nextRun = std::chrono::steady_clock::now() + std::chrono::milliseconds(5); //change milliseconds at telop
         frc::SmartDashboard::PutBoolean("elevator module", true);
         frc::SmartDashboard::PutNumber("elev left y", ctr->GetLeftY());
+       
         if(state == 't') {
-            TeleopPeriodic(ctr->GetLeftTriggerAxis(), ctr->GetRightTriggerAxis());
+             if(!currentlyMoving) {
+                if(ctr->GetXButtonPressed()) {
+                currentlyMoving = true;
+                setPos(kHighScoreHeight, true);
+                frc::SmartDashboard::PutBoolean("x pressed", true);
+                currentlyMoving = false;
+            }
+
+             if(ctr->GetAButton()) {
+                currentlyMoving = true;
+                setPos(kLowScoreHeight, true);
+                frc::SmartDashboard::PutBoolean("B pressed", true);
+                currentlyMoving = false;
+            }
+
+            if(ctr->GetYButton()) {
+                currentlyMoving = true;
+                setPos(kLowestHeight, true);
+                frc::SmartDashboard::PutBoolean("y pressed", true);
+                currentlyMoving = false;
+            }
+            }
+            //need this line for down movement to work? also is manual, could replace triggers with 0, 0 and it works
+            TeleopPeriodic(ctr->GetLeftTriggerAxis(), ctr->GetRightTriggerAxis()); //for some reason either need this or teleop periodic for moving downwards to work
+            
         }
         if(state == 'a') {
             //AutoPeriodic();
-            if(test) {
-                 setPos(25, true);
-                test = false;
-
-            }
+            // if(test) {
+            //     setPos(25, true);
+            //     test = false;
+            // }
+            frc::SmartDashboard::PutNumber("left trigger", ctr->GetLeftTriggerAxis());
         }
         std::this_thread::sleep_until(nextRun);
     }

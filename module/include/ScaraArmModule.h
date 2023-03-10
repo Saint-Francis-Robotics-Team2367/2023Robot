@@ -28,17 +28,25 @@
 class ScaraArmModule {
     public:
 
+    const double startInner = 146 + 180;
+    const double startOutter = 150;
+
     const double startX = 24.625;
     const double startY = 0;
 
     // const int innerID = 10;
     // const int outterID = 14;
 
-    const double innerConv = 6.15234; //1/(4096/70/360); 
-    const double outterConv = 4.394; //1/(4096/70/360); //50 now
+    // const double innerConv = 6.15234; //1/(4096/70/360); 
+    // const double outterConv = 4.394; //1/(4096/70/360); //50 now
+
+    const double innerConv = 36 / 7; //1/(4096/70/360); 
+    const double outterConv = 36 / 7; //1
 
     const double innerSize = 24.625;
     const double outterSize = 24.500;
+
+    //Grabber grabber;
     
 
     std::thread scaraArmThread;
@@ -67,6 +75,10 @@ class ScaraArmModule {
     double clampAngle(double inp);
 
     void movetoXY(double x, double y);
+
+    double maxVelocity = 21;
+    double maxAcc = 7;
+    void moveProfiled(double angle1, double angle2);
 
 
     armPos currentPosition = {0.0, 0.0, startX, startY};

@@ -567,20 +567,20 @@ void DriveBaseModule::run() {
     //need mutex to stop
 
     if(state == 'a') { //ik I have access to isAutonomous
-      stopAuto = false;
-      if(test) {
-          //autonomousSequence();
-          //PIDDrive(-7, false);
-          PIDTurn(-110, 0, false);
-          PIDTurn(110, 0, false);
+    //   stopAuto = false;
+    //   if(test) {
+    //       //autonomousSequence();
+    //       //PIDDrive(-7, false);
+    //       PIDTurn(-110, 0, false);
+    //       PIDTurn(110, 0, false);
 
-        test = false;
-      }
-      // elev->AutoPeriodic();
+    //     test = false;
+    //   }
+    //   // elev->AutoPeriodic();
       
-    } else {
-      test = true;
-      stopAuto = true;
+    // } else {
+    //   test = true;
+    //   stopAuto = true;
     }
 
     if(state == 't') {
