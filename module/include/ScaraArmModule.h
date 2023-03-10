@@ -80,6 +80,12 @@ class ScaraArmModule {
     double maxAcc = 7;
     void moveProfiled(double angle1, double angle2);
 
+    bool XYInRange(double x, double y);
+
+    void checkArmBounds(double outter_pos, double outter_neg, double inner_pos, double inner_neg);
+
+    void dPadMovement(double POV);
+
 
     armPos currentPosition = {0.0, 0.0, startX, startY};
     armPos calculatedPosition = {0.0, 0.0, startX, startY};

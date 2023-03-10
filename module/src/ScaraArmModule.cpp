@@ -162,6 +162,13 @@ std::vector<double> ScaraArmModule::Angles_to_XY(double innerAngleDeg, double ou
 void ScaraArmModule::movetoXY(double x, double y) {
   // inner_enc.SetPosition(0); //ignore and have a global one so we bing chilling
   // outter_enc.SetPosition(0); //will need to change this system to clamp and add to stuff
+  if (!XYInRange(x, y)) {
+    frc::SmartDashboard::PutBoolean("XY Valid?", false);
+    return;
+  } else {
+    frc::SmartDashboard::PutBoolean("XY Valid?", true);
+  }
+
   std::vector<armPos> angles = XY_to_Arm(x, y, innerSize, outterSize);
   double currPos = clampAngle(inner_enc.GetPosition());
   for (int i = 0; i < angles.size(); i++) {
@@ -314,7 +321,68 @@ double out;
   }
 }
 
+bool ScaraArmModule::XYInRange(double x, double y) {
+  double circle_x = 0;
+  double circle_y = 0;
+  double rad = outterSize + innerSize;
+  if ((x - circle_x) * (x - circle_x) +
+        (y - circle_y) * (y - circle_y) <= rad * rad)
+        return true;
+    else
+        return false;
+  //Check if x,y is valid 
 
+}
+
+void ScaraArmModule::checkArmBounds(double outter_pos, double outter_neg, double inner_pos, double inner_neg) {
+  double out_pos  = outter_enc.GetPosition();
+  double in_pos = inner_enc.GetPosition();
+  frc::SmartDashboard::PutBoolean("Arm Bounded?", true);
+
+  if (out_pos > outter_pos || out_pos < outter_neg) {
+    outter->Set(0);
+    frc::SmartDashboard::PutBoolean("Arm Bounded?", true);
+
+  } else {
+    frc::SmartDashboard::PutBoolean("Arm Bounded?", false);
+  }
+  if (in_pos > inner_pos || in_pos < inner_neg) {
+    inner->Set(0);
+    frc::SmartDashboard::PutBoolean("Arm Bounded?", true);
+  } else {
+    frc::SmartDashboard::PutBoolean("Arm Bounded?", false);
+  }
+}
+
+void ScaraArmModule::dPadMovement(double POV) {
+  if (POV == -1) {
+    frc::SmartDashboard::PutNumber("movetoX", currentPosition.armX);
+    frc::SmartDashboard::PutNumber("movetoY", currentPosition.armY);
+    if (XYInRange(currentPosition.armX, currentPosition.armY)) {
+      movetoXY(currentPosition.armX, currentPosition.armY);
+      frc::SmartDashboard::PutBoolean("Invalid Point", false);
+    } else {
+      frc::SmartDashboard::PutBoolean("Invalid Point", true);
+  }
+
+  } else {
+    double x_increment = cos(POV * M_PI / 180);
+    double y_increment = sin(POV * M_PI / 180);
+    frc::SmartDashboard::PutNumber("movetoX", currentPosition.armX);
+    frc::SmartDashboard::PutNumber("movetoY", currentPosition.armY);
+    frc::SmartDashboard::PutNumber("X_inc", x_increment);
+    frc::SmartDashboard::PutNumber("Y_inc", y_increment);
+
+    currentPosition.armX += x_increment;
+    currentPosition.armY += y_increment;
+    if (XYInRange(currentPosition.armX, currentPosition.armY)) {
+      movetoXY(currentPosition.armX, currentPosition.armY);
+      frc::SmartDashboard::PutBoolean("Invalid Point", false);
+    } else {
+      frc::SmartDashboard::PutBoolean("Invalid Point", true);
+    }
+  }
+}
 
 void ScaraArmModule::runInit() {
   ArmInit();
@@ -327,17 +395,22 @@ void ScaraArmModule::run(){
         frc::SmartDashboard::PutBoolean("scara arm module", true);
 
         if(state = 't') {
-          frc::SmartDashboard::PutNumber("left y scara arm", ctr->GetLeftY());
-          inner->Set(ctr->GetLeftY() / 5);
-          frc::SmartDashboard::PutNumber("right y", ctr->GetRightY());
-          outter->Set(ctr->GetRightY()/ 5);
+          /* Teleop 1:
+          inner->Set(ctr->GetRightX() / 5);
+          outter -> Set(ctr->GetLeftX() / 5);
+          */
+          // Teleop 2
+          dPadMovement(ctr->GetPOV());
 
+          //Grabber
           //grabber.set(ctr->GetLeftTriggerAxis() - ctr->GetRightTriggerAxis());
           frc::SmartDashboard::PutNumber("InnerAngle", inner_enc.GetPosition());
           frc::SmartDashboard::PutNumber("OutterAngle", outter_enc.GetPosition());
         }
 
         if(state = 'a') {
+
+          movetoXY(innerSize, outterSize);
           
         }
 

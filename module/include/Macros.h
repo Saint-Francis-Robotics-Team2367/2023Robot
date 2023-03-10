@@ -24,7 +24,7 @@
 //motorIDs
 #define Shooter1 1
 #define Shooter2 7
-#define shooterIndexer 2
+#define grabberID 2
 #define elevatorID 13
 #define scaraArmInner 12
 #define scaraArmOutter 14
