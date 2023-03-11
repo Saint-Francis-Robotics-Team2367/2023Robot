@@ -3,17 +3,11 @@
 // the WPILib BSD license file in the root directory of this project.
 
 #include "GrabberModule.h"
-
 #include <fmt/core.h>
-#include <frc/XboxController.h>
 #include <frc/smartdashboard/SmartDashboard.h>
 
-frc::XboxController* controller = new frc::XboxController(0);
 
 void Robot::RobotInit() {
-  m_chooser.SetDefaultOption(kAutoNameDefault, kAutoNameDefault);
-  m_chooser.AddOption(kAutoNameCustom, kAutoNameCustom);
-  frc::SmartDashboard::PutData("Auto Modes", &m_chooser);
 }
 
 /**
@@ -38,30 +32,16 @@ void Robot::RobotPeriodic() {}
  * make sure to add them to the chooser code above as well.
  */
 void Robot::AutonomousInit() {
-  m_autoSelected = m_chooser.GetSelected();
-  // m_autoSelected = SmartDashboard::GetString("Auto Selector",
-  //     kAutoNameDefault);
-  fmt::print("Auto selected: {}\n", m_autoSelected);
-
-  if (m_autoSelected == kAutoNameCustom) {
-    // Custom Auto goes here
-  } else {
-    // Default Auto goes here
-  }
 }
 
 void Robot::AutonomousPeriodic() {
-  if (m_autoSelected == kAutoNameCustom) {
-    // Custom Auto goes here
-  } else {
-    // Default Auto goes here
-  }
 }
 
 void Robot::TeleopInit() {}
 
 void Robot::TeleopPeriodic() {
-  grabber->Set(controller->GetLeftX());
+  grabber->Set(controller->GetRightTriggerAxis());
+  grabber->Set(-1*(controller->GetLeftTriggerAxis()));
 }
 
 void Robot::DisabledInit() {}
@@ -70,9 +50,7 @@ void Robot::DisabledPeriodic() {}
 
 void Robot::TestInit() {}
 
-void Robot::TestPeriodic() {
-  
-}
+void Robot::TestPeriodic() {}
 
 void Robot::SimulationInit() {}
 

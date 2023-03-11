@@ -5,9 +5,10 @@
 #pragma once
 
 #include <string>
-#include <rev/CANSparkMax.h>
-#include <frc/TimedRobot.h>
 #include <frc/smartdashboard/SendableChooser.h>
+#include <rev/CANSparkMax.h>
+#include <frc/XboxController.h>
+#include <frc/TimedRobot.h>
 
 class Robot : public frc::TimedRobot {
  public:
@@ -24,11 +25,6 @@ class Robot : public frc::TimedRobot {
   void SimulationInit() override;
   void SimulationPeriodic() override;
   int grabberID = 11;
-  rev::CANSparkMax* grabber = new rev::CANSparkMax(grabberID, rev::CANSparkMax::MotorType::kBrushed);
-
-private:
-  frc::SendableChooser<std::string> m_chooser;
-  const std::string kAutoNameDefault = "Default";
-  const std::string kAutoNameCustom = "My Auto";
-  std::string m_autoSelected;
+  rev::CANSparkMax* grabber = new rev::CANSparkMax (grabberID, rev::CANSparkMax::MotorType::kBrushed);
+  frc::XboxController* controller = new frc::XboxController(0);
 };
