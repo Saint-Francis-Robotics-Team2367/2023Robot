@@ -14,6 +14,7 @@
 #include<frc/XboxController.h>
 #include <frc/shuffleboard/Shuffleboard.h>
 #include <frc/shuffleboard/ShuffleboardTab.h>
+#include "Limelight.h"
 
 #pragma once
 
@@ -60,7 +61,6 @@ class ScaraArmModule {
 
     std::thread scaraArmThread;
     double stopAuto = false;
-    frc::ShuffleboardTab& armTab = frc::Shuffleboard::GetTab("Arm");
     frc::XboxController* ctr;
     ScaraArmModule(frc::XboxController* controller);
     char state = 't';
