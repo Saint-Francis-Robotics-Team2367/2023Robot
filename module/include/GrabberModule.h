@@ -24,7 +24,7 @@ class Robot : public frc::TimedRobot {
   void TestPeriodic() override;
   void SimulationInit() override;
   void SimulationPeriodic() override;
-  int grabberID = 11;
+  int grabberID = 15;
   rev::CANSparkMax* grabber = new rev::CANSparkMax (grabberID, rev::CANSparkMax::MotorType::kBrushed);
   frc::XboxController* controller = new frc::XboxController(0);
 };
