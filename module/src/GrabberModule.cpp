@@ -42,6 +42,7 @@ void Robot::TeleopInit() {}
 void Robot::TeleopPeriodic() {
   grabber->Set(controller->GetRightTriggerAxis());
   grabber->Set(-1*(controller->GetLeftTriggerAxis()));
+
 }
 
 void Robot::DisabledInit() {}
