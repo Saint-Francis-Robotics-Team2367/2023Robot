@@ -42,13 +42,16 @@ bool ElevatorModule::setPos(double setpoint, bool isMotionProfiled) {
         elevatorPID.SetP(pDown);
         elevatorPID.SetD(dDown);
     }
-    while(fabs(currentPosition) < fabs(setpoint)){
+    while(fabs(currentPosition - setpoint) > 0){ //40 < 20, fix this on arm too!!!!!! while(fabs(currentPosition) < fabs(setpoint)){
         if(stopAuto) {
           break;
         }
+
+
+
         timeElapsed = frc::Timer::GetFPGATimestamp().value() - prevTime;
         distanceToDeccelerate = (3 * currentVelocity * currentVelocity) / (2 * maxAcc); //change
-        if (fabs(distanceToDeccelerate) > fabs(setpoint - currentPosition)) {
+        if (fabs(distanceToDeccelerate) > fabs(setpoint - currentPosition)) {  //change this line???
           currentVelocity -= (maxAcc * timeElapsed);
         }
         else //increase velocity
@@ -61,9 +64,21 @@ bool ElevatorModule::setPos(double setpoint, bool isMotionProfiled) {
         }
 
         currentPosition += currentVelocity * timeElapsed;
-        if(fabs(currentPosition) > fabs(setpoint)) {
-          currentPosition = setpoint;
+        // if(fabs(currentPosition) > fabs(setpoint)) {
+        //   currentPosition = setpoint;
+        // }
+        
+        if(setpoint < 0) {
+            if(currentPosition  < setpoint) {   
+                currentPosition = setpoint;
+            }
+        } else {
+            if(currentPosition > setpoint) {
+                currentPosition = setpoint;
+            }
         }
+        
+        
         frc::SmartDashboard::PutNumber("setpoint", setpoint);
         elevatorPID.SetReference(std::copysign(currentPosition, setpoint), rev::CANSparkMax::ControlType::kPosition); //setpoint uses encoder
         prevTime = frc::Timer::GetFPGATimestamp().value();
@@ -159,10 +174,14 @@ void ElevatorModule::run() {
         }
         if(state == 'a') {
             //AutoPeriodic();
-            // if(test) {
-            //     setPos(25, true);
-            //     test = false;
-            // }
+            if(test) {
+                setPos(25, true);
+                test = false;
+            }
+            if(oneRun && !test) {
+                setPos(0);
+                oneRun = false;
+            }
             frc::SmartDashboard::PutNumber("left trigger", ctr->GetLeftTriggerAxis());
         }
         std::this_thread::sleep_until(nextRun);

@@ -13,6 +13,7 @@
 #include "Macros.h"
 #include<frc/XboxController.h>
 
+
 #pragma once
 
 #ifndef max
@@ -46,7 +47,7 @@ class ScaraArmModule {
     const double innerSize = 24.625;
     const double outterSize = 24.500;
 
-    //Grabber grabber;
+    //Grabber* grabber = new Grabber();
     
 
     std::thread scaraArmThread;

@@ -59,7 +59,7 @@ class ElevatorModule {
     double pUp = 0.1; 
     double dUp = 0.0;
 
-    bool oneRun = false;
+    bool oneRun = true;
 
 
     ElevatorModule(frc::XboxController* controller);
