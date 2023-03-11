@@ -9,7 +9,7 @@
 #include <frc/controller/PIDController.h>
 #include <thread>
 #include <chrono>
-#include<mutex>
+#include <mutex>
 #include <atomic>
 
 #define driverStickPort 0
@@ -82,8 +82,7 @@ class DriveBaseModule{ //needed for gyroPIDDrive implementation
   void arcadeDrive(double vel, double dir); //takes two values from the joystick and converts them into motor output %
   bool PIDDrive(float totalFeet, bool keepVelocity);
   bool PIDTurn(float angle, float radius, bool keepVelocity);
-  void autonomousSequence();
-  void initPath();   
+  void autonomousSequence();   
   void run();
   void runInit();
   void gyroDriving();
@@ -117,7 +116,6 @@ class DriveBaseModule{ //needed for gyroPIDDrive implementation
   float theta = 0;
   float angle = 0; 
   float radius = 0; 
-  float center = 0; 
   //bool PIDGyroTurn(float angle, float radius, float maxAcc, float maxVelocity);
   float prevTime; //all for limit rate
   float prev_value_speed;

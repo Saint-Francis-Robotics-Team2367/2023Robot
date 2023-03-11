@@ -431,95 +431,54 @@ bool DriveBaseModule::PIDTurn(float angle, float radius, bool keepVelocity) { //
   return true;
 }
 
-void DriveBaseModule::initPath() { 
-  // starting pos
-  robPos.x = 0;
-  robPos.y = 0;
+void DriveBaseModule::autonomousSequence() { 
+  // adding instructions to path 
+  // need to define path points depending on how many you need! 
+  autoPath a(autoPathType::straight); 
+  a.register_straight(2); 
 
-  int lastDel = 0; 
-  int delIndex = 0; 
-  bool straight = true; 
-  bool vel = false; 
-  int runCount = 0; 
-  std::string path = defaultPath; 
-  std::string currPath = ""; 
-  
+  // autoPath b(autoPathType::turn); 
+  // b.register_turn(-45, 5);
+
+  // autoPath c(autoPathType::straight); 
+  // c.register_straight(0, 5);
+
+  autoPath defaultPath[1] = {autoPath(autoPathType::straight)};
+  // autoPath path1[1] = {autoPath(autoPathType::straight)};
+  defaultPath[0] = a; 
+  // defaultPath[1] = b; 
+  // defaultPath[2] = c; 
+  int numSteps = 1; // CHANGE DEPENDING ON LENGTH OF LIST
+
+  int index = 0;
+
   selected = chooser.GetSelected();
 
-  if (selected == autoCustom){
-    path = path1; 
-  }
+  // need to adjust code if want to have multiple paths
+  // if (selected == autoCustom){
+    // path = path1; }
 
-  while (lastDel < path.length()){
-    delIndex = path.find(delimiter, lastDel); 
-    currPath = path.substr(lastDel, delIndex); 
-    frc::SmartDashboard::PutString("current instruction", currPath); 
-
-    // adding turning to path order 
-    straight = (currPath[0] == 's') ? true : false; 
-    frc::SmartDashboard::PutBoolean("straight", straight); 
-    pathOrder.push_back(straight); 
-
-    if (straight) {
-      pathPoint point; 
-      point.x = std::stoi(currPath.substr(2, currPath.find(",")));
-      currPath.erase(0, currPath.find(",") + 1);
-      point.y = std::stoi(currPath.substr(0, currPath.find(",")));
-      currPath.erase(0, currPath.find(",") + 1);
-      // frc::SmartDashboard::PutNumber("straight x", point.x); 
-      // frc::SmartDashboard::PutNumber("straight y", point.y);
-      straightLinePoints.push_back(point);
-    }
-    else {
-      radiusTurnPoint rpoint;
-      rpoint.angle = std::stoi(currPath.substr(2, currPath.find(","))); // neg
-      currPath.erase(0, currPath.find(",") + 1); 
-      rpoint.radius = std::stoi(currPath.substr(0, currPath.find(",")));
-      currPath.erase(0, currPath.find(",") + 1);
-      // frc::SmartDashboard::PutNumber("rpoint radius", rpoint.radius); 
-      // frc::SmartDashboard::PutNumber("rpoint angle", rpoint.angle); 
-      radiusTurnPoints.push_back(rpoint);
-    }
-
-    vel = (currPath == "true") ? true : false;
-    keepVelocity.push_back(vel);
-
-    lastDel = delIndex+1; 
-    runCount++;
-  }
-}
-
-void DriveBaseModule::autonomousSequence() { 
-  initPath();
-  int index = 0;
-  int lineIndex = 0;
-  int curveIndex = 0;
-  while(index < pathOrder.size()) {
+  while(index < numSteps) {
+    frc::SmartDashboard::PutBoolean("straight", defaultPath[index].straight); 
     if(stopAuto) {
       break;
     }
-    if(pathOrder.at(index)) {
-     // theta = theta - robTheta; //robTheta inited to zero
-     // robTheta += theta;
-
-     // PIDTurn(theta, 0, keepVelocity.at(index)); 
-     PIDDrive(d, keepVelocity.at(index));
-     lineIndex++; 
+    if(defaultPath[index].straight) {
+      frc::SmartDashboard::PutNumber("dis", defaultPath[index].dis);
+      PIDDrive(defaultPath[index].dis, defaultPath[index].keepVelocity);
      } 
      else { 
       // retrieving angle and radius of turn 
-      angle = radiusTurnPoints.at(curveIndex).angle; 
-      radius = radiusTurnPoints.at(curveIndex).radius; 
+      angle = defaultPath[index].angle; 
+      radius = defaultPath[index].radius; 
+      frc::SmartDashboard::PutNumber("angle", angle); 
+      frc::SmartDashboard::PutNumber("radius", radius);
 
       if (angle > 0){ // robot starts at 180 deg for right turns 
         angle = -(angle - 180);
       }
-
-      robTheta += angle; 
-      frc::SmartDashboard::PutNumber("robTheta after adding", robTheta);
     
-      PIDTurn(angle, radius, keepVelocity.at(index));
-      curveIndex++;
+      PIDTurn(angle, radius, defaultPath[index].keepVelocity);
     }
     index++;
     frc::SmartDashboard::PutNumber("index", index);
@@ -672,11 +631,11 @@ void DriveBaseModule::run() {
       }
       double left = lEncoder.GetPosition();
       double right = rEncoder.GetPosition();
-      frc::SmartDashboard::PutNumber("left", left);
-      frc::SmartDashboard::PutNumber("right", right);
+      // frc::SmartDashboard::PutNumber("left", left);
+      // frc::SmartDashboard::PutNumber("right", right);
       updatePos(left - last_Lencoder, right - last_Rencoder, ahrs->GetAngle());
-      frc::SmartDashboard::PutNumber("X", position.at(0));
-      frc::SmartDashboard::PutNumber("Y", position.at(1));
+      // frc::SmartDashboard::PutNumber("X", position.at(0));
+      // frc::SmartDashboard::PutNumber("Y", position.at(1));
       
       last_Lencoder = left;
       last_Rencoder = right;

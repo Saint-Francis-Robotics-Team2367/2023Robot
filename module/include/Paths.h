@@ -2,19 +2,43 @@
 #include <frc/SmartDashboard/SendableChooser.h>
 #include <string> 
 
-// straight paths (s): x,y 
-// turn paths (r): angle, radius 
-// false/true determine keeping velocity 
-std::string defaultPath = "r 90,0,false|r -90,0,false|s 0,6,false|s 0,0,false|"; 
-std::string path1 = "s 0,2,false|r -45,3,false|r 45,3,false|"; 
-// can add more paths with path2, path3, etc. 
+enum autoPathType
+{
+    turn = false,
+    straight = true
+};
 
-char delimiter = '|';
+class autoPath {
+    public:
+        autoPathType straight; 
+        int dis; 
+        int angle; 
+        int radius; 
+        bool keepVelocity;
+
+        autoPath(autoPathType type, bool keepV=false){
+            keepVelocity = keepV;
+            straight = type;
+        };
+
+        void register_turn(int ang, int r=0){
+            radius = r;
+            angle = ang; 
+        };
+
+        void register_straight(int d){
+            dis = d; 
+        };
+};
+
+
+// autoPath path[2]; 
+// autoPath path1[2]; 
 
 // choosing an autonomous path 
 frc::SendableChooser<std::string> chooser;
 const std::string autoDefault = "Default";
-const std::string autoCustom = path1; // define more variables if there are more custom paths 
+const std::string autoCustom = "Path 1"; // define more variables if there are more custom paths 
 std::string selected;
 
 
