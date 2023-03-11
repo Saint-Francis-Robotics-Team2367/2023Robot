@@ -14,7 +14,7 @@
 void Robot::RobotInit() {}
 
 void Robot::RobotPeriodic() {
-  std::vector<double> pose = nt::NetworkTableInstance::GetDefault().GetTable("limelight")->GetNumberArray("", std::vector<double>(6));
+  std::vector<double> pose = nt::NetworkTableInstance::GetDefault().GetTable("limelight")->GetNumberArray("targetpose_robotspace", std::vector<double>(6));
   frc::SmartDashboard::PutNumber("X", pose.at(0));
   frc::SmartDashboard::PutNumber("Y", pose.at(1));
   frc::SmartDashboard::PutNumber("Angle", pose.at(5));
