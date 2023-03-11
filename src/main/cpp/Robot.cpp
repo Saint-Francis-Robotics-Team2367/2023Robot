@@ -8,16 +8,20 @@
 
 #include "Limelight.h"
 #include <frc/smartdashboard/SmartDashboard.h>
-
-//Limelight ll;
+Limelight ll;
 
 void Robot::RobotInit() {}
 
 void Robot::RobotPeriodic() {
   std::vector<double> pose = nt::NetworkTableInstance::GetDefault().GetTable("limelight")->GetNumberArray("targetpose_robotspace", std::vector<double>(6));
-  frc::SmartDashboard::PutNumber("X", pose.at(0));
-  frc::SmartDashboard::PutNumber("Y", pose.at(1));
-  frc::SmartDashboard::PutNumber("Angle", pose.at(5));
+  frc::SmartDashboard::PutNumber("X", pose.at(0) * 39.37);
+  frc::SmartDashboard::PutNumber("Y", pose.at(2) * 39.37);
+  frc::SmartDashboard::PutNumber("Angle", pose.at(4));
+  std::vector<double> tagXY = ll.getTargetXY(pose.at(0) * 39.37, pose.at(2) * 39.37, pose.at(4), 0);
+  frc::SmartDashboard::PutNumber("tagX", tagXY.at(0));
+  frc::SmartDashboard::PutNumber("tagY", tagXY.at(1));
+
+
 
 }
 
