@@ -55,8 +55,8 @@ void DriveBaseModule::arcadeDrive(double xSpeedi, double zRotationi) {
     if (fabs(zRotationi) < yDeadband)
         zRotationi = 0;
 
-    double xSpeed = std::copysign(pow(fabs(xSpeedi), 1.8), xSpeedi);
-    double zRotation = std::copysign(pow(fabs(zRotationi), 2), zRotationi);
+    double xSpeed = std::copysign(pow(fabs(xSpeedi), 2.5), xSpeedi);
+    double zRotation = std::copysign(pow(fabs(zRotationi), 2.5), zRotationi);
 
     LimitRate(xSpeed, zRotation);
 
