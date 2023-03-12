@@ -9,15 +9,20 @@
 #include "Limelight.h"
 #include <frc/smartdashboard/SmartDashboard.h>
 
-//Limelight ll;
+Limelight ll; 
 
-void Robot::RobotInit() {}
+void Robot::RobotInit() {
+  ll.switchToPipeline(3);
+}
 
 void Robot::RobotPeriodic() {
-  std::vector<double> pose = nt::NetworkTableInstance::GetDefault().GetTable("limelight")->GetNumberArray("", std::vector<double>(6));
-  frc::SmartDashboard::PutNumber("X", pose.at(0));
-  frc::SmartDashboard::PutNumber("Y", pose.at(1));
-  frc::SmartDashboard::PutNumber("Angle", pose.at(5));
+  std::vector<double> pose = ll.getFieldPos();
+  std::vector<double> rra = ll.getRetroreflectiveAngles();
+  int curpipeline = ll.getPipeline();
+  frc::SmartDashboard::PutNumber("Pipeline", curpipeline);
+  frc::SmartDashboard::PutNumber("R1", rra.at(0));
+  frc::SmartDashboard::PutNumber("R2", rra.at(1));
+
 
 }
 

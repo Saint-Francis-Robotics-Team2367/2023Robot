@@ -1,7 +1,7 @@
 #include <vector>
-#include "networktables/NetworkTable.h"
-#include <networktables/NetworkTableInstance.h>
 #include <cmath>
+#include <LimelightHelpers.h>
+#include <frc/SmartDashboard/SmartDashboard.h>
 
 #define PI 3.14159265359
 
@@ -30,8 +30,12 @@ class Limelight {
     };
 
     std::vector<double> getTargetCoords() {
-        double px = nt::NetworkTableInstance::GetDefault().GetTable("limelight")->GetNumber("tx",0.0);
-        double py = nt::NetworkTableInstance::GetDefault().GetTable("limelight")->GetNumber("ty",0.0);
+        // double px = nt::NetworkTableInstance::GetDefault().GetTable("limelight")->GetNumber("tx",0.0);
+        // double py = nt::NetworkTableInstance::GetDefault().GetTable("limelight")->GetNumber("ty",0.0);
+       
+        double px = LimelightHelpers::getTX("");
+        double py = LimelightHelpers::getTY("");
+
         return std::vector<double> {px, py};
     }
 
@@ -90,6 +94,26 @@ class Limelight {
 
         return std::vector{targetX + tagX, targetY + tagY};
     }
+
+    std::vector<double> getFieldPos(){
+        std::vector<double> pose = LimelightHelpers::getBotpose("");
+        return pose; //TX, TY, TZ, RX, RY, RZ
+    }
+
+    std::vector<double> getRetroreflectiveAngles(){
+        double tx = LimelightHelpers::getTX("");
+        double ty = LimelightHelpers::getTY("");
+        return std::vector<double>{tx, ty};
+    }
+
+    void switchToPipeline(int pipeline){
+        LimelightHelpers::setPipelineIndex("", pipeline);
+    }
+
+    int getPipeline(){
+        return LimelightHelpers::getLimelightNTDouble("", "pipeline");
+    }
+    
     private:
 
 
