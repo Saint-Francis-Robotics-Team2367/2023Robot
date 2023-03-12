@@ -1,4 +1,7 @@
 #include <vector>
+#include "networktables/NetworkTable.h"
+#include <networktables/NetworkTableInstance.h>
+#include <frc/smartdashboard/SmartDashboard.h>
 #include <cmath>
 #include <LimelightHelpers.h>
 #include <frc/SmartDashboard/SmartDashboard.h>
@@ -16,10 +19,10 @@ class Limelight {
     double longY = 25.37496;
 
     
-    double shortD = (X * X) + (shortY * shortY);
-    double longD = (X * X) + (longY * longY);
-    double shortAngle = atan(shortY / X);
-    double longAngle = atan(longY / X);
+    double shortD = sqrt((X * X) + (shortY * shortY));
+    double longD = sqrt((X * X) + (longY * longY));
+    double shortAngle = atan(shortY / X) * 180 / PI;
+    double longAngle = atan(longY / X) * 180 / PI;
 
     std::vector<std::vector<double> > polePolarArray { //pole is 0, 1, 2, 3 for bottom right, bottom left, top right, top left
         {shortD, shortAngle}, //length, angle
@@ -84,15 +87,22 @@ class Limelight {
 
     std::vector<double> getTargetXY(double targetX, double targetY, double targetAngle, int pole) { //pole is 0, 1, 2, 3 for bottom right, bottom left, top right, top left
         //Assume we got x_target, y_target, angle to target
+        frc::SmartDashboard::PutNumber("closeConeMag", polePolarArray.at(0).at(0));
+        frc::SmartDashboard::PutNumber("farConeMag", polePolarArray.at(2).at(0));
+        frc::SmartDashboard::PutNumber("closeConeAngle", polePolarArray.at(0).at(1));
+        frc::SmartDashboard::PutNumber("farConeAngle", polePolarArray.at(2).at(1));
 
-        double targetDistancePolar = polePolarArray.at(pole).at(0); //Depends on pole selected
-        double targetAnglePolar = polePolarArray.at(pole).at(1); //Depends on pole selection
 
-        double finalAngle = targetAngle + targetAnglePolar;
-        double tagX = targetDistancePolar * cos(finalAngle);
-        double tagY = targetDistancePolar * sin(finalAngle);
+        double tag_RelMagnitude = polePolarArray.at(pole).at(0);
+        double tag_RelAngle = polePolarArray.at(pole).at(1);
 
-        return std::vector{targetX + tagX, targetY + tagY};
+        frc::SmartDashboard::PutNumber("tagRelAngle", tag_RelAngle);
+        frc::SmartDashboard::PutNumber("tagRelMag", tag_RelMagnitude);
+
+        double xIncrement = tag_RelMagnitude * cos(tag_RelAngle + targetAngle);
+        double yIncrement = tag_RelMagnitude * sin(tag_RelAngle + targetAngle);
+
+        return std::vector{targetX + xIncrement, targetY + yIncrement};
     }
 
     std::vector<double> getFieldPos(){
