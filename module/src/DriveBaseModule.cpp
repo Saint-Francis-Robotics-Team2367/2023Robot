@@ -47,14 +47,6 @@ void DriveBaseModule::LimitRate(double& s, double& t) {
     prevTime = currTime;
 }
 
-double DriveBaseModule::skim(double v) { //this for each motor to shave some stuff off on each side
-  if (v > 1.0) {
-    return -((v - 1.0) * driveTurningGain);
-  } else if (v < -1.0) {
-    return -((v + 1.0) * driveTurningGain);
-  } return 0; 
-}
-
 //need to TEST SKIM CONSTANT
 void DriveBaseModule::arcadeDrive(double xSpeedi, double zRotationi) {
     if (fabs(xSpeedi) < xDeadband)
@@ -76,10 +68,6 @@ void DriveBaseModule::arcadeDrive(double xSpeedi, double zRotationi) {
         
     if (rightMotorOutput != 0)
         rightMotorOutput = std::copysign((1/(1-yDeadband)) * fabs(rightMotorOutput) - (yDeadband/(1/yDeadband)), rightMotorOutput);
-
-    //IN TESTING IN ACCORDANCE WITH THE GYRO DRIVE, CHECKK
-    leftMotorOutput += skim(rightMotorOutput); //NEED TO TEST ASKKKK
-    rightMotorOutput += skim(leftMotorOutput); //NEED TO TEST ASKKKK
 
     leftMotorOutput = std::clamp(leftMotorOutput, -1.0, 1.0);
     rightMotorOutput = std::clamp(rightMotorOutput, -1.0, 1.0);

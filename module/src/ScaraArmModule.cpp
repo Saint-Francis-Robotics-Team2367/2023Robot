@@ -336,21 +336,38 @@ double out;
 
 void ScaraArmModule::runInit() {
   ArmInit();
+  grabber->Init();
+  grabber->grabberMotor->SetSmartCurrentLimit(5);
 }
 
 void ScaraArmModule::run(){
    runInit();
+   int counter = 0;
     while(true) {
         auto nextRun = std::chrono::steady_clock::now() + std::chrono::milliseconds(5); //change milliseconds at telop
         frc::SmartDashboard::PutBoolean("scara arm module", true);
+        
 
         if(state = 't') {
-          frc::SmartDashboard::PutNumber("left y scara arm", ctr->GetLeftY());
-          inner->Set(ctr->GetLeftY() / 5);
-          frc::SmartDashboard::PutNumber("right y", ctr->GetRightY());
-          outter->Set(ctr->GetRightY()/ 5);
+          // frc::SmartDashboard::PutNumber("left y scara arm", ctr->GetLeftY());
+            inner->Set(ctr->GetRightTriggerAxis() / 5);
+          // frc::SmartDashboard::PutNumber("right y", ctr->GetRightY());
+           outter->Set(ctr->GetLeftTriggerAxis()/ 5);
 
-          //grabber.set(ctr->GetLeftTriggerAxis() - ctr->GetRightTriggerAxis());
+          //grabber->set(ctr->GetLeftTriggerAxis() - ctr->GetRightTriggerAxis());
+          
+          if(ctr->GetBButtonPressed()) {
+            counter += 1;
+            counter = counter % 3;
+          }
+
+          if(counter == 0) {
+            grabber->grabberMotor->StopMotor();
+          } else if (counter == 1) {
+            grabber->set(1);
+          } else {
+            grabber->set(-1.0);
+          }
           frc::SmartDashboard::PutNumber("InnerAngle", inner_enc.GetPosition());
           frc::SmartDashboard::PutNumber("OutterAngle", outter_enc.GetPosition());
         }

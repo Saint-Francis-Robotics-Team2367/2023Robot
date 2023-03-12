@@ -11,6 +11,7 @@
 #include "ScaraArmModule.h"
 
 frc::XboxController* ctr = new frc::XboxController(0); 
+//frc::XboxController* ctrextra = new frc::XboxController(1);
 
 DriveBaseModule drive;
 ElevatorModule elev(ctr);
@@ -33,9 +34,9 @@ void Robot::RobotInit()
   // //compRobotDrive.periodicInit();
 
   // //need drive inits
-  //drive.driveThread.detach(); 
-  arm.scaraArmThread.detach();
-  elev.elevatorThread.detach();
+  drive.driveThread.detach(); 
+  //arm.scaraArmThread.detach();
+  //elev.elevatorThread.detach();
  
 }
 
@@ -50,14 +51,24 @@ void Robot::RobotPeriodic()
   // frc::SmartDashboard::PutNumber("Inner", in_angle);
   // frc::SmartDashboard::PutNumber("Outter", out_angle);
   // frc::SmartDashboard::PutNumber("XPOS", arm.Angles_to_XY(in_angle, out_angle).at(0));
-  // frc::SmartDashboard::PutNumber("YPOS", arm.Angles_to_XY(in_angle, out_angle).at(1));
+  // // frc::SmartDashboard::PutNumber("YPOS", arm.Angles_to_XY(in_angle, out_angle).at(1));
+  //   if(ctr->GetAButton()) {
+  //   frc::SmartDashboard::PutNumber("first ctr1", 20);
+  // }
+
+  // // if(ctrextra->GetBButton()) {
+  // //   frc::SmartDashboard::PutNumber("second ctr2", 10);
+  // // }
   
+  // frc::SmartDashboard::PutNumber("trigger", ctr->GetRightTriggerAxis() - ctr->GetLeftTriggerAxis());
+  //randomTest->Set(ctr->GetRightTriggerAxis() - ctr->GetLeftTriggerAxis());
 }
 void Robot::AutonomousInit()
 {
   drive.state = 'a';
   elev.state = 'a';
   arm.state = 'a';
+
   // arm.inner_enc.SetPosition(0);
   // arm.outter_enc.SetPosition(0);
   

@@ -11,7 +11,7 @@ class Grabber {
 
     void Init() {
         grabberMotor->SetIdleMode(rev::CANSparkMax::IdleMode::kBrake);
-        grabberMotor->SetSmartCurrentLimit(10);
+        grabberMotor->SetSmartCurrentLimit(5);
     }
 
     void set(double inp) {

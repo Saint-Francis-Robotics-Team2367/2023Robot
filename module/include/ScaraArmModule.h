@@ -12,6 +12,7 @@
 #include <atomic>
 #include "Macros.h"
 #include<frc/XboxController.h>
+#include <Grabber.h>
 
 
 #pragma once
@@ -47,7 +48,7 @@ class ScaraArmModule {
     const double innerSize = 24.625;
     const double outterSize = 24.500;
 
-    //Grabber* grabber = new Grabber();
+    Grabber* grabber = new Grabber();
     
 
     std::thread scaraArmThread;
