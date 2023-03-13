@@ -12,6 +12,13 @@
 class Limelight {
     public:
 
+    enum poleIDs {
+        bottomRightPole = 0,
+        bottomLeftPole = 1,
+        topRightPole = 2,
+        topLeftPole = 3
+    };
+
     //distance
     //Clean this up later...
     double X = 21.55491;
@@ -108,6 +115,11 @@ class Limelight {
     std::vector<double> getFieldPos(){
         std::vector<double> pose = LimelightHelpers::getBotpose("");
         return pose; //TX, TY, TZ, RX, RY, RZ
+    }
+
+    std::vector<double> getTargetPoseRobotSpace() {
+        std::vector<double> pose = LimelightHelpers::getTargetPose_RobotSpace("");
+        return pose;
     }
 
     std::vector<double> getRetroreflectiveAngles(){
