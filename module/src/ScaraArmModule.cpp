@@ -404,7 +404,19 @@ void ScaraArmModule::run(){
           outter -> Set(ctr->GetLeftX() / 5);
           */
           // Teleop 2
-          dPadMovement(ctr->GetPOV());
+          //dPadMovement(ctr->GetPOV());
+          if (ctr->GetAButton()) {
+            std::vector<double> targetPose = ll.getTargetPoseRobotSpace();
+            Limelight::Point targetXY = ll.getTargetXY(targetPose.at(0) * 39.37, targetPose.at(2) * 39.37, targetPose.at(4), Limelight::bottomRightPole); // X, Y, yaw, poleID
+            frc::SmartDashboard::PutNumber("TapeX", targetXY.x);
+            frc::SmartDashboard::PutNumber("TapeY", targetXY.y);
+            movetoXY(targetXY.x, targetXY.y);
+
+          } else {
+            inner->Set(0);
+            outter->Set(0);
+          }
+
 
           //Grabber
           //grabber.set(ctr->GetLeftTriggerAxis() - ctr->GetRightTriggerAxis());

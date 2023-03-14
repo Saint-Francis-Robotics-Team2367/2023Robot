@@ -8,11 +8,19 @@
 
 #include "Limelight.h"
 #include <frc/smartdashboard/SmartDashboard.h>
+#include "ScaraArmModule.h"
+#include <frc/XboxController.h>
 
+frc::XboxController* ctr = new frc::XboxController(0);
+
+
+ScaraArmModule arm(ctr);
 Limelight ll; 
 
 void Robot::RobotInit() {
   //ll.switchToPipeline(3);
+  arm.scaraArmThread.detach();
+  
 }
 
 void Robot::RobotPeriodic() {
@@ -35,11 +43,18 @@ void Robot::RobotPeriodic() {
 
 }
 
-void Robot::AutonomousInit() {}
+void Robot::AutonomousInit() {
+  arm.state = 'a';
+}
 
 void Robot::AutonomousPeriodic() {}
 
-void Robot::TeleopInit() {}
+void Robot::TeleopInit() {
+  arm.state = 't';
+
+  
+
+}
 
 void Robot::TeleopPeriodic() {}
 

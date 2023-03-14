@@ -59,6 +59,8 @@ class ScaraArmModule {
     // Can also use a different widget type:
     // .WithWidget(&frc::BuiltInWidgets::kSplitButtonChooser);
 
+    Limelight ll;
+
     std::thread scaraArmThread;
     double stopAuto = false;
     frc::XboxController* ctr;
