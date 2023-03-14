@@ -3,6 +3,7 @@
 #include <networktables/NetworkTableInstance.h>
 #include <frc/smartdashboard/SmartDashboard.h>
 #include <cmath>
+#include <iostream>
 #include <LimelightHelpers.h>
 #include <frc/SmartDashboard/SmartDashboard.h>
 
@@ -19,17 +20,27 @@ class Limelight {
         topLeftPole = 3
     };
 
+    struct Point {
+        double x;
+        double y;
+    };
+     
+    struct polarPoint {
+        double mag; //Inches
+        double ang; //Degrees
+    };
+
     //distance
     //Clean this up later...
-    double X = 21.55491;
-    double shortY = 8.65436;
-    double longY = 25.37496;
+    const double X = 21.55491;
+    const double shortY = 8.65436;
+    const double longY = 25.37496;
 
     
-    double shortD = sqrt((X * X) + (shortY * shortY));
-    double longD = sqrt((X * X) + (longY * longY));
-    double shortAngle = atan(shortY / X) * 180 / PI;
-    double longAngle = atan(longY / X) * 180 / PI;
+    const double shortD = sqrt((X * X) + (shortY * shortY));
+    const double longD = sqrt((X * X) + (longY * longY));
+    const double shortAngle = atan(shortY / X) * 180 / PI;
+    const double longAngle = atan(longY / X) * 180 / PI;
 
     std::vector<std::vector<double> > polePolarArray { //pole is 0, 1, 2, 3 for bottom right, bottom left, top right, top left
         {shortD, shortAngle}, //length, angle
@@ -92,24 +103,15 @@ class Limelight {
     //}
 
 
-    std::vector<double> getTargetXY(double targetX, double targetY, double targetAngle, int pole) { //pole is 0, 1, 2, 3 for bottom right, bottom left, top right, top left
-        //Assume we got x_target, y_target, angle to target
-        frc::SmartDashboard::PutNumber("closeConeMag", polePolarArray.at(0).at(0));
-        frc::SmartDashboard::PutNumber("farConeMag", polePolarArray.at(2).at(0));
-        frc::SmartDashboard::PutNumber("closeConeAngle", polePolarArray.at(0).at(1));
-        frc::SmartDashboard::PutNumber("farConeAngle", polePolarArray.at(2).at(1));
-
-
+    Point getTargetXY(double targetX, double targetY, double targetAngle, int pole) { //pole is 0, 1, 2, 3 for bottom right, bottom left, top right, top left
         double tag_RelMagnitude = polePolarArray.at(pole).at(0);
-        double tag_RelAngle = polePolarArray.at(pole).at(1);
+        double tag_RelAngle = polePolarArray.at(pole).at(1) * PI / 180;
+        double angleToTarg =  atan(fabs(targetY / targetX));
+        targetAngle = targetAngle * PI / 180;
+        double tapeX = targetX + (tag_RelMagnitude * cos(angleToTarg - targetAngle + tag_RelAngle));
+        double tapeY = targetY + (tag_RelMagnitude * sin(angleToTarg - targetAngle + tag_RelAngle));
 
-        frc::SmartDashboard::PutNumber("tagRelAngle", tag_RelAngle);
-        frc::SmartDashboard::PutNumber("tagRelMag", tag_RelMagnitude);
-
-        double xIncrement = tag_RelMagnitude * cos(tag_RelAngle + targetAngle);
-        double yIncrement = tag_RelMagnitude * sin(tag_RelAngle + targetAngle);
-
-        return std::vector{targetX + xIncrement, targetY + yIncrement};
+        return Point{tapeX, tapeY};
     }
 
     std::vector<double> getFieldPos(){
@@ -118,7 +120,9 @@ class Limelight {
     }
 
     std::vector<double> getTargetPoseRobotSpace() {
-        std::vector<double> pose = LimelightHelpers::getTargetPose_RobotSpace("");
+        //std::vector<double> pose = LimelightHelpers::getTargetPose_RobotSpace("limelight");
+        //Above code returned an empty vector for some reason
+        std::vector<double> pose = nt::NetworkTableInstance::GetDefault().GetTable("limelight")->GetNumberArray("targetpose_robotspace", std::vector<double>(6));
         return pose;
     }
 

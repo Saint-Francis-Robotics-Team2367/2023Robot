@@ -12,32 +12,24 @@
 Limelight ll; 
 
 void Robot::RobotInit() {
-  ll.switchToPipeline(3);
+  //ll.switchToPipeline(3);
 }
 
 void Robot::RobotPeriodic() {
   //std::vector<double> pose = ll.getFieldPos();
   //std::vector<double> rra = ll.getRetroreflectiveAngles();
-  int curpipeline = ll.getPipeline();
-  frc::SmartDashboard::PutNumber("Pipeline", curpipeline);
+  //int curpipeline = ll.getPipeline();
+  //frc::SmartDashboard::PutNumber("Pipeline", curpipeline);
   //frc::SmartDashboard::PutNumber("R1", rra.at(0));
   //frc::SmartDashboard::PutNumber("R2", rra.at(1));
 
   //Get TargetPose Robot Space:
   std::vector<double> targetPose = ll.getTargetPoseRobotSpace();
-  std::vector<double> targetXY = ll.getTargetXY(targetPose.at(0), targetPose.at(2), targetPose.at(4), ll.bottomRightPole); // X, Y, yaw, poleID
-  frc::SmartDashboard::PutNumber("TapeX", targetXY.at(0));
-  frc::SmartDashboard::PutNumber("TapeY", targetXY.at(1));
+  Limelight::Point targetXY = ll.getTargetXY(targetPose.at(0) * 39.37, targetPose.at(2) * 39.37, targetPose.at(4), Limelight::bottomRightPole); // X, Y, yaw, poleID
+  frc::SmartDashboard::PutNumber("TapeX", targetXY.x);
+  frc::SmartDashboard::PutNumber("TapeY", targetXY.y);
 
-  /*
-  std::vector<double> pose = nt::NetworkTableInstance::GetDefault().GetTable("limelight")->GetNumberArray("targetpose_robotspace", std::vector<double>(6));
-  frc::SmartDashboard::PutNumber("X", pose.at(0) * 39.37);
-  frc::SmartDashboard::PutNumber("Y", pose.at(2) * 39.37);
-  frc::SmartDashboard::PutNumber("Angle", pose.at(4));
-  std::vector<double> tagXY = ll.getTargetXY(pose.at(0) * 39.37, pose.at(2) * 39.37, pose.at(4), 0);
-  frc::SmartDashboard::PutNumber("tagX", tagXY.at(0));
-  frc::SmartDashboard::PutNumber("tagY", tagXY.at(1));
-  */
+
 
 
 
