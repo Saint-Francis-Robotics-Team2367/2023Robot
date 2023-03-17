@@ -5,7 +5,7 @@
 
 class Grabber {
     public:
-    rev::CANSparkMax* grabberMotor = new rev::CANSparkMax(grabberID, rev::CANSparkMax::MotorType::kBrushed);;
+    rev::CANSparkMax* grabberMotor = new rev::CANSparkMax(grabberID, rev::CANSparkMax::MotorType::kBrushed);
 
     bool state = true;// T = closed, F = open
 
