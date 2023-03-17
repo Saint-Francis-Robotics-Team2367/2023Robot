@@ -585,7 +585,7 @@ void DriveBaseModule::run() {
 
     if(state == 't') {
       //perioidic routines
-      gyroDriving();
+      //gyroDriving();
       //honestly let's move to xbox joystick maybe
       //elev->TeleopPeriodic(driverStick->GetLeftTriggerAxis(), driverStick->GetRightTriggerAxis()); 
       

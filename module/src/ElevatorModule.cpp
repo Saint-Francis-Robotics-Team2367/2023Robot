@@ -131,30 +131,30 @@ void ElevatorModule::run() {
         frc::SmartDashboard::PutNumber("elev left y", ctr->GetLeftY());
        
         if(state == 't') {
-             if(!currentlyMoving) {
-                if(ctr->GetXButtonPressed()) {
-                currentlyMoving = true;
-                setPos(kHighScoreHeight, true);
-                frc::SmartDashboard::PutBoolean("x pressed", true);
-                currentlyMoving = false;
-            }
+            //  if(!currentlyMoving) {
+            //     if(ctr->GetXButtonPressed()) {
+            //     currentlyMoving = true;
+            //     setPos(kHighScoreHeight, true);
+            //     frc::SmartDashboard::PutBoolean("x pressed", true);
+            //     currentlyMoving = false;
+            // }
 
-             if(ctr->GetAButton()) {
-                currentlyMoving = true;
-                setPos(kLowScoreHeight, true);
-                frc::SmartDashboard::PutBoolean("B pressed", true);
-                currentlyMoving = false;
-            }
+            //  if(ctr->GetAButton()) {
+            //     currentlyMoving = true;
+            //     setPos(kLowScoreHeight, true);
+            //     frc::SmartDashboard::PutBoolean("B pressed", true);
+            //     currentlyMoving = false;
+            // }
 
-            if(ctr->GetYButton()) {
-                currentlyMoving = true;
-                setPos(kLowestHeight, true);
-                frc::SmartDashboard::PutBoolean("y pressed", true);
-                currentlyMoving = false;
-            }
-            }
-            //need this line for down movement to work? also is manual, could replace triggers with 0, 0 and it works
-            TeleopPeriodic(ctr->GetLeftTriggerAxis(), ctr->GetRightTriggerAxis()); //for some reason either need this or teleop periodic for moving downwards to work
+            // if(ctr->GetYButton()) {
+            //     currentlyMoving = true;
+            //     setPos(kLowestHeight, true);
+            //     frc::SmartDashboard::PutBoolean("y pressed", true);
+            //     currentlyMoving = false;
+            // }
+            // }
+            // //need this line for down movement to work? also is manual, could replace triggers with 0, 0 and it works
+            // TeleopPeriodic(ctr->GetLeftTriggerAxis(), ctr->GetRightTriggerAxis()); //for some reason either need this or teleop periodic for moving downwards to work
             
         }
         if(state == 'a') {

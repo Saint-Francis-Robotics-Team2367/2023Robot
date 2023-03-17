@@ -14,7 +14,7 @@
 #include<frc/XboxController.h>
 #include <frc/shuffleboard/Shuffleboard.h>
 #include <frc/shuffleboard/ShuffleboardTab.h>
-#include "Limelight.h"
+//#include "Limelight.h"
 
 #pragma once
 
@@ -31,8 +31,8 @@
 class ScaraArmModule {
     public:
 
-    const double startInner = 146 + 180;
-    const double startOutter = 150;
+    const double startInner = 180;
+    const double startOutter = 0;
 
     const double startX = 24.625;
     const double startY = 0;
@@ -59,7 +59,7 @@ class ScaraArmModule {
     // Can also use a different widget type:
     // .WithWidget(&frc::BuiltInWidgets::kSplitButtonChooser);
 
-    Limelight ll;
+    //Limelight ll;
 
     std::thread scaraArmThread;
     double stopAuto = false;
@@ -95,10 +95,10 @@ class ScaraArmModule {
 
     void checkArmBounds(double outter_pos, double outter_neg, double inner_pos, double inner_neg);
 
-    void dPadMovement(double POV);
+    void jstickArmMovement(double jstickX, double jstickY);
 
 
-    armPos currentPosition = {0.0, 0.0, startX, startY};
+    armPos currentPosition = {startInner, startOutter, startX, startY};
     armPos calculatedPosition = {0.0, 0.0, startX, startY};
     
 

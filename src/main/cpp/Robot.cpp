@@ -19,7 +19,7 @@ Limelight ll;
 
 void Robot::RobotInit() {
   //ll.switchToPipeline(3);
-  arm.scaraArmThread.detach();
+  //arm.scaraArmThread.detach();
   
 }
 
@@ -33,7 +33,7 @@ void Robot::RobotPeriodic() {
 
   //Get TargetPose Robot Space:
   std::vector<double> targetPose = ll.getTargetPoseRobotSpace();
-  Limelight::Point targetXY = ll.getTargetXY(targetPose.at(0) * 39.37, targetPose.at(2) * 39.37, targetPose.at(4), Limelight::bottomRightPole); // X, Y, yaw, poleID
+  Limelight::Point targetXY = ll.getTargetXY(targetPose.at(0) * 39.37, targetPose.at(2) * 39.37, targetPose.at(4), Limelight::bottomLeftPole); // X, Y, yaw, poleID
   frc::SmartDashboard::PutNumber("TapeX", targetXY.x);
   frc::SmartDashboard::PutNumber("TapeY", targetXY.y);
 
@@ -58,7 +58,8 @@ void Robot::TeleopInit() {
 
 void Robot::TeleopPeriodic() {}
 
-void Robot::DisabledInit() {}
+void Robot::DisabledInit() {
+}
 
 void Robot::DisabledPeriodic() {}
 

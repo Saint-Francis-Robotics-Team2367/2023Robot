@@ -104,12 +104,20 @@ class Limelight {
 
 
     Point getTargetXY(double targetX, double targetY, double targetAngle, int pole) { //pole is 0, 1, 2, 3 for bottom right, bottom left, top right, top left
+
         double tag_RelMagnitude = polePolarArray.at(pole).at(0);
         double tag_RelAngle = polePolarArray.at(pole).at(1) * PI / 180;
         double angleToTarg =  atan(fabs(targetY / targetX));
         targetAngle = targetAngle * PI / 180;
-        double tapeX = targetX + (tag_RelMagnitude * cos(angleToTarg - targetAngle + tag_RelAngle));
-        double tapeY = targetY + (tag_RelMagnitude * sin(angleToTarg - targetAngle + tag_RelAngle));
+
+        double tapeAngle = (PI / 2) - angleToTarg - targetAngle;
+        double tapeX = targetX + (tag_RelMagnitude * cos(tapeAngle + tag_RelAngle));
+        double tapeY = targetY + (tag_RelMagnitude * sin(tapeAngle + tag_RelAngle));
+        
+        
+        // targetAngle = targetAngle * PI / 180;
+        // double tapeX = targetX + (tag_RelMagnitude * cos(angleToTarg - targetAngle + tag_RelAngle));
+        // double tapeY = targetY + (tag_RelMagnitude * sin(angleToTarg - targetAngle + tag_RelAngle));
 
         return Point{tapeX, tapeY};
     }

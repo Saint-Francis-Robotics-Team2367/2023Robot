@@ -8,15 +8,14 @@
 ScaraArmModule::ScaraArmModule(frc::XboxController* controller) {
   ctr = controller;
   scaraArmThread = std::thread(&ScaraArmModule::run, this); //initializing thread so can detach in robot init
-  inner->SetSmartCurrentLimit(20);
-  outter->SetSmartCurrentLimit(20);
+
+
 }
 
 void ScaraArmModule::ArmInit() {
   inner_enc.SetPositionConversionFactor(innerConv);
   outter_enc.SetPositionConversionFactor(outterConv);
   inner->SetInverted(false);
-  //outterPID.SetOutputRange(-0.25, 0.25);
   outter->SetInverted(false);
   inner_enc.SetPosition(0);
   outter_enc.SetPosition(0);
@@ -31,8 +30,11 @@ void ScaraArmModule::ArmInit() {
   outterPID.SetI(0.0);
   outterPID.SetD(0.0);
 
-  outter->SetSmartCurrentLimit(10);
-  inner->SetSmartCurrentLimit(10);
+  inner->SetSmartCurrentLimit(20);
+  outter->SetSmartCurrentLimit(20);
+
+  innerPID.SetOutputRange(-0.1, 0.1);
+  outterPID.SetOutputRange(-0.1, 0.1);
 }
 
 
@@ -170,44 +172,38 @@ void ScaraArmModule::movetoXY(double x, double y) {
   }
 
   std::vector<armPos> angles = XY_to_Arm(x, y, innerSize, outterSize);
-  double currPos = clampAngle(inner_enc.GetPosition());
+  double currInner = clampAngle(inner_enc.GetPosition());
+  double currOutter = clampAngle(outter_enc.GetPosition());
   for (int i = 0; i < angles.size(); i++) {
     angles.at(i).inner_angle = clampAngle(angles.at(i).inner_angle);
     angles.at(i).outter_angle = clampAngle(angles.at(i).outter_angle);
   }
   frc::SmartDashboard::PutNumber("NumSol", angles.size());
+  double outputInnerAngle;
+  double outputOutterAngle;
+
 
   if (angles.size() > 0) {
-    frc::SmartDashboard::PutNumber("InnerCalc1", angles.at(0).inner_angle);
-    frc::SmartDashboard::PutNumber("OutterCalc1", angles.at(0).outter_angle);
-  }
-
-  /*
-  if(angles.size() == 2) {
-    // innerPID.SetReference(angles.at(0), rev::CANSparkMax::ControlType::kPosition);
-    // outterPID.SetReference(angles.at(1), rev::CANSparkMax::ControlType::kPosition);
-  }
-  */
-
-  innerPID.SetOutputRange(-0.1, 0.1);
-  outterPID.SetOutputRange(-0.1, 0.1); //change this after motion profiling
-
-  if (angles.size() == 2) {
-    
-    frc::SmartDashboard::PutNumber("InnerCalc2", angles.at(1).inner_angle);
-    frc::SmartDashboard::PutNumber("OutterCalc2", angles.at(1).outter_angle);
-    frc::SmartDashboard::PutBoolean("SecondSolution?", true);
-    //add the chooser here to choose which one to do
-    innerPID.SetReference(angles.at(1).inner_angle, rev::CANSparkMax::ControlType::kPosition);
-    outterPID.SetReference(angles.at(1).outter_angle, rev::CANSparkMax::ControlType::kPosition);
-   
+    // frc::SmartDashboard::PutNumber("InnerCalc1", angles.at(0).inner_angle);
+    // frc::SmartDashboard::PutNumber("OutterCalc1", angles.at(0).outter_angle);
+    if (angles.size() == 1) {
+      outputInnerAngle = angles.at(0).inner_angle;
+      outputOutterAngle = angles.at(0).outter_angle;
+    } else if (angles.size() == 2) {
+      //Decision Code:
+      if (abs(currInner - angles.at(0).inner_angle) > abs(currInner - angles.at(1).inner_angle)) {
+        outputInnerAngle = angles.at(1).inner_angle;
+        outputOutterAngle = angles.at(1).outter_angle;
+      } else {
+        outputInnerAngle = angles.at(0).inner_angle;
+        outputOutterAngle = angles.at(0).outter_angle;
+      }
+      innerPID.SetReference(outputInnerAngle, rev::CANSparkMax::ControlType::kPosition);
+      outterPID.SetReference(outputOutterAngle, rev::CANSparkMax::ControlType::kPosition);
+    }
   } else {
-    frc::SmartDashboard::PutNumber("InnerCalc2", -1);
-    frc::SmartDashboard::PutNumber("OutterCalc2", -1);
-    frc::SmartDashboard::PutBoolean("SecondSolution?", false);
-
-    innerPID.SetReference(angles.at(0).inner_angle, rev::CANSparkMax::ControlType::kPosition);
-    outterPID.SetReference(angles.at(0).outter_angle, rev::CANSparkMax::ControlType::kPosition);
+    innerPID.SetReference(currInner, rev::CANSparkMax::ControlType::kPosition);
+    outterPID.SetReference(currOutter, rev::CANSparkMax::ControlType::kPosition);
   }
 
  
@@ -354,33 +350,18 @@ void ScaraArmModule::checkArmBounds(double outter_pos, double outter_neg, double
   }
 }
 
-void ScaraArmModule::dPadMovement(double POV) {
-  if (POV == -1) {
-    frc::SmartDashboard::PutNumber("movetoX", currentPosition.armX);
-    frc::SmartDashboard::PutNumber("movetoY", currentPosition.armY);
-    if (XYInRange(currentPosition.armX, currentPosition.armY)) {
-      movetoXY(currentPosition.armX, currentPosition.armY);
-      frc::SmartDashboard::PutBoolean("Invalid Point", false);
-    } else {
-      frc::SmartDashboard::PutBoolean("Invalid Point", true);
-  }
+void ScaraArmModule::jstickArmMovement(double jstickX, double jstickY) {
+  double factor = 1;
+  currentPosition.armX += jstickX * factor;
+  currentPosition.armY += jstickY * factor;
 
+  if (XYInRange(currentPosition.armX, currentPosition.armY)) {
+    movetoXY(currentPosition.armX, currentPosition.armY);
+    frc::SmartDashboard::PutBoolean("Invalid Point", false);
   } else {
-    double x_increment = cos(POV * M_PI / 180);
-    double y_increment = sin(POV * M_PI / 180);
-    frc::SmartDashboard::PutNumber("movetoX", currentPosition.armX);
-    frc::SmartDashboard::PutNumber("movetoY", currentPosition.armY);
-    frc::SmartDashboard::PutNumber("X_inc", x_increment);
-    frc::SmartDashboard::PutNumber("Y_inc", y_increment);
-
-    currentPosition.armX += x_increment;
-    currentPosition.armY += y_increment;
-    if (XYInRange(currentPosition.armX, currentPosition.armY)) {
-      movetoXY(currentPosition.armX, currentPosition.armY);
-      frc::SmartDashboard::PutBoolean("Invalid Point", false);
-    } else {
-      frc::SmartDashboard::PutBoolean("Invalid Point", true);
-    }
+    frc::SmartDashboard::PutBoolean("Invalid Point", true);
+    inner->Set(0);
+    outter->Set(0);
   }
 }
 
@@ -396,35 +377,50 @@ void ScaraArmModule::run(){
         std::vector<double> xy = Angles_to_XY(inner_enc.GetPosition(), outter_enc.GetPosition());
         frc::SmartDashboard::PutNumber("X", xy.at(0));
         frc::SmartDashboard::PutNumber("Y", xy.at(1));
+        currentPosition.armX = xy.at(0);
+        currentPosition.armY = xy.at(1);
+        frc::SmartDashboard::PutNumber("InnerAngle", inner_enc.GetPosition());
+        frc::SmartDashboard::PutNumber("OutterAngle", outter_enc.GetPosition());
 
 
-        if(state = 't') {
+        if(state == 't') {
           /* Teleop 1:
           inner->Set(ctr->GetRightX() / 5);
           outter -> Set(ctr->GetLeftX() / 5);
           */
-          // Teleop 2
-          //dPadMovement(ctr->GetPOV());
-          if (ctr->GetAButton()) {
-            std::vector<double> targetPose = ll.getTargetPoseRobotSpace();
-            Limelight::Point targetXY = ll.getTargetXY(targetPose.at(0) * 39.37, targetPose.at(2) * 39.37, targetPose.at(4), Limelight::bottomRightPole); // X, Y, yaw, poleID
-            frc::SmartDashboard::PutNumber("TapeX", targetXY.x);
-            frc::SmartDashboard::PutNumber("TapeY", targetXY.y);
-            movetoXY(targetXY.x, targetXY.y);
 
+
+          // Teleop 2
+
+          if (ctr->GetBButton()) {
+            jstickArmMovement(ctr->GetLeftX(), ctr->GetLeftY());
           } else {
-            inner->Set(0);
-            outter->Set(0);
+            jstickArmMovement(0, 0);
           }
+          
+
+
+          //Teleop 3
+          // if (ctr->GetAButton()) {
+          //   std::vector<double> targetPose = ll.getTargetPoseRobotSpace();
+          //   Limelight::Point targetXY = ll.getTargetXY(targetPose.at(0) * 39.37, targetPose.at(2) * 39.37, targetPose.at(4), Limelight::bottomRightPole); // X, Y, yaw, poleID
+          //   frc::SmartDashboard::PutNumber("TapeX", targetXY.x);
+          //   frc::SmartDashboard::PutNumber("TapeY", targetXY.y);
+          //   movetoXY(targetXY.x, targetXY.y);
+
+          // } else {
+          //   inner->Set(0);
+          //   outter->Set(0);
+          // }
 
 
           //Grabber
           //grabber.set(ctr->GetLeftTriggerAxis() - ctr->GetRightTriggerAxis());
-          frc::SmartDashboard::PutNumber("InnerAngle", inner_enc.GetPosition());
-          frc::SmartDashboard::PutNumber("OutterAngle", outter_enc.GetPosition());
         }
 
-        if(state = 'a') {
+        if(state == 'a') {
+
+          movetoXY(-innerSize, outterSize);
           //Vision Usage
           //movetoXY(innerSize, outterSize);
           
