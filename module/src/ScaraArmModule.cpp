@@ -33,7 +33,7 @@ void ScaraArmModule::ArmInit() {
   inner->SetSmartCurrentLimit(20);
   outter->SetSmartCurrentLimit(20);
 
-  innerPID.SetOutputRange(-0.1, 0.1);
+  innerPID.SetOutputRange(-0.2, 0.2);
   outterPID.SetOutputRange(-0.1, 0.1);
 }
 
@@ -352,16 +352,15 @@ void ScaraArmModule::checkArmBounds(double outter_pos, double outter_neg, double
 
 void ScaraArmModule::jstickArmMovement(double jstickX, double jstickY) {
   double factor = 1;
-  currentPosition.armX += jstickX * factor;
-  currentPosition.armY += jstickY * factor;
-
-  if (XYInRange(currentPosition.armX, currentPosition.armY)) {
+  if (XYInRange(currentPosition.armX + (jstickX * factor), currentPosition.armY + (jstickY * factor))) {
+    currentPosition.armX += jstickX * factor;
+    currentPosition.armY += jstickY * factor;
     movetoXY(currentPosition.armX, currentPosition.armY);
     frc::SmartDashboard::PutBoolean("Invalid Point", false);
-  } else {
+  }
+  else {
+    movetoXY(currentPosition.armX, currentPosition.armY);
     frc::SmartDashboard::PutBoolean("Invalid Point", true);
-    inner->Set(0);
-    outter->Set(0);
   }
 }
 
@@ -391,9 +390,10 @@ void ScaraArmModule::run(){
 
 
           // Teleop 2
-
-          if (ctr->GetBButton()) {
-            jstickArmMovement(ctr->GetLeftX(), ctr->GetLeftY());
+          
+          if (ctr->GetLeftBumper()) {
+            //outterPID.SetReference(ctr->GetLeftX() * 90, rev::CANSparkMax::ControlType::kPosition);
+            jstickArmMovement(ctr->GetLeftX(), -ctr->GetLeftY());
           } else {
             jstickArmMovement(0, 0);
           }

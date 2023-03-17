@@ -15,7 +15,7 @@ frc::XboxController* ctr = new frc::XboxController(0);
 
 
 ScaraArmModule arm(ctr);
-Limelight ll; 
+//Limelight ll; 
 
 void Robot::RobotInit() {
   //ll.switchToPipeline(3);
@@ -32,10 +32,10 @@ void Robot::RobotPeriodic() {
   //frc::SmartDashboard::PutNumber("R2", rra.at(1));
 
   //Get TargetPose Robot Space:
-  std::vector<double> targetPose = ll.getTargetPoseRobotSpace();
-  Limelight::Point targetXY = ll.getTargetXY(targetPose.at(0) * 39.37, targetPose.at(2) * 39.37, targetPose.at(4), Limelight::bottomLeftPole); // X, Y, yaw, poleID
-  frc::SmartDashboard::PutNumber("TapeX", targetXY.x);
-  frc::SmartDashboard::PutNumber("TapeY", targetXY.y);
+  // std::vector<double> targetPose = ll.getTargetPoseRobotSpace();
+  // Limelight::Point targetXY = ll.getTargetXY(targetPose.at(0) * 39.37, targetPose.at(2) * 39.37, targetPose.at(4), Limelight::bottomLeftPole); // X, Y, yaw, poleID
+  // frc::SmartDashboard::PutNumber("TapeX", targetXY.x);
+  // frc::SmartDashboard::PutNumber("TapeY", targetXY.y);
 
 
 

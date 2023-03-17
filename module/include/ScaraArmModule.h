@@ -31,7 +31,7 @@
 class ScaraArmModule {
     public:
 
-    const double startInner = 180;
+    const double startInner = 0;
     const double startOutter = 0;
 
     const double startX = 24.625;
