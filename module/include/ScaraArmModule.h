@@ -13,6 +13,8 @@
 #include "Macros.h"
 #include<frc/XboxController.h>
 #include <Grabber.h>
+#include <frc/shuffleboard/ShuffleboardTab.h>
+#include <frc/shuffleboard/Shuffleboard.h>
 
 
 #pragma once
@@ -49,6 +51,10 @@ class ScaraArmModule {
     const double outterSize = 24.500;
 
     Grabber* grabber = new Grabber();
+
+    //frc::ShuffleboardTab& armTab = frc::Shuffleboard::GetTab("Arm");
+
+
     
 
     std::thread scaraArmThread;
@@ -78,9 +84,7 @@ class ScaraArmModule {
 
     void movetoXY(double x, double y);
 
-    void TeleopInit();
-
-    void TeleopControl(int POV);
+    void TeleopControl();
     
     bool XYInRange(double x, double y);
 
