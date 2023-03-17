@@ -21,56 +21,19 @@ void ScaraArmModule::ArmInit() {
   inner_enc.SetPosition(0);
   outter_enc.SetPosition(0);
   inner->SetIdleMode(rev::CANSparkMax::IdleMode::kBrake);
-  inner->SetIdleMode(rev::CANSparkMax::IdleMode::kBrake);
+  outter->SetIdleMode(rev::CANSparkMax::IdleMode::kBrake);
   inner_enc.SetPosition(startInner);
   outter_enc.SetPosition(startOutter);
-  innerPID.SetP(0.1);
+  innerPID.SetP(0.3);
   innerPID.SetI(0.0);
   innerPID.SetD(0.0);
-  outterPID.SetP(0.1);
+  outterPID.SetP(0.3);
   outterPID.SetI(0.0);
   outterPID.SetD(0.0);
 
   outter->SetSmartCurrentLimit(10);
   inner->SetSmartCurrentLimit(10);
 }
-
-
-/*
-void ScaraArmModule::ArmPeriodic() {
-  double sensor_position = lArmEncoder.GetPosition();
-  double theta = plot_point({43,25}, 30, 30);
-  cout << theta;
-  if (sensor_position>theta) {
-    double p = frc::SmartDashboard::GetNumber("P Gain", 0);
-    double i = frc::SmartDashboard::GetNumber("I Gain", 0);
-    double d = frc::SmartDashboard::GetNumber("D Gain", 0);
-    if((p != kp)) {
-      lArmPID.SetP(p);
-      rArmPID.SetP(p);
-      kp = p;
-    }
-    if((i != ki)) {
-      lArmPID.SetI(i);
-      rArmPID.SetP(i);
-      ki = i;
-    }
-    if((d != kd)) {
-      lArmPID.SetD(d);
-      rArmPID.SetP(d);
-      kd = d;
-    }
-  }
-}
-*/
-
-
-
-
-
-
-
-
 
 std::vector<ScaraArmModule::armPos> ScaraArmModule::XY_to_Arm(double x, double y, double length1, double length2) {
     Circle c1(length2, x, y);
@@ -193,7 +156,7 @@ void ScaraArmModule::movetoXY(double x, double y) {
     //add the chooser here to choose which one to do
     innerPID.SetReference(angles.at(1).inner_angle, rev::CANSparkMax::ControlType::kPosition);
     outterPID.SetReference(angles.at(1).outter_angle, rev::CANSparkMax::ControlType::kPosition);
-   
+  
   } else {
     frc::SmartDashboard::PutNumber("InnerCalc2", -1);
     frc::SmartDashboard::PutNumber("OutterCalc2", -1);
@@ -230,14 +193,25 @@ void ScaraArmModule::moveProfiled(double angleInner, double angleOutter) {
     float timeElapsedInner, DistanceToDeccelerateInner, currentVelocityInner = 0.0; //currentPositionInner is the set point
     double currentPositionInner = inner_enc.GetPosition();; //current velocity is a class variable
     float prevTimeInner = frc::Timer::GetFPGATimestamp().value();
+    bool positiveInner = true;
+    if(angleInner < currentPositionInner) {
+      positiveInner = false;
+    }
 
     float timeElapsedOutter, DistanceToDeccelerateOutter, currentVelocityOutter = 0.0; //currentPositionOutter is the set point
     double currentPositionOutter = outter_enc.GetPosition(); //current velocity is a class variable
     float prevTimeOutter = frc::Timer::GetFPGATimestamp().value();
+    bool positiveOutter = true;
+    if(angleOutter < currentPositionOutter) {
+      positiveOutter = false;
+    }
 
 
-    while(fabs(currentPositionOutter - angleOutter) > 0 && fabs(currentPositionInner - angleInner) > 0){
 
+    
+
+    while(fabs(currentPositionOutter - angleOutter) > 0 || fabs(currentPositionInner - angleInner) > 0){
+      frc::SmartDashboard::PutBoolean("In While Profile Elev", true);
     if(fabs(currentPositionInner - angleInner) > 0) {
       if(stopAuto) {
           break;
@@ -255,14 +229,18 @@ void ScaraArmModule::moveProfiled(double angleInner, double angleOutter) {
             currentVelocityInner = maxVelocity;
           }
         }
-
-        currentPositionInner += currentVelocityInner * timeElapsedInner;
+        if(!positiveInner) {
+          currentPositionInner -= currentVelocityInner * timeElapsedInner;
+        } else {
+          currentPositionInner += currentVelocityInner * timeElapsedInner;
+        }
+        
         // if(fabs(currentPositionInner) > fabs(angleInner)) {
         //   currentPositionInner = angleInner;
         // }
         frc::SmartDashboard::PutNumber("angleInner", angleInner);
-        if(angleInner < 0) {
-            if(currentPositionInner  < angleInner) {   
+        if(!positiveInner) {
+            if(currentPositionInner < angleInner) {   
                 currentPositionInner = angleInner;
             }
         } else {
@@ -270,6 +248,11 @@ void ScaraArmModule::moveProfiled(double angleInner, double angleOutter) {
                 currentPositionInner = angleInner;
             }
         }
+
+        //include clamps here for where the arm can move
+        //std::clamp
+
+        frc::SmartDashboard::PutNumber("currPosInneer", currentPositionInner);
         innerPID.SetReference(std::copysign(currentPositionInner, angleInner), rev::CANSparkMax::ControlType::kPosition); //angleInner uses encoder
         prevTimeInner = frc::Timer::GetFPGATimestamp().value();
         frc::SmartDashboard::PutNumber("prevTimeInner", prevTimeInner);
@@ -295,12 +278,17 @@ void ScaraArmModule::moveProfiled(double angleInner, double angleOutter) {
           }
         }
 
-        currentPositionOutter += currentVelocityOutter * timeElapsedOutter;
+        if(positiveOutter) {
+           currentPositionOutter += currentVelocityOutter * timeElapsedOutter;
+        } else {
+           currentPositionOutter -= currentVelocityOutter * timeElapsedOutter;
+        }
+       
         // if(fabs(currentPositionOutter) > fabs(angleOutter)) {
         //   currentPositionOutter = angleOutter;
         // }
 
-        if(angleOutter < 0) {
+        if(!positiveOutter) {
             if(currentPositionOutter  < angleOutter) {   
                 currentPositionOutter = angleOutter;
             }
@@ -309,12 +297,17 @@ void ScaraArmModule::moveProfiled(double angleInner, double angleOutter) {
                 currentPositionOutter = angleOutter;
             }
         }
+
+        frc::SmartDashboard::PutNumber("currPosOuter", currentPositionOutter);
+
+        //include clamps here!!!
         frc::SmartDashboard::PutNumber("angleOutter", angleOutter);
         outterPID.SetReference(std::copysign(currentPositionOutter, angleOutter), rev::CANSparkMax::ControlType::kPosition); //angleOutter uses encoder
         prevTimeOutter = frc::Timer::GetFPGATimestamp().value();
         frc::SmartDashboard::PutNumber("prevTimeOutter", prevTimeOutter);
     }
 	}
+  frc::SmartDashboard::PutBoolean("In While Profile Elev", false);
 }
 
 double ScaraArmModule::clampAngle(double inp) {
@@ -342,13 +335,15 @@ void ScaraArmModule::runInit() {
 
 void ScaraArmModule::run(){
    runInit();
+
+
    int counter = 0;
     while(true) {
         auto nextRun = std::chrono::steady_clock::now() + std::chrono::milliseconds(5); //change milliseconds at telop
         frc::SmartDashboard::PutBoolean("scara arm module", true);
         
 
-        if(state = 't') {
+        if(state == 't') {
           // frc::SmartDashboard::PutNumber("left y scara arm", ctr->GetLeftY());
             inner->Set(ctr->GetRightTriggerAxis() / 5);
           // frc::SmartDashboard::PutNumber("right y", ctr->GetRightY());
@@ -372,7 +367,15 @@ void ScaraArmModule::run(){
           frc::SmartDashboard::PutNumber("OutterAngle", outter_enc.GetPosition());
         }
 
-        if(state = 'a') {
+        if(state == 'a') {
+          if(test) {
+                   innerPID.SetOutputRange(-1, 1);
+                  outterPID.SetOutputRange(-1, 1);
+                  frc::SmartDashboard::PutNumber("Boom", 100);
+            moveProfiled(30, 30);
+            moveProfiled(0, 0);
+            test = false;
+          } 
           
         }
 
