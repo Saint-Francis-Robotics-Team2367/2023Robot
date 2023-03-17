@@ -1,4 +1,4 @@
-g#include "ElevatorModule.h"
+#include "ElevatorModule.h"
 
 ElevatorModule::ElevatorModule(frc::XboxController* controller) { //pass in joystick too
     //m_ID = motorID;
