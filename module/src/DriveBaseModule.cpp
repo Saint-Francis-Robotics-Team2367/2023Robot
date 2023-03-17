@@ -575,7 +575,9 @@ void DriveBaseModule::run() {
       //perioidic routines
       gyroDriving();
       //honestly let's move to xbox joystick maybe
-      //elev->TeleopPeriodic(driverStick->GetLeftTriggerAxis(), driverStick->GetRightTriggerAxis()); 
+      //elev->TeleopPeriodic(driverStick->GetLeftTriggerAxis(), driverStick->GetRightTriggerAxis());
+      frc::SmartDashboard::PutNumber("lcheck", lMotor->GetIdleMode() == rev::CANSparkMax::IdleMode::kBrake); 
+      frc::SmartDashboard::PutNumber("rcheck", rMotor->GetIdleMode() == rev::CANSparkMax::IdleMode::kBrake); 
       
       test = true;
       stopAuto = true;

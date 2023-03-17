@@ -35,8 +35,8 @@ void Robot::RobotInit()
 
   // //need drive inits
   drive.driveThread.detach(); 
-  //arm.scaraArmThread.detach();
-  //elev.elevatorThread.detach();
+  arm.scaraArmThread.detach();
+  elev.elevatorThread.detach();
  
 }
 
