@@ -29,8 +29,8 @@ class ElevatorModule {
 
 
 
-    double maxVelocity = 10047;
-    double maxAcc = 10039;
+    double maxVelocity = 15047;
+    double maxAcc = 3039;
     //Mech/Electronics Setup
     //int m_ID = 10;
     //int m_ID = 15;
@@ -43,7 +43,7 @@ class ElevatorModule {
     double height = 0; //starting the elevator at 0 (no absolute encoder)
 
     //constants
-    double kElevatorMinHeight = 0.0;
+    double kElevatorMinHeight = 4.0;
     double kElevatorMaxHeight = 44;
     double kLowScoreHeight = 27;
     double kHighScoreHeight = 37;
@@ -53,8 +53,8 @@ class ElevatorModule {
     bool currentlyMoving = false;
 
     //no feedforward in this case...
-    double pDown = 0.075;
-    double dDown = 0.0;
+    double pDown = 0.20;
+    double dDown = 0;
 
     double pUp = 0.1; 
     double dUp = 0.0;
