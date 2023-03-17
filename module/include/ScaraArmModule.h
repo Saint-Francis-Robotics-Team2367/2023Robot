@@ -93,11 +93,6 @@ class ScaraArmModule {
     void movetoXY(double x, double y);
 
     void TeleopControl();
-    
-    bool XYInRange(double x, double y);
-
-    void checkArmBounds(double outter_pos, double outter_neg, double inner_pos, double inner_neg);
-
 
     double maxVelocity = 21;
     double maxAcc = 7;
