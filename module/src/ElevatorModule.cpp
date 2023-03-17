@@ -170,7 +170,6 @@ void ElevatorModule::run() {
             //     currentlyMoving = false;
             // }
 
-<<<<<<< HEAD
             // if(ctr->GetYButton()) {
             //     currentlyMoving = true;
             //     setPos(kLowestHeight, true);
@@ -180,17 +179,6 @@ void ElevatorModule::run() {
             // }
             // //need this line for down movement to work? also is manual, could replace triggers with 0, 0 and it works
             // TeleopPeriodic(ctr->GetLeftTriggerAxis(), ctr->GetRightTriggerAxis()); //for some reason either need this or teleop periodic for moving downwards to work
-=======
-            if(ctr->GetYButton()) {
-                currentlyMoving = true;
-                setPos(kLowestHeight, true);
-                frc::SmartDashboard::PutBoolean("y pressed", true);
-                currentlyMoving = false;
-            }
-            }
-            //need this line for down movement to work? also is manual, could replace triggers with 0, 0 and it works
-            //TeleopPeriodic(ctr->GetLeftTriggerAxis(), ctr->GetRightTriggerAxis()); //for some reason either need this or teleop periodic for moving downwards to work
->>>>>>> feature/threadingModules
             
         }
         if(state == 'a') {

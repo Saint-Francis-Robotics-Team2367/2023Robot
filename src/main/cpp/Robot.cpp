@@ -89,6 +89,8 @@ void Robot::RobotPeriodic() {
 
 void Robot::AutonomousInit() {
   arm.state = 'a';
+  drive.state = 'a';
+  elev.state = 'a';
 
   // arm.inner_enc.SetPosition(0);
   // arm.outter_enc.SetPosition(0);
@@ -118,6 +120,8 @@ void Robot::AutonomousPeriodic() {}
 
 void Robot::TeleopInit() {
   arm.state = 't';
+  drive.state = 't';
+  elev.state = 't';
 
   
 
