@@ -12,9 +12,10 @@
 #include <atomic>
 #include "Macros.h"
 #include<frc/XboxController.h>
-#include <frc/shuffleboard/Shuffleboard.h>
+#include <Grabber.h>
 #include <frc/shuffleboard/ShuffleboardTab.h>
-//#include "Limelight.h"
+#include <frc/shuffleboard/Shuffleboard.h>
+
 
 #pragma once
 
@@ -49,7 +50,11 @@ class ScaraArmModule {
     const double innerSize = 24.625;
     const double outterSize = 24.500;
 
-    //Grabber grabber;
+    Grabber* grabber = new Grabber();
+
+    //frc::ShuffleboardTab& armTab = frc::Shuffleboard::GetTab("Arm");
+
+
     
     //Shuffleboard Tabs:
     //NetworkTableEntry myBoolean = Shuffleboard.getTab("Example Tab").add("My Boolean", false)
@@ -86,6 +91,13 @@ class ScaraArmModule {
     double clampAngle(double inp);
 
     void movetoXY(double x, double y);
+
+    void TeleopControl();
+    
+    bool XYInRange(double x, double y);
+
+    void checkArmBounds(double outter_pos, double outter_neg, double inner_pos, double inner_neg);
+
 
     double maxVelocity = 21;
     double maxAcc = 7;

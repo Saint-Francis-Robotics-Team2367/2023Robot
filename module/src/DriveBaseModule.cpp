@@ -47,14 +47,6 @@ void DriveBaseModule::LimitRate(double& s, double& t) {
     prevTime = currTime;
 }
 
-double DriveBaseModule::skim(double v) { //this for each motor to shave some stuff off on each side
-  if (v > 1.0) {
-    return -((v - 1.0) * driveTurningGain);
-  } else if (v < -1.0) {
-    return -((v + 1.0) * driveTurningGain);
-  } return 0; 
-}
-
 //need to TEST SKIM CONSTANT
 void DriveBaseModule::arcadeDrive(double xSpeedi, double zRotationi) {
     if (fabs(xSpeedi) < xDeadband)
@@ -63,8 +55,8 @@ void DriveBaseModule::arcadeDrive(double xSpeedi, double zRotationi) {
     if (fabs(zRotationi) < yDeadband)
         zRotationi = 0;
 
-    double xSpeed = std::copysign(pow(fabs(xSpeedi), 1.8), xSpeedi);
-    double zRotation = std::copysign(pow(fabs(zRotationi), 2), zRotationi);
+    double xSpeed = std::copysign(pow(fabs(xSpeedi), 2.5), xSpeedi);
+    double zRotation = std::copysign(pow(fabs(zRotationi), 2.5), zRotationi);
 
     LimitRate(xSpeed, zRotation);
 
@@ -76,10 +68,6 @@ void DriveBaseModule::arcadeDrive(double xSpeedi, double zRotationi) {
         
     if (rightMotorOutput != 0)
         rightMotorOutput = std::copysign((1/(1-yDeadband)) * fabs(rightMotorOutput) - (yDeadband/(1/yDeadband)), rightMotorOutput);
-
-    //IN TESTING IN ACCORDANCE WITH THE GYRO DRIVE, CHECKK
-    leftMotorOutput += skim(rightMotorOutput); //NEED TO TEST ASKKKK
-    rightMotorOutput += skim(leftMotorOutput); //NEED TO TEST ASKKKK
 
     leftMotorOutput = std::clamp(leftMotorOutput, -1.0, 1.0);
     rightMotorOutput = std::clamp(rightMotorOutput, -1.0, 1.0);
@@ -585,9 +573,16 @@ void DriveBaseModule::run() {
 
     if(state == 't') {
       //perioidic routines
+<<<<<<< HEAD
       //gyroDriving();
+=======
+      gyroDriving();
+      frc::SmartDashboard::PutNumber("joystick", driverStick->GetRawAxis(1));
+>>>>>>> feature/threadingModules
       //honestly let's move to xbox joystick maybe
-      //elev->TeleopPeriodic(driverStick->GetLeftTriggerAxis(), driverStick->GetRightTriggerAxis()); 
+      //elev->TeleopPeriodic(driverStick->GetLeftTriggerAxis(), driverStick->GetRightTriggerAxis());
+      frc::SmartDashboard::PutNumber("lcheck", lMotor->GetIdleMode() == rev::CANSparkMax::IdleMode::kBrake); 
+      frc::SmartDashboard::PutNumber("rcheck", rMotor->GetIdleMode() == rev::CANSparkMax::IdleMode::kBrake); 
       
       test = true;
       stopAuto = true;

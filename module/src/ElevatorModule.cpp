@@ -35,20 +35,23 @@ bool ElevatorModule::setPos(double setpoint, bool isMotionProfiled) {
     float timeElapsed, distanceToDeccelerate, currentVelocity = 0.0; //currentPosition is the set point
     double currentPosition = getPos(); //current velocity is a class variable
     float prevTime = frc::Timer::GetFPGATimestamp().value();
-    if(setpoint > getPos()) { //could use height here too
+    bool down = false;
+    if(setpoint >= getPos()) { //could use height here too
         elevatorPID.SetP(pUp);
-        elevatorPID.SetD(dUp);
+        elevatorPID.SetD(dUp);             
     } else {
         elevatorPID.SetP(pDown);
         elevatorPID.SetD(dDown);
+        down = true;
     }
-    while(fabs(currentPosition) < fabs(setpoint)){
+    while(fabs(currentPosition - setpoint) > 0){ //40 < 20, fix this on arm too!!!!!! while(fabs(currentPosition) < fabs(setpoint)){
         if(stopAuto) {
           break;
         }
+
         timeElapsed = frc::Timer::GetFPGATimestamp().value() - prevTime;
         distanceToDeccelerate = (3 * currentVelocity * currentVelocity) / (2 * maxAcc); //change
-        if (fabs(distanceToDeccelerate) > fabs(setpoint - currentPosition)) {
+        if (fabs(distanceToDeccelerate) > fabs(setpoint - currentPosition)) {  //change this line???
           currentVelocity -= (maxAcc * timeElapsed);
         }
         else //increase velocity
@@ -60,10 +63,31 @@ bool ElevatorModule::setPos(double setpoint, bool isMotionProfiled) {
           }
         }
 
-        currentPosition += currentVelocity * timeElapsed;
-        if(fabs(currentPosition) > fabs(setpoint)) {
-          currentPosition = setpoint;
+        //adding or substracting positions
+        if(down) {
+            currentPosition -= currentVelocity * timeElapsed;
+        } else {
+             currentPosition += currentVelocity * timeElapsed;
         }
+       
+        frc::SmartDashboard::PutNumber("Elev pos", currentPosition);
+
+
+        //checking end case if current position exceeds 
+        if(down) {
+            if(currentPosition < setpoint) {   
+                currentPosition = setpoint;
+                frc::SmartDashboard::PutNumber("reducto", currentPosition);
+            }
+        } else {
+            if(currentPosition > setpoint) {
+                currentPosition = setpoint;
+            }
+        }
+
+        currentPosition = std::clamp(currentPosition, kElevatorMinHeight, kElevatorMaxHeight); 
+        
+        
         frc::SmartDashboard::PutNumber("setpoint", setpoint);
         elevatorPID.SetReference(std::copysign(currentPosition, setpoint), rev::CANSparkMax::ControlType::kPosition); //setpoint uses encoder
         prevTime = frc::Timer::GetFPGATimestamp().value();
@@ -146,6 +170,7 @@ void ElevatorModule::run() {
             //     currentlyMoving = false;
             // }
 
+<<<<<<< HEAD
             // if(ctr->GetYButton()) {
             //     currentlyMoving = true;
             //     setPos(kLowestHeight, true);
@@ -155,14 +180,29 @@ void ElevatorModule::run() {
             // }
             // //need this line for down movement to work? also is manual, could replace triggers with 0, 0 and it works
             // TeleopPeriodic(ctr->GetLeftTriggerAxis(), ctr->GetRightTriggerAxis()); //for some reason either need this or teleop periodic for moving downwards to work
+=======
+            if(ctr->GetYButton()) {
+                currentlyMoving = true;
+                setPos(kLowestHeight, true);
+                frc::SmartDashboard::PutBoolean("y pressed", true);
+                currentlyMoving = false;
+            }
+            }
+            //need this line for down movement to work? also is manual, could replace triggers with 0, 0 and it works
+            //TeleopPeriodic(ctr->GetLeftTriggerAxis(), ctr->GetRightTriggerAxis()); //for some reason either need this or teleop periodic for moving downwards to work
+>>>>>>> feature/threadingModules
             
         }
         if(state == 'a') {
             //AutoPeriodic();
-            // if(test) {
-            //     setPos(25, true);
-            //     test = false;
-            // }
+            if(test) {
+                setPos(25, true);
+                test = false;
+            }
+            if(oneRun && !test) {
+                setPos(0, true);
+                oneRun = false;
+            }
             frc::SmartDashboard::PutNumber("left trigger", ctr->GetLeftTriggerAxis());
         }
         std::this_thread::sleep_until(nextRun);
