@@ -83,7 +83,7 @@ class ScaraArmModule {
     ScaraArmModule(frc::XboxController* controller, frc::XboxController* controllerOperator);
     char state = 't';
     bool test = true;
-    //bool isManualMove = false;
+    bool isManualMove = false;
     void ArmInit();
     void run();
     void runInit();
@@ -103,7 +103,7 @@ class ScaraArmModule {
 
     double clampAngle(double inp);
 
-    void movetoXY(double x, double y, bool isManualMove);
+    void movetoXY(double x, double y);
 
     double maxVelocity = 130;
     double maxAcc = 68;

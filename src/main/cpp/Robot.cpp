@@ -15,7 +15,7 @@ frc::XboxController* ctr = new frc::XboxController(0);
 frc::XboxController* ctr2 = new frc::XboxController(1);
 
 ScaraArmModule arm(ctr, ctr2);
-DriveBaseModule drive;
+DriveBaseModule drive; //joystick is initialized in drive itself (different class of joystick - will fix later...)
 ElevatorModule elev(ctr, ctr2);
 //Limelight ll; 
 

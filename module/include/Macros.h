@@ -30,5 +30,7 @@
 #define rMotorLeaderID 4
 #define rMotorFollowerID 3
 #define grabberID 15
-// #define testLeft 14
-// #define testRight 1
+#define leftStarID 16
+#define rightStarID 17
+#define intakeRollerID 18
+#define rotaryID 19

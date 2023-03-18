@@ -5,9 +5,8 @@
 #include "ScaraArmModule.h"
 #include <frc/Timer.h>
 
-ScaraArmModule::ScaraArmModule(frc::XboxController* controller, frc::XboxController* controllerOperator) {
+ScaraArmModule::ScaraArmModule(frc::XboxController* controller, frc::XboxController* controllerOp) {
   ctr = controller;
-  ctrOperator = controllerOperator;
   scaraArmThread = std::thread(&ScaraArmModule::run, this); //initializing thread so can detach in robot init
 
 
@@ -37,59 +36,6 @@ void ScaraArmModule::ArmInit() {
   innerPID.SetOutputRange(-0.2, 0.2);
   outterPID.SetOutputRange(-0.1, 0.1);
 }
-
-void ScaraArmModule::stow() {
-    frc::SmartDashboard::PutNumber("outerLimitSwitch", OuterLimitSwitch.Get());
-    frc::SmartDashboard::PutNumber("innerLimitSwitch", InnerLimitSwitch.Get());
-    while (true) {
-      if (OuterLimitSwitch.Get() != true) {
-        outter->Set(-0.2);
-      }
-      if (InnerLimitSwitch.Get() != true) {
-        inner->Set(-0.2);
-      }
-      if (InnerLimitSwitch.Get() == true && OuterLimitSwitch.Get() == true) {
-        outter->Set(0);
-        inner->Set(0);
-        break;
-      }   
-    }
-}
-/*
-void ScaraArmModule::ArmPeriodic() {
-  double sensor_position = lArmEncoder.GetPosition();
-  double theta = plot_point({43,25}, 30, 30);
-  cout << theta;
-  if (sensor_position>theta) {
-    double p = frc::SmartDashboard::GetNumber("P Gain", 0);
-    double i = frc::SmartDashboard::GetNumber("I Gain", 0);
-    double d = frc::SmartDashboard::GetNumber("D Gain", 0);
-    if((p != kp)) {
-      lArmPID.SetP(p);
-      rArmPID.SetP(p);
-      kp = p;
-    }
-    if((i != ki)) {
-      lArmPID.SetI(i);
-      rArmPID.SetP(i);
-      ki = i;
-    }
-    if((d != kd)) {
-      lArmPID.SetD(d);
-      rArmPID.SetP(d);
-      kd = d;
-    }
-  }
-}
-*/
-
-
-
-
-
-
-
-
 
 std::vector<ScaraArmModule::armPos> ScaraArmModule::XY_to_Arm(double x, double y, double length1, double length2) {
     Circle c1(length2, x, y);
@@ -178,10 +124,15 @@ std::vector<double> ScaraArmModule::Angles_to_XY(double innerAngleDeg, double ou
   return output;
 }
 
-void ScaraArmModule::movetoXY(double x, double y, bool isManualMove) {
+void ScaraArmModule::movetoXY(double x, double y) {
   // inner_enc.SetPosition(0); //ignore and have a global one so we bing chilling
   // outter_enc.SetPosition(0); //will need to change this system to clamp and add to stuff
-
+  if (!XYInRange(x, y)) {
+    frc::SmartDashboard::PutBoolean("XY Valid?", false);
+    return;
+  } else {
+    frc::SmartDashboard::PutBoolean("XY Valid?", true);
+  }
 
   std::vector<armPos> angles = XY_to_Arm(x, y, innerSize, outterSize);
   double currInner = clampAngle(inner_enc.GetPosition());
@@ -193,17 +144,6 @@ void ScaraArmModule::movetoXY(double x, double y, bool isManualMove) {
   frc::SmartDashboard::PutNumber("NumSol", angles.size());
   double outputInnerAngle;
   double outputOutterAngle;
-
-    if (!XYInRange(x, y)) {
-      if (isManualMove) {
-        outterPID.SetReference(0, rev::CANSparkMax::ControlType::kPosition);
-        innerPID.SetReference(atan2(y, x) * 180 / PI, rev::CANSparkMax::ControlType::kPosition);
-      }
-      frc::SmartDashboard::PutBoolean("XY Valid?", false);
-      return;
-    } else {
-      frc::SmartDashboard::PutBoolean("XY Valid?", true);
-    }
 
 
   if (angles.size() > 0) {
@@ -443,38 +383,25 @@ void ScaraArmModule::checkArmBounds(double outter_pos, double outter_neg, double
 
 void ScaraArmModule::jstickArmMovement(double jstickX, double jstickY) {
   double factor = 1;
-  //isManualMove = true;
+  isManualMove = true;
   innerPID.SetOutputRange(-0.2, 0.2);
   outterPID.SetOutputRange(-0.1, 0.1);
   if (XYInRange(currentPosition.armX + (jstickX * factor), currentPosition.armY + (jstickY * factor))) {
     currentPosition.armX += jstickX * factor;
     currentPosition.armY += jstickY * factor;
-    movetoXY(currentPosition.armX, currentPosition.armY, true);
+    movetoXY(currentPosition.armX, currentPosition.armY);
     frc::SmartDashboard::PutBoolean("Invalid Point", false);
   }
   else {
-    movetoXY(currentPosition.armX, currentPosition.armY, true);
+    movetoXY(currentPosition.armX, currentPosition.armY);
     frc::SmartDashboard::PutBoolean("Invalid Point", true);
   }
-  //isManualMove = false;
-}
-
-void ScaraArmModule::movetoPole(Limelight::poleIDs poleID) {
-  std::vector<double> targetPose = ll.getTargetPoseRobotSpace();
-  Limelight::Point targetXY = ll.getTargetXY(targetPose.at(0) * 39.37, targetPose.at(2) * 39.37, targetPose.at(4), poleID); // X, Y, yaw, poleID
-  frc::SmartDashboard::PutNumber("TapeX", targetXY.x);
-  frc::SmartDashboard::PutNumber("TapeY", targetXY.y);
-  frc::SmartDashboard::PutNumber("Detected?", ll.getTargetDetected());
-  //if (ll.getTargetDetected()) {
-  if (ctr->GetAButton()) {
-    movetoXY(targetXY.x, targetXY.y, false);
-  }
-  
+  isManualMove = false;
 }
 
 void ScaraArmModule::runInit() {
   ArmInit();
-  //isManualMove = false;
+  isManualMove = false;
   grabber->Init();
   grabber->grabberMotor->SetSmartCurrentLimit(10);
 }
@@ -506,29 +433,26 @@ void ScaraArmModule::run(){
           //  outter->Set(ctr->GetLeftTriggerAxis()/ 5);
 
           // // Teleop 2
-          grabber->toggle(ctrOperator->GetBButtonPressed());
+          grabber->toggle(ctr->GetBButtonPressed());
           
-          if (ctrOperator->GetLeftBumper()) {
+          if (ctr->GetLeftBumper()) {
             //outterPID.SetReference(ctr->GetLeftX() * 90, rev::CANSparkMax::ControlType::kPosition);
-            jstickArmMovement(ctrOperator->GetLeftX(), -ctrOperator->GetLeftY());
+            jstickArmMovement(ctr->GetLeftX(), -ctr->GetLeftY());
           } else {
             jstickArmMovement(0, 0);
           }
 
-          
-          
 
 
-
-          // std::vector<double> targetPose = ll.getTargetPoseRobotSpace();
-          // Limelight::Point targetXY = ll.getTargetXY(targetPose.at(0) * 39.37, targetPose.at(2) * 39.37, targetPose.at(4), Limelight::topRightPole); // X, Y, yaw, poleID
-          // frc::SmartDashboard::PutNumber("TapeX", targetXY.x);
-          // frc::SmartDashboard::PutNumber("TapeY", targetXY.y);
-          // frc::SmartDashboard::PutNumber("Detected?", ll.getTargetDetected());
-          // //if (ll.getTargetDetected()) {
-          // if (ctr->GetAButton()) {
-          //   movetoXY(targetXY.x, targetXY.y, false);
-          // }
+          std::vector<double> targetPose = ll.getTargetPoseRobotSpace();
+          Limelight::Point targetXY = ll.getTargetXY(targetPose.at(0) * 39.37, targetPose.at(2) * 39.37, targetPose.at(4), Limelight::topRightPole); // X, Y, yaw, poleID
+          frc::SmartDashboard::PutNumber("TapeX", targetXY.x);
+          frc::SmartDashboard::PutNumber("TapeY", targetXY.y);
+          frc::SmartDashboard::PutNumber("Detected?", ll.getTargetDetected());
+          //if (ll.getTargetDetected()) {
+          if (ctr->GetAButton()) {
+            movetoXY(targetXY.x, targetXY.y);
+          }
 
           
           
@@ -571,13 +495,6 @@ void ScaraArmModule::run(){
 
 
           //}
-
-              if(test) {
-            moveProfiled(30, 30);
-            moveProfiled(0, 0);
-            test = false;
-          }
-          
         }
 
         std::this_thread::sleep_until(nextRun);
