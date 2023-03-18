@@ -158,8 +158,7 @@ void ScaraArmModule::movetoXY(double x, double y) {
   }
   */
 
-  innerPID.SetOutputRange(-0.1, 0.1);
-  outterPID.SetOutputRange(-0.1, 0.1); //change this after motion profiling
+   //change this after motion profiling
 
   if (angles.size() == 2) {
     
@@ -168,15 +167,24 @@ void ScaraArmModule::movetoXY(double x, double y) {
     frc::SmartDashboard::PutBoolean("SecondSolution?", true);
     //add the chooser here to choose which one to do
     //have a button if you want manual here btw...
-    // innerPID.SetReference(angles.at(1).inner_angle, rev::CANSparkMax::ControlType::kPosition);
-    // outterPID.SetReference(angles.at(1).outter_angle, rev::CANSparkMax::ControlType::kPosition);
-    moveProfiled(angles.at(1).inner_angle, angles.at(1).outter_angle);
+    
+    if(isManualMove) {
+      innerPID.SetReference(angles.at(1).inner_angle, rev::CANSparkMax::ControlType::kPosition);
+      outterPID.SetReference(angles.at(1).outter_angle, rev::CANSparkMax::ControlType::kPosition);
+    } else {
+      moveProfiled(angles.at(1).inner_angle, angles.at(1).outter_angle);
+    }
     
    
   } else {
-    moveProfiled(currInner, currOutter);
-    // innerPID.SetReference(currInner, rev::CANSparkMax::ControlType::kPosition);
-    // outterPID.SetReference(currOutter, rev::CANSparkMax::ControlType::kPosition);
+    if(isManualMove) {
+      innerPID.SetReference(currInner, rev::CANSparkMax::ControlType::kPosition);
+      outterPID.SetReference(currOutter, rev::CANSparkMax::ControlType::kPosition);
+    } else {
+      moveProfiled(currInner, currOutter);
+    }
+    
+    
   }
 
  
@@ -220,7 +228,8 @@ void ScaraArmModule::moveProfiled(double angleInner, double angleOutter) {
     }
 
 
-
+    innerPID.SetOutputRange(-1, 1);
+    outterPID.SetOutputRange(-1, 1);
     
 
     while(fabs(currentPositionOutter - angleOutter) > 0 || fabs(currentPositionInner - angleInner) > 0){
@@ -374,6 +383,9 @@ void ScaraArmModule::checkArmBounds(double outter_pos, double outter_neg, double
 
 void ScaraArmModule::jstickArmMovement(double jstickX, double jstickY) {
   double factor = 1;
+  isManualMove = true;
+  innerPID.SetOutputRange(-0.2, 0.2);
+  outterPID.SetOutputRange(-0.1, 0.1);
   if (XYInRange(currentPosition.armX + (jstickX * factor), currentPosition.armY + (jstickY * factor))) {
     currentPosition.armX += jstickX * factor;
     currentPosition.armY += jstickY * factor;
@@ -384,17 +396,19 @@ void ScaraArmModule::jstickArmMovement(double jstickX, double jstickY) {
     movetoXY(currentPosition.armX, currentPosition.armY);
     frc::SmartDashboard::PutBoolean("Invalid Point", true);
   }
+  isManualMove = false;
 }
 
 void ScaraArmModule::runInit() {
   ArmInit();
+  isManualMove = false;
   grabber->Init();
   grabber->grabberMotor->SetSmartCurrentLimit(10);
 }
 
 void ScaraArmModule::run(){
    runInit();
-
+   test = true;
 
    int counter = 0;
     while(true) {
@@ -409,13 +423,9 @@ void ScaraArmModule::run(){
         frc::SmartDashboard::PutNumber("OutterAngle", outter_enc.GetPosition());
 
 
-        if(state = 't') {
-          //  if(test) {
-          //       moveProfiled(30, 30);
-          //       moveProfiled(0, 0);
-          //       test = false;
-          //     }
+        if(state == 't') {
 
+          frc::SmartDashboard::PutBoolean("in telo scara", true);
 
           // // frc::SmartDashboard::PutNumber("left y scara arm", ctr->GetLeftY());
           //   inner->Set(ctr->GetRightTriggerAxis() / 5);
@@ -425,12 +435,14 @@ void ScaraArmModule::run(){
           // // Teleop 2
           grabber->toggle(ctr->GetBButtonPressed());
           
-          // if (ctr->GetLeftBumper()) {
-          //   //outterPID.SetReference(ctr->GetLeftX() * 90, rev::CANSparkMax::ControlType::kPosition);
-          //   jstickArmMovement(ctr->GetLeftX(), -ctr->GetLeftY());
-          // } else {
-          //   jstickArmMovement(0, 0);
-          // }
+          if (ctr->GetLeftBumper()) {
+            //outterPID.SetReference(ctr->GetLeftX() * 90, rev::CANSparkMax::ControlType::kPosition);
+            jstickArmMovement(ctr->GetLeftX(), -ctr->GetLeftY());
+          } else {
+            jstickArmMovement(0, 0);
+          }
+
+
 
           std::vector<double> targetPose = ll.getTargetPoseRobotSpace();
           Limelight::Point targetXY = ll.getTargetXY(targetPose.at(0) * 39.37, targetPose.at(2) * 39.37, targetPose.at(4), Limelight::topRightPole); // X, Y, yaw, poleID
@@ -465,11 +477,11 @@ void ScaraArmModule::run(){
         }
 
         if(state == 'a') {
-          std::vector<double> targetPose = ll.getTargetPoseRobotSpace();
-          Limelight::Point targetXY = ll.getTargetXY(targetPose.at(0) * 39.37, targetPose.at(2) * 39.37, targetPose.at(4), Limelight::bottomRightPole); // X, Y, yaw, poleID
-          frc::SmartDashboard::PutNumber("TapeX", targetXY.x);
-          frc::SmartDashboard::PutNumber("TapeY", targetXY.y);
-          frc::SmartDashboard::PutNumber("Detected?", ll.getTargetDetected());
+          // std::vector<double> targetPose = ll.getTargetPoseRobotSpace();
+          // Limelight::Point targetXY = ll.getTargetXY(targetPose.at(0) * 39.37, targetPose.at(2) * 39.37, targetPose.at(4), Limelight::bottomRightPole); // X, Y, yaw, poleID
+          // frc::SmartDashboard::PutNumber("TapeX", targetXY.x);
+          // frc::SmartDashboard::PutNumber("TapeY", targetXY.y);
+          // frc::SmartDashboard::PutNumber("Detected?", ll.getTargetDetected());
 
           //if (ll.getTargetDetected()) {
             
@@ -481,7 +493,14 @@ void ScaraArmModule::run(){
           //} else {
             //armTab.Add("stuffs", -69);
 
+
           //}
+
+              if(test) {
+            moveProfiled(30, 30);
+            moveProfiled(0, 0);
+            test = false;
+          }
           
         }
 
