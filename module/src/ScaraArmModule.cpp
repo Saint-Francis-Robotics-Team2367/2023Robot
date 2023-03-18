@@ -38,6 +38,59 @@ void ScaraArmModule::ArmInit() {
   outterPID.SetOutputRange(-0.1, 0.1);
 }
 
+void ScaraArmModule::stow() {
+    frc::SmartDashboard::PutNumber("outerLimitSwitch", OuterLimitSwitch.Get());
+    frc::SmartDashboard::PutNumber("innerLimitSwitch", InnerLimitSwitch.Get());
+    while (true) {
+      if (OuterLimitSwitch.Get() != true) {
+        outter->Set(-0.2);
+      }
+      if (InnerLimitSwitch.Get() != true) {
+        inner->Set(-0.2);
+      }
+      if (InnerLimitSwitch.Get() == true && OuterLimitSwitch.Get() == true) {
+        outter->Set(0);
+        inner->Set(0);
+        break;
+      }   
+    }
+}
+/*
+void ScaraArmModule::ArmPeriodic() {
+  double sensor_position = lArmEncoder.GetPosition();
+  double theta = plot_point({43,25}, 30, 30);
+  cout << theta;
+  if (sensor_position>theta) {
+    double p = frc::SmartDashboard::GetNumber("P Gain", 0);
+    double i = frc::SmartDashboard::GetNumber("I Gain", 0);
+    double d = frc::SmartDashboard::GetNumber("D Gain", 0);
+    if((p != kp)) {
+      lArmPID.SetP(p);
+      rArmPID.SetP(p);
+      kp = p;
+    }
+    if((i != ki)) {
+      lArmPID.SetI(i);
+      rArmPID.SetP(i);
+      ki = i;
+    }
+    if((d != kd)) {
+      lArmPID.SetD(d);
+      rArmPID.SetP(d);
+      kd = d;
+    }
+  }
+}
+*/
+
+
+
+
+
+
+
+
+
 std::vector<ScaraArmModule::armPos> ScaraArmModule::XY_to_Arm(double x, double y, double length1, double length2) {
     Circle c1(length2, x, y);
     Circle c2(length1, 0, 0);

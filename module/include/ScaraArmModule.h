@@ -16,6 +16,8 @@
 #include <frc/shuffleboard/ShuffleboardTab.h>
 #include <frc/shuffleboard/Shuffleboard.h>
 #include "Limelight.h"
+#include <rev/SparkMaxLimitSwitch.h>
+#include <frc/DigitalInput.h>
 
 
 #pragma once
@@ -72,6 +74,8 @@ class ScaraArmModule {
     frc::ShuffleboardTab& armTab = frc::Shuffleboard::GetTab("Arm");
 
 
+    frc::DigitalInput InnerLimitSwitch {0};
+    frc::DigitalInput OuterLimitSwitch {1};
     std::thread scaraArmThread;
     double stopAuto = false;
     frc::XboxController* ctr;
@@ -83,7 +87,8 @@ class ScaraArmModule {
     void ArmInit();
     void run();
     void runInit();
-    
+    void stow();
+
     struct armPos {
         double inner_angle;
         double outter_angle;
