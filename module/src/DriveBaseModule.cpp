@@ -1,6 +1,11 @@
 #include "DriveBaseModule.h"
 #include <iostream>
 
+DriveBaseModule::DriveBaseModule() {
+    ahrs = new AHRS(frc::SerialPort::kMXP);
+    driveThread = std::thread(&DriveBaseModule::run, this); //initializing thread so can detach in robot init
+}
+
 bool DriveBaseModule::initDriveMotor(rev::CANSparkMax* motor, rev::CANSparkMax* follower, bool invert) {
   motor->SetIdleMode(rev::CANSparkMax::IdleMode::kBrake);
   motor->SetInverted(invert);
@@ -42,14 +47,6 @@ void DriveBaseModule::LimitRate(double& s, double& t) {
     prevTime = currTime;
 }
 
-double DriveBaseModule::skim(double v) { //this for each motor to shave some stuff off on each side
-  if (v > 1.0) {
-    return -((v - 1.0) * driveTurningGain);
-  } else if (v < -1.0) {
-    return -((v + 1.0) * driveTurningGain);
-  } return 0; 
-}
-
 //need to TEST SKIM CONSTANT
 void DriveBaseModule::arcadeDrive(double xSpeedi, double zRotationi) {
     if (fabs(xSpeedi) < xDeadband)
@@ -58,8 +55,8 @@ void DriveBaseModule::arcadeDrive(double xSpeedi, double zRotationi) {
     if (fabs(zRotationi) < yDeadband)
         zRotationi = 0;
 
-    double xSpeed = std::copysign(pow(fabs(xSpeedi), 1.8), xSpeedi);
-    double zRotation = std::copysign(pow(fabs(zRotationi), 2), zRotationi);
+    double xSpeed = std::copysign(pow(fabs(xSpeedi), 2.5), xSpeedi);
+    double zRotation = std::copysign(pow(fabs(zRotationi), 2.5), zRotationi);
 
     LimitRate(xSpeed, zRotation);
 
@@ -71,10 +68,6 @@ void DriveBaseModule::arcadeDrive(double xSpeedi, double zRotationi) {
         
     if (rightMotorOutput != 0)
         rightMotorOutput = std::copysign((1/(1-yDeadband)) * fabs(rightMotorOutput) - (yDeadband/(1/yDeadband)), rightMotorOutput);
-
-    //IN TESTING IN ACCORDANCE WITH THE GYRO DRIVE, CHECKK
-    leftMotorOutput += skim(rightMotorOutput); //NEED TO TEST ASKKKK
-    rightMotorOutput += skim(leftMotorOutput); //NEED TO TEST ASKKKK
 
     leftMotorOutput = std::clamp(leftMotorOutput, -1.0, 1.0);
     rightMotorOutput = std::clamp(rightMotorOutput, -1.0, 1.0);
@@ -89,6 +82,27 @@ void DriveBaseModule::gyroDriving() {
   frc::SmartDashboard::PutNumber("output", calculation);
   frc::SmartDashboard::PutNumber("gyro", ahrs->GetRate());
 
+}
+
+void DriveBaseModule::autoBalance() {
+  double pitch = ahrs->GetPitch();
+  //pitch = std::clamp(pitch, -15.0, 15.0);
+  double error = 15 - pitch;
+  double maxDegrees = 15;
+  double length = 12;
+  frc::SmartDashboard::PutNumber("pitch", pitch);
+  frc::SmartDashboard::PutNumber("error", error);
+  //ouble gyroOutput = autoBalancePID->Calculate(pitch); // should I make this setpoint nothing?
+  //double gyroOutput = autoBalancePID->Calculate(pitch, 0.01);
+  //frc::SmartDashboard::PutNumber("gyroOutput", gyroOutput);
+  
+  //uncomment later
+  //lPID.SetReference(error, rev::CANSparkMax::ControlType::kPosition);
+  //rPID.SetReference(error, rev::CANSparkMax::ControlType::kPosition);
+  //------------- 
+
+  //PIDDrive(gyroOutput, false);
+  //arcadeDrive(gyroOutput/10, 0);
 }
 
 void DriveBaseModule::PIDTuning() {
@@ -550,37 +564,43 @@ void DriveBaseModule::runInit() {
 
 void DriveBaseModule::run() {
   runInit();
+  // arm->ArmInit();
   bool test = true;
   int counter = 0;
   while(true) { 
     auto nextRun = std::chrono::steady_clock::now() + std::chrono::milliseconds(5); //change milliseconds at telop
     frc::SmartDashboard::PutNumber("timesRun", ++counter);
-
+    
+    //frc::SmartDashboard::PutNumber("drivebase y", driverStick->GetRawAxis(1));
 
     //need mutex to stop
 
     if(state == 'a') { //ik I have access to isAutonomous
-      stopAuto = false;
-      if(test) {
-          //autonomousSequence();
-          //PIDDrive(-7, false);
-          PIDTurn(-110, 0, false);
-          PIDTurn(110, 0, false);
+    //   stopAuto = false;
+    //   if(test) {
+    //       //autonomousSequence();
+    //       //PIDDrive(-7, false);
+    //       PIDTurn(-110, 0, false);
+    //       PIDTurn(110, 0, false);
 
-        test = false;
-      }
-      elev->AutoPeriodic();
+    //     test = false;
+    //   }
+    //   // elev->AutoPeriodic();
       
-    } else {
-      test = true;
-      stopAuto = true;
+    // } else {
+    //   test = true;
+    //   stopAuto = true;
     }
 
     if(state == 't') {
       //perioidic routines
       gyroDriving();
+      frc::SmartDashboard::PutNumber("joystick", driverStick->GetRawAxis(1));
       //honestly let's move to xbox joystick maybe
-      //elev->TeleopPeriodic(driverStick->GetLeftTriggerAxis(), driverStick->GetRightTriggerAxis()); 
+      //elev->TeleopPeriodic(driverStick->GetLeftTriggerAxis(), driverStick->GetRightTriggerAxis());
+      frc::SmartDashboard::PutNumber("lcheck", lMotor->GetIdleMode() == rev::CANSparkMax::IdleMode::kBrake); 
+      frc::SmartDashboard::PutNumber("rcheck", rMotor->GetIdleMode() == rev::CANSparkMax::IdleMode::kBrake); 
+      
       test = true;
       stopAuto = true;
     }

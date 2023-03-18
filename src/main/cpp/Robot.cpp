@@ -3,66 +3,62 @@
 // the WPILib BSD license file in the root directory of this project.
 
 #include "Robot.h"
-#include <frc2/command/PIDCommand.h>
 
-// // All Module Includes
+//#include <fmt/core.h>
+#include <frc/smartdashboard/SmartDashboard.h>
+#include "ScaraArmModule.h"
 #include "DriveBaseModule.h"
+#include "ElevatorModule.h"
+#include <frc/XboxController.h>
 
+frc::XboxController* ctr = new frc::XboxController(0);
+frc::XboxController* ctr2 = new frc::XboxController(1);
+
+ScaraArmModule arm(ctr, ctr2);
 DriveBaseModule drive;
-//moved instantiation to h file
+ElevatorModule elev(ctr, ctr2);
 
 
+//cpr number pulses (4096) per rev, 70 to 1 / 360
 
 void Robot::RobotInit()
 {
-  //compRobotDrive.periodicInit();
-
-  //need drive inits
   drive.driveThread.detach(); 
- 
+  arm.scaraArmThread.detach();
+  elev.elevatorThread.detach();
 }
 
-void Robot::RobotPeriodic()
-{
+void Robot::RobotPeriodic() {
+
 }
-void Robot::AutonomousInit()
-{
+
+void Robot::AutonomousInit() {
+  arm.state = 'a';
   drive.state = 'a';
+  elev.state = 'a';
 }
-void Robot::AutonomousPeriodic()
-{
-  // testLeftMotor->Set(0.2);
-  // testRightMotor->Set(0.2);
-}
+void Robot::AutonomousPeriodic() {}
 
 
-void Robot::TeleopInit()
-{
-  drive.state = 't'; //add codes in while loops to break if state change
+void Robot::TeleopInit() {
+  arm.state = 't';
+  drive.state = 't';
+  elev.state = 't';
 }
 
-void Robot::TeleopPeriodic()
-{
-}
+void Robot::TeleopPeriodic() {}
 
 void Robot::DisabledInit() {
-  drive.stopAuto = true;
-}
-void Robot::DisabledPeriodic() {
 }
 
-void Robot::TestInit()
-{
-  drive.state = 'd';
-}
+void Robot::DisabledPeriodic() {}
 
-void Robot::TestPeriodic()
-{
-}
+void Robot::TestInit() {}
+
+void Robot::TestPeriodic() {}
 
 #ifndef RUNNING_FRC_TESTS
-int main()
-{
+int main() {
   return frc::StartRobot<Robot>();
 }
 #endif
