@@ -4,6 +4,7 @@
 #include <tuple>
 #include "ScaraArmModule.h"
 #include <frc/Timer.h>
+#include "IRSensor.h"
 
 ScaraArmModule::ScaraArmModule(frc::XboxController* controller, frc::XboxController* controllerOperator) {
   ctr = controller;
@@ -467,6 +468,8 @@ void ScaraArmModule::jstickArmMovement(double jstickX, double jstickY) {
 void ScaraArmModule::movetoPole(Limelight::poleIDs poleID) {
   std::vector<double> targetPose = ll.getTargetPoseRobotSpace();
   Limelight::Point targetXY = ll.getTargetXY(targetPose.at(0) * 39.37, targetPose.at(2) * 39.37, targetPose.at(4), poleID); // X, Y, yaw, poleID
+  IRSensor ir1{0};
+  frc::SmartDashboard::PutNumber("IRSensor", ir1.getCM());
   frc::SmartDashboard::PutNumber("TapeX", targetXY.x);
   frc::SmartDashboard::PutNumber("TapeY", targetXY.y);
   frc::SmartDashboard::PutNumber("Detected?", ll.getTargetDetected());
