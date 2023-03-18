@@ -44,9 +44,13 @@ void ScaraArmModule::stow() {
     while (true) {
       if (OuterLimitSwitch.Get() != true) {
         outter->Set(-0.2);
+      } else {
+        outter->Set(0);
       }
       if (InnerLimitSwitch.Get() != true) {
         inner->Set(-0.2);
+      } else {
+        inner->Set(0);
       }
       if (InnerLimitSwitch.Get() == true && OuterLimitSwitch.Get() == true) {
         outter->Set(0);
