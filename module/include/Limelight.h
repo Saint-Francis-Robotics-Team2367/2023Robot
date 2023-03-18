@@ -147,6 +147,10 @@ class Limelight {
     int getPipeline(){
         return LimelightHelpers::getLimelightNTDouble("", "pipeline");
     }
+
+    int getTargetDetected() {
+       return nt::NetworkTableInstance::GetDefault().GetTable("limelight")->GetNumber("tv", 0);
+    }
     
     private:
 

@@ -16,7 +16,7 @@ class ElevatorModule {
 
     frc::XboxController* ctr;
     int run_counter = 0;
-    double slowCoefficient = 1;
+    double slowCoefficient = 5;
     public:
     //Conversion Factors:
     double pitch_diameter = 1.273;
@@ -43,10 +43,10 @@ class ElevatorModule {
     double height = 0; //starting the elevator at 0 (no absolute encoder)
 
     //constants
-    double kElevatorMinHeight = 4.0;
-    double kElevatorMaxHeight = 44;
+    double kElevatorMinHeight = 7.0;
+    double kElevatorMaxHeight = 48;
     double kLowScoreHeight = 27;
-    double kHighScoreHeight = 37;
+    double kHighScoreHeight = 46;
     double kHighIntakeHeight = 26.375;
     double kLowestHeight = 0.0;
 

@@ -426,6 +426,7 @@ void ScaraArmModule::run(){
 
 
           // Teleop 2
+          grabber->toggle(ctr->GetBButtonPressed());
           
           if (ctr->GetLeftBumper()) {
             //outterPID.SetReference(ctr->GetLeftX() * 90, rev::CANSparkMax::ControlType::kPosition);
@@ -455,7 +456,7 @@ void ScaraArmModule::run(){
         }
 
         if(state == 'a') {
-
+          
           movetoXY(-innerSize, outterSize);
           //Vision Usage
           //movetoXY(innerSize, outterSize);

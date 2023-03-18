@@ -36,6 +36,7 @@ void Robot::RobotPeriodic() {
   // Limelight::Point targetXY = ll.getTargetXY(targetPose.at(0) * 39.37, targetPose.at(2) * 39.37, targetPose.at(4), Limelight::bottomLeftPole); // X, Y, yaw, poleID
   // frc::SmartDashboard::PutNumber("TapeX", targetXY.x);
   // frc::SmartDashboard::PutNumber("TapeY", targetXY.y);
+  // frc::SmartDashboard::PutNumber("Detected?", ll.getTargetDetected());
 }
 
 void Robot::AutonomousInit() {
