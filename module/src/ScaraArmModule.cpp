@@ -167,12 +167,16 @@ void ScaraArmModule::movetoXY(double x, double y) {
     frc::SmartDashboard::PutNumber("OutterCalc2", angles.at(1).outter_angle);
     frc::SmartDashboard::PutBoolean("SecondSolution?", true);
     //add the chooser here to choose which one to do
-    innerPID.SetReference(angles.at(1).inner_angle, rev::CANSparkMax::ControlType::kPosition);
-    outterPID.SetReference(angles.at(1).outter_angle, rev::CANSparkMax::ControlType::kPosition);
+    //have a button if you want manual here btw...
+    // innerPID.SetReference(angles.at(1).inner_angle, rev::CANSparkMax::ControlType::kPosition);
+    // outterPID.SetReference(angles.at(1).outter_angle, rev::CANSparkMax::ControlType::kPosition);
+    moveProfiled(angles.at(1).inner_angle, angles.at(1).outter_angle);
+    
    
   } else {
-    innerPID.SetReference(currInner, rev::CANSparkMax::ControlType::kPosition);
-    outterPID.SetReference(currOutter, rev::CANSparkMax::ControlType::kPosition);
+    moveProfiled(currInner, currOutter);
+    // innerPID.SetReference(currInner, rev::CANSparkMax::ControlType::kPosition);
+    // outterPID.SetReference(currOutter, rev::CANSparkMax::ControlType::kPosition);
   }
 
  
@@ -268,9 +272,9 @@ void ScaraArmModule::moveProfiled(double angleInner, double angleOutter) {
     }
   
   
-	  if(fabs(currentPositionOutter - angleOutter) > 0) {
-		        if(stopAuto) {
-         			 break;
+    if(fabs(currentPositionOutter - angleOutter) > 0) {
+            if(stopAuto) {
+               break;
             }
 
         timeElapsedOutter = frc::Timer::GetFPGATimestamp().value() - prevTimeOutter;
@@ -315,7 +319,7 @@ void ScaraArmModule::moveProfiled(double angleInner, double angleOutter) {
         prevTimeOutter = frc::Timer::GetFPGATimestamp().value();
         frc::SmartDashboard::PutNumber("prevTimeOutter", prevTimeOutter);
     }
-	}
+  }
   frc::SmartDashboard::PutBoolean("In While Profile Elev", false);
 }
 
@@ -406,20 +410,39 @@ void ScaraArmModule::run(){
 
 
         if(state = 't') {
-          // frc::SmartDashboard::PutNumber("left y scara arm", ctr->GetLeftY());
-            inner->Set(ctr->GetRightTriggerAxis() / 5);
-          // frc::SmartDashboard::PutNumber("right y", ctr->GetRightY());
-           outter->Set(ctr->GetLeftTriggerAxis()/ 5);
+          //  if(test) {
+          //       moveProfiled(30, 30);
+          //       moveProfiled(0, 0);
+          //       test = false;
+          //     }
 
-          // Teleop 2
+
+          // // frc::SmartDashboard::PutNumber("left y scara arm", ctr->GetLeftY());
+          //   inner->Set(ctr->GetRightTriggerAxis() / 5);
+          // // frc::SmartDashboard::PutNumber("right y", ctr->GetRightY());
+          //  outter->Set(ctr->GetLeftTriggerAxis()/ 5);
+
+          // // Teleop 2
           grabber->toggle(ctr->GetBButtonPressed());
           
-          if (ctr->GetLeftBumper()) {
-            //outterPID.SetReference(ctr->GetLeftX() * 90, rev::CANSparkMax::ControlType::kPosition);
-            jstickArmMovement(ctr->GetLeftX(), -ctr->GetLeftY());
-          } else {
-            jstickArmMovement(0, 0);
+          // if (ctr->GetLeftBumper()) {
+          //   //outterPID.SetReference(ctr->GetLeftX() * 90, rev::CANSparkMax::ControlType::kPosition);
+          //   jstickArmMovement(ctr->GetLeftX(), -ctr->GetLeftY());
+          // } else {
+          //   jstickArmMovement(0, 0);
+          // }
+
+          std::vector<double> targetPose = ll.getTargetPoseRobotSpace();
+          Limelight::Point targetXY = ll.getTargetXY(targetPose.at(0) * 39.37, targetPose.at(2) * 39.37, targetPose.at(4), Limelight::topRightPole); // X, Y, yaw, poleID
+          frc::SmartDashboard::PutNumber("TapeX", targetXY.x);
+          frc::SmartDashboard::PutNumber("TapeY", targetXY.y);
+          frc::SmartDashboard::PutNumber("Detected?", ll.getTargetDetected());
+          //if (ll.getTargetDetected()) {
+          if (ctr->GetAButton()) {
+            movetoXY(targetXY.x, targetXY.y);
           }
+
+          
           
 
 
@@ -441,7 +464,24 @@ void ScaraArmModule::run(){
           //grabber.set(ctr->GetLeftTriggerAxis() - ctr->GetRightTriggerAxis());
         }
 
-        if(state = 'a') {
+        if(state == 'a') {
+          std::vector<double> targetPose = ll.getTargetPoseRobotSpace();
+          Limelight::Point targetXY = ll.getTargetXY(targetPose.at(0) * 39.37, targetPose.at(2) * 39.37, targetPose.at(4), Limelight::bottomRightPole); // X, Y, yaw, poleID
+          frc::SmartDashboard::PutNumber("TapeX", targetXY.x);
+          frc::SmartDashboard::PutNumber("TapeY", targetXY.y);
+          frc::SmartDashboard::PutNumber("Detected?", ll.getTargetDetected());
+
+          //if (ll.getTargetDetected()) {
+            
+              //movetoXY(targetXY.x, targetXY.y);
+  
+              
+            
+            //armTab.Add("stuffs", targetXY.x);
+          //} else {
+            //armTab.Add("stuffs", -69);
+
+          //}
           
         }
 

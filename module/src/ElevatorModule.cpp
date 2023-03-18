@@ -182,6 +182,8 @@ void ElevatorModule::run() {
             
         }
         if(state == 'a') {
+            //TeleopPeriodic(ctr->GetLeftTriggerAxis(), ctr->GetRightTriggerAxis()); //for some reason either need this or teleop periodic for moving downwards to work
+
             // //AutoPeriodic();
             // if(test) {
             //     setPos(25, true);

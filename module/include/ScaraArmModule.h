@@ -15,6 +15,7 @@
 #include <Grabber.h>
 #include <frc/shuffleboard/ShuffleboardTab.h>
 #include <frc/shuffleboard/Shuffleboard.h>
+#include "Limelight.h"
 
 
 #pragma once
@@ -50,7 +51,7 @@ class ScaraArmModule {
     const double outterConv = 36 / 7; //1
 
     const double innerSize = 24.625;
-    const double outterSize = 24.500;
+    const double outterSize = 32.25;
 
     Grabber* grabber = new Grabber();
 
@@ -66,7 +67,10 @@ class ScaraArmModule {
     // Can also use a different widget type:
     // .WithWidget(&frc::BuiltInWidgets::kSplitButtonChooser);
 
-    //Limelight ll;
+    Limelight ll;
+
+    frc::ShuffleboardTab& armTab = frc::Shuffleboard::GetTab("Arm");
+
 
     std::thread scaraArmThread;
     double stopAuto = false;

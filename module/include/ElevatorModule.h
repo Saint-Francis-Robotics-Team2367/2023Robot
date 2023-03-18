@@ -44,7 +44,7 @@ class ElevatorModule {
 
     //constants
     double kElevatorMinHeight = 7.0;
-    double kElevatorMaxHeight = 48;
+    double kElevatorMaxHeight = 51.25;
     double kLowScoreHeight = 27;
     double kHighScoreHeight = 46;
     double kHighIntakeHeight = 26.375;
