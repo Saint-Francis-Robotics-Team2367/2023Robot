@@ -4,6 +4,7 @@
 #include <rev/CANSparkMax.h>
 #include <frc/Joystick.h>
 #include "ElevatorModule.h"
+#include "ScaraArmModule.h"
 #include <frc/SmartDashboard/SmartDashboard.h>
 #include "AHRS.h"
 #include <frc/controller/PIDController.h>
@@ -11,6 +12,7 @@
 #include <chrono>
 #include<mutex>
 #include <atomic>
+
 
 #define driverStickPort 0
 #define operatorStickPort 1
@@ -25,9 +27,9 @@
 #define driveIntegral 0
 #define driveDerivitive 0.13
 
-#define motorInitMaxCurrent 100 // The initial max current setting
-#define motorInitRatedCurrent 60 // The inital rated current settings
-#define motorInitLimitCycles 2000 // The inital number of allowed ms at peak current
+#define motorInitMaxCurrent 40 // The initial max current setting
+#define motorInitRatedCurrent 30 // The inital rated current settings
+#define motorInitLimitCycles 200 // The inital number of allowed ms at peak current
 #define lInvert false // Inversion setings for sides (invert this if opposite side)
 #define rInvert true 
 
@@ -45,7 +47,9 @@ class DriveBaseModule{ //needed for gyroPIDDrive implementation
 
   AHRS *ahrs; //needs to be intialized in constructor
 
-  ElevatorModule* elev = new ElevatorModule(10); //Elevator
+  //ElevatorModule* elev = new ElevatorModule(10); //Elevator
+
+  //ScaraArmModule* arm = new ScaraArmModule();
 
   double maxAcc =  20.0;
   double maxVelocity = 30.0;
@@ -54,18 +58,25 @@ class DriveBaseModule{ //needed for gyroPIDDrive implementation
   double gyroOffsetVal = 0;
   double delta =10;
   double tuningPrevTime = 0;
+
   
   frc::Joystick* driverStick = new frc::Joystick(driverStickPort);
+  // frc::Joystick* driverStick;
   //frc::Joystick* operatorStick = new frc::Joystick(operatorStickPort);
   rev::CANSparkMax* lMotor = new rev::CANSparkMax(lMotorLeaderID, rev::CANSparkMax::MotorType::kBrushless);
   rev::CANSparkMax* lMotorFollower = new rev::CANSparkMax(lMotorFollowerID, rev::CANSparkMax::MotorType::kBrushless);
   rev::CANSparkMax* rMotor = new rev::CANSparkMax(rMotorLeaderID, rev::CANSparkMax::MotorType::kBrushless);
   rev::CANSparkMax* rMotorFollower = new rev::CANSparkMax(rMotorFollowerID, rev::CANSparkMax::MotorType::kBrushless);
+
   //if you don't include getEncoder here, it doesn't build?
   rev::SparkMaxRelativeEncoder lEncoder = lMotor->GetEncoder();
   rev::SparkMaxRelativeEncoder rEncoder = rMotor->GetEncoder();
   rev::SparkMaxPIDController lPID = lMotor->GetPIDController();
   rev::SparkMaxPIDController rPID = rMotor->GetPIDController();
+
+  double kp;
+  double ki;
+  double kd;
 
   bool initDriveMotor(rev::CANSparkMax* motor, rev::CANSparkMax* follower, bool invert); //loads initial values into motors such as current limit and phase direction
   bool setPowerBudget(rev::CANSparkMax* motor, float iPeak, float iRated, int limitCycles); //changes the current limits on the motors 
@@ -74,10 +85,7 @@ class DriveBaseModule{ //needed for gyroPIDDrive implementation
   public: 
   std::thread driveThread;
   double stopAuto = false;
-  DriveBaseModule() {
-    ahrs = new AHRS(frc::SerialPort::kMXP);
-    driveThread = std::thread(&DriveBaseModule::run, this); //initializing thread so can detach in robot init
-  }
+  DriveBaseModule(); 
   void LimitRate(double& s, double& t);
   void arcadeDrive(double vel, double dir); //takes two values from the joystick and converts them into motor output %
   bool PIDDrive(float totalFeet, bool keepVelocity);
@@ -89,7 +97,9 @@ class DriveBaseModule{ //needed for gyroPIDDrive implementation
   void gyroDriving();
   void PIDTuning();
   void driveBaseTuning();
-  double skim(double v); 
+  double skim(double v);
+  void autoBalance();
+
   double getGyroAngleAuto() { //will be positive
     double angle = ahrs->GetAngle();
     if(angle * gyroOffsetVal < 0) { //if signs are different

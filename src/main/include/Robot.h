@@ -5,13 +5,18 @@
 #pragma once
 
 #include <frc/TimedRobot.h>
+#include<frc/XboxController.h>
+#include <rev/CANSparkMax.h>
 
 
 class Robot : public frc::TimedRobot {
 
+double set = 0;
 
+//rev::CANSparkMax* randomTest = new rev::CANSparkMax(9, rev::CANSparkMax::MotorType::kBrushless);
 
  public:
+
   void RobotInit() override;
   void RobotPeriodic() override;
 
