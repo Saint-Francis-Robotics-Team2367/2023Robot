@@ -35,7 +35,23 @@ void ScaraArmModule::ArmInit() {
   inner->SetSmartCurrentLimit(10);
 }
 
-
+void ScaraArmModule::stow() {
+    frc::SmartDashboard::PutNumber("outerLimitSwitch", OuterLimitSwitch.Get());
+    frc::SmartDashboard::PutNumber("innerLimitSwitch", InnerLimitSwitch.Get());
+    while (true) {
+      if (OuterLimitSwitch.Get() != true) {
+        outter->Set(-0.2);
+      }
+      if (InnerLimitSwitch.Get() != true) {
+        inner->Set(-0.2);
+      }
+      if (InnerLimitSwitch.Get() == true && OuterLimitSwitch.Get() == true) {
+        outter->Set(0);
+        inner->Set(0);
+        break;
+      }   
+    }
+}
 /*
 void ScaraArmModule::ArmPeriodic() {
   double sensor_position = lArmEncoder.GetPosition();
