@@ -11,21 +11,21 @@
 #include "ElevatorModule.h"
 #include <frc/XboxController.h>
 
-frc::XboxController* ctr = new frc::XboxController(0);
-frc::XboxController* ctr2 = new frc::XboxController(1);
+// frc::XboxController* ctr = new frc::XboxController(0);
+// frc::XboxController* ctr2 = new frc::XboxController(1);
 
-ScaraArmModule arm(ctr2);
+// ScaraArmModule arm(ctr2);
 DriveBaseModule drive;
-ElevatorModule elev(ctr);
-//Limelight ll; 
+// ElevatorModule elev(ctr);
+Limelight ll; 
 
 //cpr number pulses (4096) per rev, 70 to 1 / 360
 
 void Robot::RobotInit()
 {
   drive.driveThread.detach(); 
-  arm.scaraArmThread.detach();
-  elev.elevatorThread.detach();
+  // arm.scaraArmThread.detach();
+  // elev.elevatorThread.detach();
 }
 
 void Robot::RobotPeriodic() {
@@ -35,20 +35,24 @@ void Robot::RobotPeriodic() {
   // frc::SmartDashboard::PutNumber("TapeX", targetXY.x);
   // frc::SmartDashboard::PutNumber("TapeY", targetXY.y);
   // frc::SmartDashboard::PutNumber("Detected?", ll.getTargetDetected());
+
+  //ll.switchToPipeline(2);
+  //frc::SmartDashboard::PutNumber("LL Pipeline", ll.getPipeline());
+  drive.autoBalance();
 }
 
 void Robot::AutonomousInit() {
-  arm.state = 'a';
+  // arm.state = 'a';
   drive.state = 'a';
-  elev.state = 'a';
+  // elev.state = 'a';
 }
 void Robot::AutonomousPeriodic() {}
 
 
 void Robot::TeleopInit() {
-  arm.state = 't';
+  // arm.state = 't';
   drive.state = 't';
-  elev.state = 't';
+  // elev.state = 't';
 }
 
 void Robot::TeleopPeriodic() {}

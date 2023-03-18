@@ -130,7 +130,7 @@ class Limelight {
     std::vector<double> getTargetPoseRobotSpace() {
         //std::vector<double> pose = LimelightHelpers::getTargetPose_RobotSpace("limelight");
         //Above code returned an empty vector for some reason
-        std::vector<double> pose = nt::NetworkTableInstance::GetDefault().GetTable("limelight")->GetNumberArray("targetpose_robotspace", std::vector<double>(6));
+        std::vector<double> pose = nt::NetworkTableInstance::GetDefault().GetTable("limelight")->GetNumberArray("targetpose_robotspace", std::span<double>{});
         return pose;
     }
 
@@ -141,11 +141,13 @@ class Limelight {
     }
 
     void switchToPipeline(int pipeline){
-        LimelightHelpers::setPipelineIndex("", pipeline);
+        // LimelightHelpers::setPipelineIndex("", pipeline);
+        int current = getPipeline();
+        nt::NetworkTableInstance::GetDefault().GetTable("limelight")->PutNumber("pipeline", pipeline);
     }
 
     int getPipeline(){
-        return LimelightHelpers::getLimelightNTDouble("", "pipeline");
+        return nt::NetworkTableInstance::GetDefault().GetTable("limelight")->GetNumber("pipeline", -1);
     }
 
     int getTargetDetected() {

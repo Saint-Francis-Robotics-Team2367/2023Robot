@@ -84,6 +84,27 @@ void DriveBaseModule::gyroDriving() {
 
 }
 
+void DriveBaseModule::autoBalance() {
+  double pitch = ahrs->GetPitch();
+  //pitch = std::clamp(pitch, -15.0, 15.0);
+  double error = 15 - pitch;
+  double maxDegrees = 15;
+  double length = 12;
+  frc::SmartDashboard::PutNumber("pitch", pitch);
+  frc::SmartDashboard::PutNumber("error", error);
+  //ouble gyroOutput = autoBalancePID->Calculate(pitch); // should I make this setpoint nothing?
+  //double gyroOutput = autoBalancePID->Calculate(pitch, 0.01);
+  //frc::SmartDashboard::PutNumber("gyroOutput", gyroOutput);
+  
+  //uncomment later
+  //lPID.SetReference(error, rev::CANSparkMax::ControlType::kPosition);
+  //rPID.SetReference(error, rev::CANSparkMax::ControlType::kPosition);
+  //------------- 
+
+  //PIDDrive(gyroOutput, false);
+  //arcadeDrive(gyroOutput/10, 0);
+}
+
 void DriveBaseModule::PIDTuning() {
   //double prevTime = frc::Timer::GetFPGATimestamp().value();
   double currentLeftLead = lMotor->GetOutputCurrent();

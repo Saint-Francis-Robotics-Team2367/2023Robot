@@ -98,6 +98,7 @@ class DriveBaseModule{ //needed for gyroPIDDrive implementation
   void PIDTuning();
   void driveBaseTuning();
   double skim(double v);
+  void autoBalance();
 
   double getGyroAngleAuto() { //will be positive
     double angle = ahrs->GetAngle();
