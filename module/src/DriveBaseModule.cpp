@@ -424,13 +424,14 @@ bool DriveBaseModule::PIDTurn(float angle, float radius, bool keepVelocity) { //
 
 void DriveBaseModule::autonomousSequence() {  
 
+  // basic path initialized for default (may change based on what is selected)
    autoPath path[3] = {
     autoPath(autoPathType::straight),
     autoPath(autoPathType::turn),
     autoPath(autoPathType::straight),
   };
 
-  int numSteps = 3; // CHANGE DEPENDING ON LENGTH OF LIST
+  int numSteps = 3; // CHANGE DEPENDING ON LENGTH OF LIST BEFORE DEPLOYING
 
   autoPath a(autoPathType::straight); 
   a.register_straight(1); 
@@ -441,37 +442,47 @@ void DriveBaseModule::autonomousSequence() {
   autoPath c(autoPathType::straight); 
   c.register_straight(1);
 
-  // registering default path
+  // registering default path points  
   path[0] = a; 
   path[1] = b; 
   path[2] = c; 
 
   // custom path 1 points 
+  // refer to paths.h for more on the class, but for every point created u need to register it as a straight or turn 
+  // straight takes in the distance 
+  // turns take in the angle, radius 
   autoPath a1(autoPathType::straight); 
   a.register_straight(2); 
 
   autoPath b1(autoPathType::turn); 
   b.register_turn(90, 2);
 
-  autoPath c1(autoPathType::straight); 
+  autoPath c1(autoPathType::turn); 
   c.register_turn(-45, 1);
+
+  autoPath d1(autoPathType::turn); 
+  c.register_turn(360, 0);
  
   int index = 0;
 
   selected = chooser.GetSelected();
 
+  // changes the default path to a custom one based on what is selected 
+  // make sure the autopath types in the list match the point types
   if (selected == autoCustom){
-    autoPath path[3] = {
+    autoPath path[4] = {
     autoPath(autoPathType::straight),
     autoPath(autoPathType::turn),
-    autoPath(autoPathType::straight),
+    autoPath(autoPathType::turn),
+    autoPath(autoPathType::turn),
     };
 
     path[0] = a1; 
     path[1] = b1; 
     path[2] = c1; 
+    path[3] = d1; 
 
-    numSteps = 3; 
+    numSteps = 4; 
   }
 
   while(index < numSteps) {
