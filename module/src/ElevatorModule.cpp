@@ -1,8 +1,9 @@
 #include "ElevatorModule.h"
 
-ElevatorModule::ElevatorModule(frc::XboxController* controller) { //pass in joystick too
+ElevatorModule::ElevatorModule(frc::XboxController* controller, frc::XboxController* controllerOperator) { //pass in joystick too
     //m_ID = motorID;
     ctr = controller;
+    ctrOperator = controllerOperator;
     elevatorThread = std::thread(&ElevatorModule::run, this); //initializing thread so can detach in robot init
 }
 
@@ -178,7 +179,7 @@ void ElevatorModule::run() {
             }
             }
             //need this line for down movement to work? also is manual, could replace triggers with 0, 0 and it works
-            TeleopPeriodic(ctr->GetLeftTriggerAxis(), ctr->GetRightTriggerAxis()); //for some reason either need this or teleop periodic for moving downwards to work
+            TeleopPeriodic(ctrOperator->GetLeftTriggerAxis(), ctrOperator->GetRightTriggerAxis()); //for some reason either need this or teleop periodic for moving downwards to work
             
         }
         if(state == 'a') {
