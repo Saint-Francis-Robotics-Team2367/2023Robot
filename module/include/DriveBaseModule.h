@@ -131,6 +131,36 @@ class DriveBaseModule{ //needed for gyroPIDDrive implementation
 
   char state = 't';
 
+  //Target Relative Positioning
+
+  std::vector<double> getCoords();
+
+  void setTarget(double x, double y);
+  
+  void updatePos(double left, double right, double angle);
+
+  double getAngleToTarget();
+  
+  double getDistanceToTarget();
+  
+  double range360(double inp);
+
+  //TRP Variables
+
+  double target_x = 0;
+  double target_y = 10;
+  double start_x = 0;
+  double start_y = 0;
+  std::vector<double> position{0, 0, 0};
+
+  double current_x = start_x;
+  double current_y = start_y;
+  double current_theta;
+  double last_Lencoder = 0;
+  double last_Rencoder= 0;
+
+  // End of TRP
+
  frc2::PIDController* rightStickPID = new frc2::PIDController(driveProportional, driveIntegral, driveDerivitive);
 
   private:

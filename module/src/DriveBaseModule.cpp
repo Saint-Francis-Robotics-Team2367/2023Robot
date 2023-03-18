@@ -537,6 +537,81 @@ void DriveBaseModule::autonomousSequence() {
   }
 }
 
+std::vector<double> DriveBaseModule::getCoords() {
+    std::vector<double> temp {current_x, current_y};
+    return temp; 
+}
+
+void DriveBaseModule::setTarget(double x, double y) {
+    target_x = x;
+    target_y = y;
+  }
+
+void DriveBaseModule::updatePos(double left, double right, double angle) { // Run in a loop, uses gyro, USE CHANGE IN DISTNACE
+  double x = position.at(0);
+  double y = position.at(1);
+  double theta = range360(angle);
+  theta = angle * PI / 180; // theta should come in as a radian but output in degrees
+
+  double dcenter = (left + right) / 2;
+  double phi = (right - left) / (centerToWheel * 2); // In radians
+
+  double f_theta = theta + phi;
+  //f_theta = fmod(f_theta * 180 / wpi::numbers::pi, 360);
+  double f_x = x + (dcenter * cos(theta));
+  double f_y = y + (dcenter * sin(theta));
+
+  position.at(0) = f_x;
+  position.at(1) = f_y;
+  //position.at(2) = f_theta;
+
+  }
+
+double DriveBaseModule::getAngleToTarget() {
+    double angle;
+    double relative_x = fabs(target_x - current_x);
+    double relative_y = fabs(target_y - current_y);
+    angle = range360(atan2(relative_y, relative_x) * (180 / PI));
+    if (current_x > target_x) {
+      
+      if (current_y > target_y) {
+        angle += 180;
+        return (range360(current_theta - angle));
+        
+      } else {
+        angle = (180 - angle);
+        return (range360(current_theta- angle));
+      }
+      
+    } else {
+      if (current_y > target_y) {
+        angle = 360 - angle;
+        return (range360(current_theta - angle));
+      } else {
+        return (range360(current_theta - angle));
+      }
+    }
+
+
+  }
+
+double DriveBaseModule::getDistanceToTarget() { //Linear Distance NOT 3D
+    double xsqr = (current_x - target_x) * (current_x - target_x);
+    double ysqr = (current_y - target_y) * (current_y - target_y);
+    return (sqrt(xsqr + ysqr));
+  }
+
+double DriveBaseModule::range360(double inp) {
+    double out;
+    if (inp < 0) {
+        out = 360 + inp;
+        out = fmod(out, 360);
+    } else {
+        out = fmod(inp, 360);
+    }
+    return out;
+}
+
 void DriveBaseModule::runInit() {
   if (!(initDriveMotor(lMotor, lMotorFollower, lInvert) && initDriveMotor(rMotor, rMotorFollower, rInvert))) {
     frc::SmartDashboard::PutBoolean("Drive Motor Inits", false);
@@ -595,7 +670,6 @@ void DriveBaseModule::run() {
     if(state == 't') {
       //perioidic routines
       gyroDriving();
-      frc::SmartDashboard::PutNumber("joystick", driverStick->GetRawAxis(1));
       //honestly let's move to xbox joystick maybe
       //elev->TeleopPeriodic(driverStick->GetLeftTriggerAxis(), driverStick->GetRightTriggerAxis());
       frc::SmartDashboard::PutNumber("lcheck", lMotor->GetIdleMode() == rev::CANSparkMax::IdleMode::kBrake); 

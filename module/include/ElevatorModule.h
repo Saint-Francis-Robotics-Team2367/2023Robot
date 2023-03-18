@@ -33,8 +33,6 @@ class ElevatorModule {
     double maxVelocity = 15047;
     double maxAcc = 3039;
     //Mech/Electronics Setup
-    //int m_ID = 10;
-    //int m_ID = 15;
     
 
     rev::CANSparkMax* elevatorMotor = new rev::CANSparkMax(elevatorID, rev::CANSparkMax::MotorType::kBrushless);
