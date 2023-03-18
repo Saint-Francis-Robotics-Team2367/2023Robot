@@ -182,16 +182,16 @@ void ElevatorModule::run() {
             
         }
         if(state == 'a') {
-            //AutoPeriodic();
-            if(test) {
-                setPos(25, true);
-                test = false;
-            }
-            if(oneRun && !test) {
-                setPos(0, true);
-                oneRun = false;
-            }
-            frc::SmartDashboard::PutNumber("left trigger", ctr->GetLeftTriggerAxis());
+            // //AutoPeriodic();
+            // if(test) {
+            //     setPos(25, true);
+            //     test = false;
+            // }
+            // if(oneRun && !test) {
+            //     setPos(0, true);
+            //     oneRun = false;
+            // }
+            // frc::SmartDashboard::PutNumber("left trigger", ctr->GetLeftTriggerAxis());
         }
         std::this_thread::sleep_until(nextRun);
     }

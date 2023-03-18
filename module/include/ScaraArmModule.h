@@ -32,7 +32,9 @@
 class ScaraArmModule {
     public:
 
-    const double startInner = 90;
+    // const double startInner = 146 + 180;
+    // const double startOutter = 150;
+    const double startInner = 0;
     const double startOutter = 0;
 
     const double startX = 24.625;
@@ -92,10 +94,8 @@ class ScaraArmModule {
 
     void movetoXY(double x, double y);
 
-    void TeleopControl();
-
-    double maxVelocity = 21;
-    double maxAcc = 7;
+    double maxVelocity = 130;
+    double maxAcc = 68;
     void moveProfiled(double angle1, double angle2);
 
     bool XYInRange(double x, double y);
