@@ -50,6 +50,9 @@ class ScaraArmModule {
     const double innerSize = 24.625;
     const double outterSize = 24.500;
 
+    std::string tab = "Scara Arm"; // for MakeWidget() calls
+    bool scoreMenuCreated = false; // for ShuffleboardScorer()
+
     Grabber* grabber = new Grabber();
 
     //frc::ShuffleboardTab& armTab = frc::Shuffleboard::GetTab("Arm");
@@ -83,6 +86,8 @@ class ScaraArmModule {
     double clampAngle(double inp);
 
     void movetoXY(double x, double y);
+
+    void ShuffleboardScorer();
 
     void TeleopControl();
     

@@ -1,4 +1,5 @@
 #include "ElevatorModule.h"
+#include "ShuffleUI.h"
 
 ElevatorModule::ElevatorModule(frc::XboxController* controller) { //pass in joystick too
     //m_ID = motorID;
@@ -10,6 +11,7 @@ ElevatorModule::ElevatorModule(frc::XboxController* controller) { //pass in joys
 double ElevatorModule::manualMove(double Linput, double Rinput) {
     //frc::SmartDashboard::PutNumber("l", Linput);
     //frc::SmartDashboard::PutNumber("r", Rinput);
+    //change to ShuffleUI if uncommented
 
     double L = Linput;
     double R = Rinput;
@@ -70,14 +72,14 @@ bool ElevatorModule::setPos(double setpoint, bool isMotionProfiled) {
              currentPosition += currentVelocity * timeElapsed;
         }
        
-        frc::SmartDashboard::PutNumber("Elev pos", currentPosition);
+        ShuffleUI::MakeWidget("Elev pos", tab, currentPosition);
 
 
         //checking end case if current position exceeds 
         if(down) {
             if(currentPosition < setpoint) {   
                 currentPosition = setpoint;
-                frc::SmartDashboard::PutNumber("reducto", currentPosition);
+                ShuffleUI::MakeWidget("reducto", tab, currentPosition);
             }
         } else {
             if(currentPosition > setpoint) {
@@ -88,10 +90,10 @@ bool ElevatorModule::setPos(double setpoint, bool isMotionProfiled) {
         currentPosition = std::clamp(currentPosition, kElevatorMinHeight, kElevatorMaxHeight); 
         
         
-        frc::SmartDashboard::PutNumber("setpoint", setpoint);
+        ShuffleUI::MakeWidget("setpoint", tab, setpoint);
         elevatorPID.SetReference(std::copysign(currentPosition, setpoint), rev::CANSparkMax::ControlType::kPosition); //setpoint uses encoder
         prevTime = frc::Timer::GetFPGATimestamp().value();
-        frc::SmartDashboard::PutNumber("prevTime", prevTime);
+        ShuffleUI::MakeWidget("prevTime", tab, prevTime);
     }
       height = setpoint; 
       return true;
@@ -100,7 +102,7 @@ bool ElevatorModule::setPos(double setpoint, bool isMotionProfiled) {
 
 void ElevatorModule::setPos(double setpoint) {
     setpoint = std::clamp(setpoint, kElevatorMinHeight, kElevatorMaxHeight); //clamps b/t two pts
-    frc::SmartDashboard::PutNumber("inSetPos", setpoint);
+    ShuffleUI::MakeWidget("inSetPos", tab, setpoint);
     if(setpoint > getPos()) {
         elevatorPID.SetP(pUp);
         elevatorPID.SetD(dUp);
@@ -125,8 +127,8 @@ void ElevatorModule::Init() {
 
 
 void ElevatorModule::TeleopPeriodic(double Linput, double Rinput) {
-        frc::SmartDashboard::PutNumber("position", getPos());
-        frc::SmartDashboard::PutNumber("height", height);
+        ShuffleUI::MakeWidget("position", tab, getPos());
+        ShuffleUI::MakeWidget("height", tab, height);
         double output = manualMove(Linput, Rinput);
         // elevatorMotor->Set(output);
         // height = getPos();
@@ -134,13 +136,13 @@ void ElevatorModule::TeleopPeriodic(double Linput, double Rinput) {
 }
 
 void ElevatorModule::AutoPeriodic() {
-        double set = frc::SmartDashboard::GetNumber("setpoint", 25);
+        double set = ShuffleUI::GetDouble("setpoint", tab, 25);
 
         setPos(set, true);
-        frc::SmartDashboard::PutNumber("setpoint", set);
+        ShuffleUI::MakeWidget("setpoint", tab, set);
 
-        frc::SmartDashboard::PutNumber("position", getPos());
-        frc::SmartDashboard::PutNumber("height", height);
+        ShuffleUI::MakeWidget("position", tab, getPos());
+        ShuffleUI::MakeWidget("height", tab, height);
 }
 
 void ElevatorModule::runInit() {
@@ -151,29 +153,29 @@ void ElevatorModule::run() {
     runInit();
     while(true) {
         auto nextRun = std::chrono::steady_clock::now() + std::chrono::milliseconds(5); //change milliseconds at telop
-        frc::SmartDashboard::PutBoolean("elevator module", true);
-        frc::SmartDashboard::PutNumber("elev left y", ctr->GetLeftY());
+        ShuffleUI::MakeWidget("elevator module", tab, true);
+        ShuffleUI::MakeWidget("elev left y", tab, ctr->GetLeftY());
        
         if(state == 't') {
              if(!currentlyMoving) {
                 if(ctr->GetXButtonPressed()) {
                 currentlyMoving = true;
                 setPos(kHighScoreHeight, true);
-                frc::SmartDashboard::PutBoolean("x pressed", true);
+                ShuffleUI::MakeWidget("x pressed", tab, true);
                 currentlyMoving = false;
             }
 
              if(ctr->GetAButton()) {
                 currentlyMoving = true;
                 setPos(kLowScoreHeight, true);
-                frc::SmartDashboard::PutBoolean("B pressed", true);
+                ShuffleUI::MakeWidget("B pressed", tab, true);
                 currentlyMoving = false;
             }
 
             if(ctr->GetYButton()) {
                 currentlyMoving = true;
                 setPos(kLowestHeight, true);
-                frc::SmartDashboard::PutBoolean("y pressed", true);
+                ShuffleUI::MakeWidget("y pressed", tab, true);
                 currentlyMoving = false;
             }
             }
@@ -191,7 +193,7 @@ void ElevatorModule::run() {
                 setPos(0, true);
                 oneRun = false;
             }
-            frc::SmartDashboard::PutNumber("left trigger", ctr->GetLeftTriggerAxis());
+            ShuffleUI::MakeWidget("left trigger", tab, ctr->GetLeftTriggerAxis());
         }
         std::this_thread::sleep_until(nextRun);
     }

@@ -27,7 +27,7 @@ class ElevatorModule {
     double stopAuto = false;
     bool test = true;
 
-
+    std::string tab = "Elevator"; // for MakeWidget() calls
 
     double maxVelocity = 15047;
     double maxAcc = 3039;
