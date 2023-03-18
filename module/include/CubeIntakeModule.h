@@ -32,7 +32,7 @@ class CubeIntakeModule {
         rev::CANSparkMax * leftStar = new rev::CANSparkMax(leftStarID, rev::CANSparkMax::MotorType::kBrushed);
         rev::CANSparkMax * rightStar = new rev::CANSparkMax(rightStarID, rev::CANSparkMax::MotorType::kBrushed);
         rev::CANSparkMax * intakeRoller = new rev::CANSparkMax(intakeRollerID, rev::CANSparkMax::MotorType::kBrushless);  
-
+        rev::CANSparkMax * rotary = new rev::CANSparkMax(rotaryID, rev::CANSparkMax::MotorType::kBrushless);  
         rev::SparkMaxRelativeEncoder intakeRollerEncoder = leftStar->GetEncoder();
         rev::SparkMaxPIDController intakeRollerPID = leftStar->GetPIDController();
         rev::SparkMaxRelativeEncoder rotaryEncoder = leftStar->GetEncoder();

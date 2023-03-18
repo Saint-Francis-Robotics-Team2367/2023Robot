@@ -9,6 +9,8 @@ CubeIntakeModule::CubeIntakeModule(frc::XboxController* controller, frc::XboxCon
 void CubeIntakeModule::toggleIntake() {
     if(intakeDown) {
 
+    } else {
+
     }
 
 
@@ -17,7 +19,7 @@ void CubeIntakeModule::toggleIntake() {
 }
 
 void CubeIntakeModule::runInit() {
-
+    
 }
 
 void CubeIntakeModule::run() {
