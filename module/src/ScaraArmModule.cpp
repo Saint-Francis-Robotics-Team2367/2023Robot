@@ -329,9 +329,9 @@ void ScaraArmModule::moveProfiled(double angleInner, double angleOutter) {
 	}
 }
 
-// Selects where to drop element using shuffleboard buttons
+// Selects where to drop element using shuffleboard buttons.
 void ScaraArmModule::ShuffleboardScorer() {
-  std::string atab = "drop menu";
+  std::string atab = "dropper";
   if (!scoreMenuCreated) {
     ShuffleUI::MakeButtonPos("0 0", atab, false, 0, 0);
     ShuffleUI::MakeButtonPos("1 0", atab, false, 1, 0);
@@ -342,15 +342,16 @@ void ScaraArmModule::ShuffleboardScorer() {
     ShuffleUI::MakeButtonPos("0 2", atab, false, 0, 2);
     ShuffleUI::MakeButtonPos("1 2", atab, false, 1, 2);
     ShuffleUI::MakeButtonPos("2 2", atab, false, 2, 2);
+    ShuffleUI::MakeWidgetPos("Last button pressed", atab, "n/a", 4, 1);
+    scoreMenuCreated = true;
   } else {
     for (int x = 0; x < 3; x++) {
       for (int y = 0; y < 3; y++) {
-        std::string name = x + " " + y;
-        nt::GenericEntry* entry = ShuffleUI::GetEntry(name, atab);
-        if (entry->GetBoolean(false)) {
+        std::string name = std::to_string(x) + " " + std::to_string(y);
+        if (ShuffleUI::GetBool(name, atab, false)) {
           //armMoveFunction(corresponding position)
-          std::cout << name << " pressed\n";
-          entry->SetBoolean(false);
+          ShuffleUI::MakeWidgetPos("Last button pressed", atab, name, 4, 1);
+          ShuffleUI::GetEntry(name, atab)->SetBoolean(false);
         }
       }
     }

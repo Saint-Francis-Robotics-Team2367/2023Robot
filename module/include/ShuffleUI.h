@@ -57,7 +57,77 @@ class ShuffleUI {
      * @return pointer to the widget's entry
      */
     static nt::GenericEntry *MakeWidget(std::string name, std::string tab, bool value);
-    
+
+    /**
+     * Creates a new widget, or updates an existing widget's value.
+     *
+     * @param name Widget's name
+     * @param tab Widget's tab
+     * @param value Widget's value
+     * @return pointer to the widget's entry
+     */
+    static nt::GenericEntry *MakeWidget(std::string name, std::string tab, std::string value);
+
+    /**
+     * Creates a new widget at a specified position (0,0 being the top left), or updates an existing widget's value.
+     *
+     * @param name Widget's name
+     * @param tab Widget's tab
+     * @param value Widget's value
+     * @param posX X position
+     * @param posY Y position
+     * @return pointer to the widget's entry
+     */
+    static nt::GenericEntry *MakeWidgetPos(std::string name, std::string tab, int value, int posX, int posY);
+
+    /**
+     * Creates a new widget at a specified position (0,0 being the top left), or updates an existing widget's value.
+     *
+     * @param name Widget's name
+     * @param tab Widget's tab
+     * @param value Widget's value
+     * @param posX X position
+     * @param posY Y position
+     * @return pointer to the widget's entry
+     */
+    static nt::GenericEntry *MakeWidgetPos(std::string name, std::string tab, double value, int posX, int posY);
+
+    /**
+     * Creates a new widget at a specified position (0,0 being the top left), or updates an existing widget's value.
+     *
+     * @param name Widget's name
+     * @param tab Widget's tab
+     * @param value Widget's value
+     * @param posX X position
+     * @param posY Y position
+     * @return pointer to the widget's entry
+     */
+    static nt::GenericEntry *MakeWidgetPos(std::string name, std::string tab, float value, int posX, int posY);
+
+    /**
+     * Creates a new widget at a specified position (0,0 being the top left), or updates an existing widget's value.
+     *
+     * @param name Widget's name
+     * @param tab Widget's tab
+     * @param value Widget's value
+     * @param posX X position
+     * @param posY Y position
+     * @return pointer to the widget's entry
+     */
+    static nt::GenericEntry *MakeWidgetPos(std::string name, std::string tab, bool value, int posX, int posY);
+
+    /**
+     * Creates a new widget at a specified position (0,0 being the top left), or updates an existing widget's value.
+     *
+     * @param name Widget's name
+     * @param tab Widget's tab
+     * @param value Widget's value
+     * @param posX X position
+     * @param posY Y position
+     * @return pointer to the widget's entry
+     */
+    static nt::GenericEntry *MakeWidgetPos(std::string name, std::string tab, std::string value, int posX, int posY);
+
     /**
      * Creates a new widget with a slider.
      *
