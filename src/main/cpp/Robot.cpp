@@ -4,11 +4,11 @@
 
 #include "Robot.h"
 #include <frc2/command/PIDCommand.h>
-
+#include "IRSensor.h"
 // // All Module Includes
-#include "DriveBaseModule.h"
+//#include "DriveBaseModule.h"
 
-DriveBaseModule drive;
+//DriveBaseModule drive;
 //moved instantiation to h file
 
 
@@ -18,7 +18,7 @@ void Robot::RobotInit()
   //compRobotDrive.periodicInit();
 
   //need drive inits
-  drive.driveThread.detach(); 
+  //drive.driveThread.detach(); 
  
 }
 
@@ -27,7 +27,7 @@ void Robot::RobotPeriodic()
 }
 void Robot::AutonomousInit()
 {
-  drive.state = 'a';
+  //drive.state = 'a';
 }
 void Robot::AutonomousPeriodic()
 {
@@ -38,22 +38,24 @@ void Robot::AutonomousPeriodic()
 
 void Robot::TeleopInit()
 {
-  drive.state = 't'; //add codes in while loops to break if state change
+  //drive.state = 't'; //add codes in while loops to break if state change
 }
 
 void Robot::TeleopPeriodic()
 {
+  IRSensor ir1(0);
+  frc::SmartDashboard::PutNumber("ir1", ir1.getCM());
 }
 
 void Robot::DisabledInit() {
-  drive.stopAuto = true;
+  //drive.stopAuto = true;
 }
 void Robot::DisabledPeriodic() {
 }
 
 void Robot::TestInit()
 {
-  drive.state = 'd';
+  //drive.state = 'd';
 }
 
 void Robot::TestPeriodic()
