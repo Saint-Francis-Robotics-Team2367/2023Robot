@@ -1,4 +1,5 @@
 #include "DriveBaseModule.h"
+#include "Paths.h"
 #include <iostream>
 
 DriveBaseModule::DriveBaseModule() {
@@ -421,95 +422,79 @@ bool DriveBaseModule::PIDTurn(float angle, float radius, bool keepVelocity) { //
   return true;
 }
 
-void DriveBaseModule::initPath() {
-  //normally a text file, for testing purposes doing this
-  //we also used trig previously and just x, y, now need to incorporate radius
-  robPos.x = 0;
-  robPos.y = 0;
+void DriveBaseModule::autonomousSequence() {  
 
-  pathPoint point1; //example
-  point1.x = 2;
-  point1.y = 2; 
-  straightLinePoints.push_back(point1);
+   autoPath path[3] = {
+    autoPath(autoPathType::straight),
+    autoPath(autoPathType::turn),
+    autoPath(autoPathType::straight),
+  };
 
-  radiusTurnPoint rpoint1;
-  rpoint1.radius = 3; //neg
-  rpoint1.angle = 180;
-  radiusTurnPoints.push_back(rpoint1);
+  int numSteps = 3; // CHANGE DEPENDING ON LENGTH OF LIST
 
-  // radiusTurnPoint rpoint2;
-  // rpoint2.radius = 0; //neg
-  // rpoint2.angle = -180;
-  // radiusTurnPoints.push_back(rpoint2);
+  autoPath a(autoPathType::straight); 
+  a.register_straight(1); 
 
+  autoPath b(autoPathType::turn); 
+  b.register_turn(90, 2);
 
-  // pathPoint point2; //example
-  // point2.x = 0;
-  // point2.y = 10; 
-  // straightLinePoints.push_back(point2);
-  // //calculate x and y robot manually
+  autoPath c(autoPathType::straight); 
+  c.register_straight(1);
 
-  // pathPoint point3; //example
-  // point3.x = -5;
-  // point3.y = 5; 
-  // straightLinePoints.push_back(point3);
+  // registering default path
+  path[0] = a; 
+  path[1] = b; 
+  path[2] = c; 
 
-  // pathPoint point4; //example
-  // point4.x = 0;
-  // point4.y = 0; 
-  // straightLinePoints.push_back(point4);
+  // custom path 1 points 
+  autoPath a1(autoPathType::straight); 
+  a.register_straight(2); 
 
-  pathOrder.push_back(true);
-  pathOrder.push_back(false);
-  // pathOrder.push_back(true);
-  // pathOrder.push_back(true);
-  // pathOrder.push_back(false);
-  //pathOrder.push_back(true);
-}
+  autoPath b1(autoPathType::turn); 
+  b.register_turn(90, 2);
 
-void DriveBaseModule::autonomousSequence() {
-  initPath();
+  autoPath c1(autoPathType::straight); 
+  c.register_turn(-45, 1);
+ 
   int index = 0;
-  int lineIndex = 0;
-  int curveIndex = 0;
-  while(index < pathOrder.size()) {
+
+  selected = chooser.GetSelected();
+
+  if (selected == autoCustom){
+    autoPath path[3] = {
+    autoPath(autoPathType::straight),
+    autoPath(autoPathType::turn),
+    autoPath(autoPathType::straight),
+    };
+
+    path[0] = a1; 
+    path[1] = b1; 
+    path[2] = c1; 
+
+    numSteps = 3; 
+  }
+
+  while(index < numSteps) {
+    frc::SmartDashboard::PutBoolean("straight", path[index].straight); 
     if(stopAuto) {
       break;
     }
-    if(pathOrder.at(index)) {
-      //straight line, doing turn
-      pathPoint delta;
-      delta.x = (straightLinePoints.at(lineIndex).x - robPos.x);
-      delta.y = (straightLinePoints.at(lineIndex).y - robPos.y);
+    if(path[index].straight) {
+      frc::SmartDashboard::PutNumber("dis", path[index].dis);
+      PIDDrive(path[index].dis, path[index].keepVelocity);
+     } 
+     else { 
+      // retrieving angle and radius of turn 
+      angle = path[index].angle; 
+      radius = path[index].radius; 
+      frc::SmartDashboard::PutNumber("angle", angle); 
+      frc::SmartDashboard::PutNumber("radius", radius);
 
-      d = sqrt(pow(delta.x, 2) + pow(delta.y, 2));  
-
-      // pathPoint unitDir;
-      // // unitDir.x = delta.x / d;
-      // // unitDir.y = delta.y / d;
-
-      // // delta.x = delta.x + unitDir.x * coordOffset; 
-      // // delta.y = delta.y + unitDir.y * coordOffset;
-
-     theta = atan2(delta.x, delta.y) * (180/(3.14159265)); 
-     frc::SmartDashboard::PutNumber("theta", theta);
-      frc::SmartDashboard::PutNumber("d", d);
-
-     robPos.x += delta.x;
-     robPos.y += delta.y;
-
-    theta = theta - robTheta; //robTheta inited to zero
-    robTheta += theta;
-     //check with gyro get displacement
-     PIDTurn(theta, 0, false); //expiriment with true
-     PIDDrive(d, false);
-     lineIndex++;
-
-    } else {
-      robPos.x += 0; //do math later !!!!
-      robPos.y += 0;  //do math later !!!!
-      PIDTurn(radiusTurnPoints.at(curveIndex).angle, radiusTurnPoints.at(curveIndex).radius, false);
-      curveIndex++;
+      if (angle > 0){ // robot starts at 180 deg for right turns 
+        angle = -(angle - 180);
+      }
+    
+      PIDTurn(angle, radius, path[index].keepVelocity);
     }
     index++;
     frc::SmartDashboard::PutNumber("index", index);
@@ -555,20 +540,20 @@ void DriveBaseModule::run() {
     //need mutex to stop
 
     if(state == 'a') { //ik I have access to isAutonomous
-    //   stopAuto = false;
-    //   if(test) {
-    //       //autonomousSequence();
-    //       //PIDDrive(-7, false);
-    //       PIDTurn(-110, 0, false);
-    //       PIDTurn(110, 0, false);
+      stopAuto = false;
+      if(test) {
+          autonomousSequence();
+          //PIDDrive(-7, false);
+          //PIDTurn(-110, 0, false);
+          //PIDTurn(110, 0, false);
 
-    //     test = false;
-    //   }
-    //   // elev->AutoPeriodic();
+        test = false;
+      }
+      // elev->AutoPeriodic();
       
-    // } else {
-    //   test = true;
-    //   stopAuto = true;
+    } else {
+      test = true;
+      stopAuto = true;
     }
 
     if(state == 't') {

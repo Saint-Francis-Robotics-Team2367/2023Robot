@@ -435,12 +435,12 @@ void ScaraArmModule::run(){
           // // Teleop 2
           grabber->toggle(ctr->GetBButtonPressed());
           
-          if (ctr->GetLeftBumper()) {
-            //outterPID.SetReference(ctr->GetLeftX() * 90, rev::CANSparkMax::ControlType::kPosition);
-            jstickArmMovement(ctr->GetLeftX(), -ctr->GetLeftY());
-          } else {
-            jstickArmMovement(0, 0);
-          }
+          // if (ctr->GetLeftBumper()) {
+          //   //outterPID.SetReference(ctr->GetLeftX() * 90, rev::CANSparkMax::ControlType::kPosition);
+          //   jstickArmMovement(ctr->GetLeftX(), -ctr->GetLeftY());
+          // } else {
+          //   jstickArmMovement(0, 0);
+          // }
 
 
 
@@ -496,11 +496,11 @@ void ScaraArmModule::run(){
 
           //}
 
-              if(test) {
-            moveProfiled(30, 30);
-            moveProfiled(0, 0);
-            test = false;
-          }
+          //     if(test) {
+          //   moveProfiled(30, 30);
+          //   moveProfiled(0, 0);
+          //   test = false;
+          // }
           
         }
 
