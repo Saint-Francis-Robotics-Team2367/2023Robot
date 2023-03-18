@@ -75,10 +75,11 @@ class ScaraArmModule {
     std::thread scaraArmThread;
     double stopAuto = false;
     frc::XboxController* ctr;
-    ScaraArmModule(frc::XboxController* controller);
+    frc::XboxController* ctrOperator;
+    ScaraArmModule(frc::XboxController* controller, frc::XboxController* controllerOperator);
     char state = 't';
     bool test = true;
-    bool isManualMove = false;
+    //bool isManualMove = false;
     void ArmInit();
     void run();
     void runInit();
@@ -97,7 +98,7 @@ class ScaraArmModule {
 
     double clampAngle(double inp);
 
-    void movetoXY(double x, double y);
+    void movetoXY(double x, double y, bool isManualMove);
 
     double maxVelocity = 130;
     double maxAcc = 68;
@@ -108,6 +109,8 @@ class ScaraArmModule {
     void checkArmBounds(double outter_pos, double outter_neg, double inner_pos, double inner_neg);
 
     void jstickArmMovement(double jstickX, double jstickY);
+
+    void movetoPole(Limelight::poleIDs poleID);
 
 
     armPos currentPosition = {startInner, startOutter, startX, startY};

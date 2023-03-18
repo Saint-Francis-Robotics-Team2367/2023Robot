@@ -14,9 +14,9 @@
 frc::XboxController* ctr = new frc::XboxController(0);
 frc::XboxController* ctr2 = new frc::XboxController(1);
 
-ScaraArmModule arm(ctr2);
+ScaraArmModule arm(ctr, ctr2);
 DriveBaseModule drive;
-ElevatorModule elev(ctr);
+ElevatorModule elev(ctr, ctr2);
 //Limelight ll; 
 
 //cpr number pulses (4096) per rev, 70 to 1 / 360

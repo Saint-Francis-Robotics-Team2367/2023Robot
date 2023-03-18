@@ -15,6 +15,7 @@
 class ElevatorModule {
 
     frc::XboxController* ctr;
+    frc::XboxController* ctrOperator;
     int run_counter = 0;
     double slowCoefficient = 5;
     public:
@@ -62,7 +63,7 @@ class ElevatorModule {
     bool oneRun = true;
 
 
-    ElevatorModule(frc::XboxController* controller);
+    ElevatorModule(frc::XboxController* controller, frc::XboxController* controllerOperator);
     void Init();
     void TeleopPeriodic(double Linput, double Rinput);
     void AutoPeriodic();
