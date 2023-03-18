@@ -197,6 +197,7 @@ void ScaraArmModule::movetoXY(double x, double y, bool isManualMove) {
     if (!XYInRange(x, y)) {
       if (isManualMove) {
         outterPID.SetReference(0, rev::CANSparkMax::ControlType::kPosition);
+        frc::SmartDashboard::PutNumber("InnerFixAngle", atan2(y, x));
         innerPID.SetReference(atan2(y, x) * 180 / PI, rev::CANSparkMax::ControlType::kPosition);
       }
       frc::SmartDashboard::PutBoolean("XY Valid?", false);
