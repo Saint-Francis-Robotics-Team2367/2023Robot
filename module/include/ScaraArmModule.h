@@ -62,6 +62,9 @@ class ScaraArmModule {
 
     //frc::ShuffleboardTab& armTab = frc::Shuffleboard::GetTab("Arm");
 
+    double autoX = 0;
+    double autoY = 0;
+
 
     
     //Shuffleboard Tabs:

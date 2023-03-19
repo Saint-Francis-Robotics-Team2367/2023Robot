@@ -37,7 +37,10 @@ void Robot::AutonomousInit() {
   drive.state = 'a';
   elev.state = 'a';
 }
-void Robot::AutonomousPeriodic() {}
+void Robot::AutonomousPeriodic() {
+  arm.autoX = arm.currentPosition.armX;
+  arm.autoY = arm.currentPosition.armY;
+}
 
 
 void Robot::TeleopInit() {
