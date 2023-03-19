@@ -164,12 +164,12 @@ void ElevatorModule::run() {
                 currentlyMoving = false;
             }
 
-             if(ctr->GetAButton()) {
-                currentlyMoving = true;
-                setPos(kLowScoreHeight, true);
-                frc::SmartDashboard::PutBoolean("B pressed", true);
-                currentlyMoving = false;
-            }
+            //  if(ctr->GetAButton()) {
+            //     currentlyMoving = true;
+            //     setPos(kLowScoreHeight, true);
+            //     frc::SmartDashboard::PutBoolean("B pressed", true);
+            //     currentlyMoving = false;
+            // }
 
             if(ctr->GetYButton()) {
                 currentlyMoving = true;

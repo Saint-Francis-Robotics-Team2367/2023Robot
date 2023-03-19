@@ -9,7 +9,7 @@ class CubeIntakeModule {
     public: 
         CubeIntakeModule(frc::XboxController* controller, frc::XboxController* controllerOperator);
         void toggleIntake();
-        void shootToGoal();
+        void toggleScoring(bool stop, bool direction, int amount);
         std::thread cubeIntakeThread;
         char state = 't';
         void run(); //could be private
@@ -36,7 +36,7 @@ class CubeIntakeModule {
         rev::SparkMaxRelativeEncoder intakeRollerEncoder = leftStar->GetEncoder();
         rev::SparkMaxPIDController intakeRollerPID = leftStar->GetPIDController();
         rev::SparkMaxRelativeEncoder rotaryEncoder = leftStar->GetEncoder();
-        rev::SparkMaxPIDController rotaryrPID = leftStar->GetPIDController();
+        rev::SparkMaxPIDController rotaryPID = leftStar->GetPIDController();
 
         
     
