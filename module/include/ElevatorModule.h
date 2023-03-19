@@ -30,6 +30,13 @@ class ElevatorModule {
 
     std::string tab = "Elevator"; // for MakeWidget() calls
 
+    enum poleIDs {
+        bottomRightPole = 0,
+        bottomLeftPole = 1,
+        topRightPole = 2,
+        topLeftPole = 3
+    };
+
     double maxVelocity = 15047;
     double maxAcc = 3039;
     //Mech/Electronics Setup

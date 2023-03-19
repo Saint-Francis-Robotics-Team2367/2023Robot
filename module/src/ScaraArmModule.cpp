@@ -407,15 +407,19 @@ void ScaraArmModule::ShuffleboardScorer() {
         if (ShuffleUI::GetBool(name, atab, false)) {
           if (name == "0 1") {
             movetoPole(ll.bottomLeftPole);
+            ShuffleUI::MakeWidget("Score", "ArmtoElev", ll.bottomLeftPole);
 
           } else if (name == "0 2") {
             movetoPole(ll.topLeftPole);
+            ShuffleUI::MakeWidget("Score", "ArmtoElev", ll.topLeftPole);
 
           } else if (name == "2 1") {
             movetoPole(ll.bottomRightPole);
+            ShuffleUI::MakeWidget("Score", "ArmtoElev", ll.bottomRightPole);
 
           } else if (name == "2 2") {
             movetoPole(ll.topRightPole);
+            ShuffleUI::MakeWidget("Score", "ArmtoElev", ll.topRightPole);
 
           }
           //movetoPole()
@@ -560,7 +564,7 @@ void ScaraArmModule::run(){
           //  outter->Set(ctr->GetLeftTriggerAxis()/ 5);
 
           // // Teleop 2
-          //grabber->toggle(ctrOperator->GetBButtonPressed());
+          grabber->toggle(ctrOperator->GetBButtonPressed());
           ShuffleUI::MakeWidget("InnerAngle", tab, inner_enc.GetPosition());
           ShuffleUI::MakeWidget("OutterAngle", tab, outter_enc.GetPosition());
 

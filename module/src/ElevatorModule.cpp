@@ -159,14 +159,14 @@ void ElevatorModule::run() {
        
         if(state == 't') {
              if(!currentlyMoving) {
-                if(ctr->GetXButtonPressed()) {
+                if(ctr->GetXButtonPressed() || (ShuffleUI::GetInt("Score", "ArmtoElev", -1) == topLeftPole || ShuffleUI::GetInt("Score", "ArmtoElev", -1) == topRightPole)) {
                 currentlyMoving = true;
                 setPos(kHighScoreHeight, true);
                 ShuffleUI::MakeWidget("x pressed", tab, true);
                 currentlyMoving = false;
             }
 
-             if(ctr->GetAButton()) {
+             if(ctr->GetAButton() || (ShuffleUI::GetInt("Score", "ArmtoElev", -1) == bottomLeftPole || ShuffleUI::GetInt("Score", "ArmtoElev", -1) == bottomRightPole)) {
                 currentlyMoving = true;
                 setPos(kLowScoreHeight, true);
                 ShuffleUI::MakeWidget("B pressed", tab, true);

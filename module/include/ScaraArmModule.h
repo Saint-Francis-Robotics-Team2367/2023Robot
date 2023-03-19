@@ -12,7 +12,7 @@
 #include <atomic>
 #include "Macros.h"
 #include<frc/XboxController.h>
-//#include <Grabber.h>
+#include <Grabber.h>
 #include <frc/shuffleboard/ShuffleboardTab.h>
 #include <frc/shuffleboard/Shuffleboard.h>
 #include "Limelight.h"
@@ -58,7 +58,7 @@ class ScaraArmModule {
     std::string tab = "Scara Arm"; // for MakeWidget() calls
     bool scoreMenuCreated = false; // for ShuffleboardScorer()
 
-    //Grabber* grabber = new Grabber();
+    Grabber* grabber = new Grabber();
 
     //frc::ShuffleboardTab& armTab = frc::Shuffleboard::GetTab("Arm");
 
