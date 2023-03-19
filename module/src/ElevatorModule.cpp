@@ -145,6 +145,7 @@ void ElevatorModule::AutoPeriodic() {
 }
 
 void ElevatorModule::runInit() {
+    forwardSwitch.EnableLimitSwitch(true);
 
 }
 
@@ -154,8 +155,12 @@ void ElevatorModule::run() {
         auto nextRun = std::chrono::steady_clock::now() + std::chrono::milliseconds(5); //change milliseconds at telop
         frc::SmartDashboard::PutBoolean("elevator module", true);
         frc::SmartDashboard::PutNumber("elev left y", ctr->GetLeftY());
-       
+        frc::SmartDashboard::PutNumber("forwardSwitch", forwardSwitch.Get());
         if(state == 't') {
+            //frc::SmartDashboard::PutNumber("ctrY", ctrOperator->GetLeftY());
+            //elevatorMotor->Set(ctrOperator->GetLeftY());
+            frc::SmartDashboard::PutNumber("forwardSwitch", forwardSwitch.Get());
+
              if(!currentlyMoving) {
                 if(ctr->GetXButtonPressed()) {
                 currentlyMoving = true;
@@ -180,7 +185,7 @@ void ElevatorModule::run() {
             }
             //need this line for down movement to work? also is manual, could replace triggers with 0, 0 and it works
             TeleopPeriodic(ctrOperator->GetLeftTriggerAxis(), ctrOperator->GetRightTriggerAxis()); //for some reason either need this or teleop periodic for moving downwards to work
-            
+  
         }
         if(state == 'a') {
             //TeleopPeriodic(ctr->GetLeftTriggerAxis(), ctr->GetRightTriggerAxis()); //for some reason either need this or teleop periodic for moving downwards to work

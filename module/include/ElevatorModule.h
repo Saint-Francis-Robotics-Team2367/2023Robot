@@ -4,6 +4,7 @@
 #include <thread>
 #include <chrono>
 #include<mutex>
+#include <rev/SparkMaxLimitSwitch.h>
 #include<frc/XboxController.h>
 #include <atomic>
 #include <frc/Timer.h>
@@ -38,12 +39,15 @@ class ElevatorModule {
     rev::CANSparkMax* elevatorMotor = new rev::CANSparkMax(elevatorID, rev::CANSparkMax::MotorType::kBrushless);
     rev::SparkMaxRelativeEncoder enc = elevatorMotor->GetEncoder();
     rev::SparkMaxPIDController elevatorPID = elevatorMotor->GetPIDController();
+    rev::SparkMaxLimitSwitch forwardSwitch = elevatorMotor->GetForwardLimitSwitch(rev::SparkMaxLimitSwitch::Type::kNormallyOpen);
 
     double height = 0; //starting the elevator at 0 (no absolute encoder)
 
     //constants
-    double kElevatorMinHeight = 7.0;
-    double kElevatorMaxHeight = 51.25;
+    // double kElevatorMinHeight = 7.0;
+    // double kElevatorMaxHeight = 51.25;
+    double kElevatorMinHeight = 0;
+    double kElevatorMaxHeight = 50;
     double kLowScoreHeight = 27;
     double kHighScoreHeight = 46;
     double kHighIntakeHeight = 26.375;
