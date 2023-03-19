@@ -155,7 +155,7 @@ void ElevatorModule::run() {
     while(true) {
         auto nextRun = std::chrono::steady_clock::now() + std::chrono::milliseconds(5); //change milliseconds at telop
         ShuffleUI::MakeWidget("elevator module", tab, true);
-        ShuffleUI::MakeWidget("elev left y", tab, ctr->GetLeftY());
+        ShuffleUI::MakeWidget("elev left y", tab, ctrOperator->GetLeftY());
        
         if(state == 't') {
              if(!currentlyMoving) {
