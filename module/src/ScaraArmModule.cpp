@@ -4,6 +4,7 @@
 #include <tuple>
 #include "ScaraArmModule.h"
 #include <frc/Timer.h>
+#include "ShuffleUI.h"
 
 ScaraArmModule::ScaraArmModule(frc::XboxController* controller, frc::XboxController* controllerOperator) {
   ctr = controller;
@@ -36,6 +37,16 @@ void ScaraArmModule::ArmInit() {
 
   innerPID.SetOutputRange(-0.2, 0.2);
   outterPID.SetOutputRange(-0.1, 0.1);
+  currentPosition.inner_angle = inner_enc.GetPosition();
+  currentPosition.outter_angle = outter_enc.GetPosition();
+  std::vector<double> curr_xy = Angles_to_XY(inner_enc.GetPosition(), outter_enc.GetPosition());
+  // if (XYInRange(curr_xy.at(0), curr_xy.at(1))) {
+  //   currentPosition.armX = curr_xy.at(0);
+  //   currentPosition.armY = curr_xy.at(1);
+  // } else {
+  //   ShuffleUI::MakeWidget("Init Failed", tab, true);
+  //   //armTab.AddBoolean("Init Failed", true);
+  // }
 }
 
 void ScaraArmModule::stow() {
@@ -210,10 +221,11 @@ void ScaraArmModule::movetoXY(double x, double y, bool isManualMove) {
       frc::SmartDashboard::PutBoolean("XY Valid?", true);
     }
 
+  ShuffleUI::MakeWidget("NumSol", tab, static_cast<int>(angles.size()));
 
   if (angles.size() > 0) {
-    frc::SmartDashboard::PutNumber("InnerCalc1", angles.at(0).inner_angle);
-    frc::SmartDashboard::PutNumber("OutterCalc1", angles.at(0).outter_angle);
+    ShuffleUI::MakeWidget("InnerCalc1", tab, angles.at(0).inner_angle);
+    ShuffleUI::MakeWidget("OutterCalc1", tab, angles.at(0).outter_angle);
   }
 
   /*
@@ -227,9 +239,9 @@ void ScaraArmModule::movetoXY(double x, double y, bool isManualMove) {
 
   if (angles.size() == 2) {
     
-    frc::SmartDashboard::PutNumber("InnerCalc2", angles.at(1).inner_angle);
-    frc::SmartDashboard::PutNumber("OutterCalc2", angles.at(1).outter_angle);
-    frc::SmartDashboard::PutBoolean("SecondSolution?", true);
+    ShuffleUI::MakeWidget("InnerCalc2", tab, angles.at(1).inner_angle);
+    ShuffleUI::MakeWidget("OutterCalc2", tab, angles.at(1).outter_angle);
+    ShuffleUI::MakeWidget("SecondSolution?", tab, true);
     //add the chooser here to choose which one to do
     //have a button if you want manual here btw...
     
@@ -250,6 +262,12 @@ void ScaraArmModule::movetoXY(double x, double y, bool isManualMove) {
     }
     
     
+    ShuffleUI::MakeWidget("InnerCalc2", tab, -1);
+    ShuffleUI::MakeWidget("OutterCalc2", tab, -1);
+    ShuffleUI::MakeWidget("SecondSolution?", tab, false);
+
+    innerPID.SetReference(angles.at(0).inner_angle, rev::CANSparkMax::ControlType::kPosition);
+    outterPID.SetReference(angles.at(0).outter_angle, rev::CANSparkMax::ControlType::kPosition);
   }
 
  
@@ -279,26 +297,14 @@ void ScaraArmModule::moveProfiled(double angleInner, double angleOutter) {
     float timeElapsedInner, DistanceToDeccelerateInner, currentVelocityInner = 0.0; //currentPositionInner is the set point
     double currentPositionInner = inner_enc.GetPosition();; //current velocity is a class variable
     float prevTimeInner = frc::Timer::GetFPGATimestamp().value();
-    bool positiveInner = true;
-    if(angleInner < currentPositionInner) {
-      positiveInner = false;
-    }
 
     float timeElapsedOutter, DistanceToDeccelerateOutter, currentVelocityOutter = 0.0; //currentPositionOutter is the set point
     double currentPositionOutter = outter_enc.GetPosition(); //current velocity is a class variable
     float prevTimeOutter = frc::Timer::GetFPGATimestamp().value();
-    bool positiveOutter = true;
-    if(angleOutter < currentPositionOutter) {
-      positiveOutter = false;
-    }
 
 
-    innerPID.SetOutputRange(-1, 1);
-    outterPID.SetOutputRange(-1, 1);
-    
+    while(fabs(currentPositionOutter - angleOutter) > 0 && fabs(currentPositionInner - angleInner) > 0){
 
-    while(fabs(currentPositionOutter - angleOutter) > 0 || fabs(currentPositionInner - angleInner) > 0){
-      frc::SmartDashboard::PutBoolean("In While Profile Elev", true);
     if(fabs(currentPositionInner - angleInner) > 0) {
       if(stopAuto) {
           break;
@@ -316,18 +322,14 @@ void ScaraArmModule::moveProfiled(double angleInner, double angleOutter) {
             currentVelocityInner = maxVelocity;
           }
         }
-        if(!positiveInner) {
-          currentPositionInner -= currentVelocityInner * timeElapsedInner;
-        } else {
-          currentPositionInner += currentVelocityInner * timeElapsedInner;
-        }
-        
+
+        currentPositionInner += currentVelocityInner * timeElapsedInner;
         // if(fabs(currentPositionInner) > fabs(angleInner)) {
         //   currentPositionInner = angleInner;
         // }
-        frc::SmartDashboard::PutNumber("angleInner", angleInner);
-        if(!positiveInner) {
-            if(currentPositionInner < angleInner) {   
+        ShuffleUI::MakeWidget("angleInner", tab, angleInner);
+        if(angleInner < 0) {
+            if(currentPositionInner  < angleInner) {   
                 currentPositionInner = angleInner;
             }
         } else {
@@ -335,20 +337,15 @@ void ScaraArmModule::moveProfiled(double angleInner, double angleOutter) {
                 currentPositionInner = angleInner;
             }
         }
-
-        //include clamps here for where the arm can move
-        //std::clamp
-
-        frc::SmartDashboard::PutNumber("currPosInneer", currentPositionInner);
         innerPID.SetReference(std::copysign(currentPositionInner, angleInner), rev::CANSparkMax::ControlType::kPosition); //angleInner uses encoder
         prevTimeInner = frc::Timer::GetFPGATimestamp().value();
-        frc::SmartDashboard::PutNumber("prevTimeInner", prevTimeInner);
+        ShuffleUI::MakeWidget("prevTimeInner", tab, prevTimeInner);
     }
   
   
-    if(fabs(currentPositionOutter - angleOutter) > 0) {
-            if(stopAuto) {
-               break;
+	  if(fabs(currentPositionOutter - angleOutter) > 0) {
+		        if(stopAuto) {
+         			 break;
             }
 
         timeElapsedOutter = frc::Timer::GetFPGATimestamp().value() - prevTimeOutter;
@@ -365,17 +362,12 @@ void ScaraArmModule::moveProfiled(double angleInner, double angleOutter) {
           }
         }
 
-        if(positiveOutter) {
-           currentPositionOutter += currentVelocityOutter * timeElapsedOutter;
-        } else {
-           currentPositionOutter -= currentVelocityOutter * timeElapsedOutter;
-        }
-       
+        currentPositionOutter += currentVelocityOutter * timeElapsedOutter;
         // if(fabs(currentPositionOutter) > fabs(angleOutter)) {
         //   currentPositionOutter = angleOutter;
         // }
 
-        if(!positiveOutter) {
+        if(angleOutter < 0) {
             if(currentPositionOutter  < angleOutter) {   
                 currentPositionOutter = angleOutter;
             }
@@ -384,15 +376,68 @@ void ScaraArmModule::moveProfiled(double angleInner, double angleOutter) {
                 currentPositionOutter = angleOutter;
             }
         }
-
-        frc::SmartDashboard::PutNumber("currPosOuter", currentPositionOutter);
-
-        //include clamps here!!!
-        frc::SmartDashboard::PutNumber("angleOutter", angleOutter);
+        ShuffleUI::MakeWidget("angleOutter", tab, angleOutter);
         outterPID.SetReference(std::copysign(currentPositionOutter, angleOutter), rev::CANSparkMax::ControlType::kPosition); //angleOutter uses encoder
         prevTimeOutter = frc::Timer::GetFPGATimestamp().value();
-        frc::SmartDashboard::PutNumber("prevTimeOutter", prevTimeOutter);
+        ShuffleUI::MakeWidget("prevTimeOutter", tab, prevTimeOutter);
     }
+	}
+}
+
+
+// Selects where to drop element using shuffleboard buttons.
+void ScaraArmModule::ShuffleboardScorer() {
+  std::string atab = "dropper";
+  if (!scoreMenuCreated) {
+    ShuffleUI::MakeButtonPos("0 0", atab, false, 0, 0);
+    ShuffleUI::MakeButtonPos("1 0", atab, false, 1, 0);
+    ShuffleUI::MakeButtonPos("2 0", atab, false, 2, 0);
+    ShuffleUI::MakeButtonPos("0 1", atab, false, 0, 1);
+    ShuffleUI::MakeButtonPos("1 1", atab, false, 1, 1);
+    ShuffleUI::MakeButtonPos("2 1", atab, false, 2, 1);
+    ShuffleUI::MakeButtonPos("0 2", atab, false, 0, 2);
+    ShuffleUI::MakeButtonPos("1 2", atab, false, 1, 2);
+    ShuffleUI::MakeButtonPos("2 2", atab, false, 2, 2);
+    ShuffleUI::MakeWidgetPos("Last button pressed", atab, "n/a", 4, 1);
+    scoreMenuCreated = true;
+  } else {
+    for (int x = 0; x < 3; x++) {
+      for (int y = 0; y < 3; y++) {
+        std::string name = std::to_string(x) + " " + std::to_string(y);
+        if (ShuffleUI::GetBool(name, atab, false)) {
+          if (name == "0 1") {
+            movetoPole(ll.bottomLeftPole);
+
+          } else if (name == "0 2") {
+            movetoPole(ll.topLeftPole);
+
+          } else if (name == "2 1") {
+            movetoPole(ll.bottomRightPole);
+
+          } else if (name == "2 2") {
+            movetoPole(ll.topRightPole);
+
+          }
+          //movetoPole()
+          ShuffleUI::MakeWidgetPos("Last button pressed", atab, name, 4, 1);
+          ShuffleUI::GetEntry(name, atab)->SetBoolean(false);
+        }
+      }
+    }
+  }
+}
+
+void ScaraArmModule::TeleopControl() {
+  //Temporary for One Controller Control
+  inner->Set((ctr->GetRightTriggerAxis() - ctr->GetLeftTriggerAxis()) / 2);
+  int pov = ctr->GetPOV();
+
+  if (pov == 90) {
+    outter->Set(0.2);
+  } else if (pov == 270) {
+    outter->Set(-0.2);
+  } else {
+    outter->Set(0);
   }
   frc::SmartDashboard::PutBoolean("In While Profile Elev", false);
 }
@@ -413,6 +458,16 @@ double out;
   }
 }
 
+
+
+void ScaraArmModule::runInit() {
+  ArmInit();
+  //grabber->Init();
+  //grabber->grabberMotor->SetSmartCurrentLimit(10);
+}
+
+
+
 bool ScaraArmModule::XYInRange(double x, double y) {
   double circle_x = 0;
   double circle_y = 0;
@@ -429,20 +484,20 @@ bool ScaraArmModule::XYInRange(double x, double y) {
 void ScaraArmModule::checkArmBounds(double outter_pos, double outter_neg, double inner_pos, double inner_neg) {
   double out_pos  = outter_enc.GetPosition();
   double in_pos = inner_enc.GetPosition();
-  frc::SmartDashboard::PutBoolean("Arm Bounded?", true);
+  ShuffleUI::MakeWidget("Arm Bounded?", tab, true);
 
   if (out_pos > outter_pos || out_pos < outter_neg) {
     outter->Set(0);
-    frc::SmartDashboard::PutBoolean("Arm Bounded?", true);
+    ShuffleUI::MakeWidget("Arm Bounded?", tab, true);
 
   } else {
-    frc::SmartDashboard::PutBoolean("Arm Bounded?", false);
+    ShuffleUI::MakeWidget("Arm Bounded?", tab, false);
   }
   if (in_pos > inner_pos || in_pos < inner_neg) {
     inner->Set(0);
-    frc::SmartDashboard::PutBoolean("Arm Bounded?", true);
+    ShuffleUI::MakeWidget("Arm Bounded?", tab, true);
   } else {
-    frc::SmartDashboard::PutBoolean("Arm Bounded?", false);
+    ShuffleUI::MakeWidget("Arm Bounded?", tab, false);
   }
 }
 
@@ -477,12 +532,6 @@ void ScaraArmModule::movetoPole(Limelight::poleIDs poleID) {
   
 }
 
-void ScaraArmModule::runInit() {
-  ArmInit();
-  //isManualMove = false;
-  grabber->Init();
-  grabber->grabberMotor->SetSmartCurrentLimit(10);
-}
 
 void ScaraArmModule::run(){
    runInit();
@@ -491,7 +540,7 @@ void ScaraArmModule::run(){
    int counter = 0;
     while(true) {
         auto nextRun = std::chrono::steady_clock::now() + std::chrono::milliseconds(5); //change milliseconds at telop
-        frc::SmartDashboard::PutBoolean("scara arm module", true);
+        ShuffleUI::MakeWidget("scara arm module", tab, true);
         std::vector<double> xy = Angles_to_XY(inner_enc.GetPosition(), outter_enc.GetPosition());
         frc::SmartDashboard::PutNumber("X", xy.at(0));
         frc::SmartDashboard::PutNumber("Y", xy.at(1));
@@ -511,7 +560,11 @@ void ScaraArmModule::run(){
           //  outter->Set(ctr->GetLeftTriggerAxis()/ 5);
 
           // // Teleop 2
-          grabber->toggle(ctrOperator->GetBButtonPressed());
+          //grabber->toggle(ctrOperator->GetBButtonPressed());
+          ShuffleUI::MakeWidget("InnerAngle", tab, inner_enc.GetPosition());
+          ShuffleUI::MakeWidget("OutterAngle", tab, outter_enc.GetPosition());
+
+          ShuffleboardScorer();
           
           if (ctrOperator->GetLeftBumper()) {
             //outterPID.SetReference(ctr->GetLeftX() * 90, rev::CANSparkMax::ControlType::kPosition);
@@ -577,11 +630,11 @@ void ScaraArmModule::run(){
 
           //}
 
-              if(test) {
-            moveProfiled(30, 30);
-            moveProfiled(0, 0);
-            test = false;
-          }
+            if(test) {
+              moveProfiled(30, 30);
+              moveProfiled(0, 0);
+              test = false;
+            }
           
         }
 

@@ -12,7 +12,7 @@
 #include <atomic>
 #include "Macros.h"
 #include<frc/XboxController.h>
-#include <Grabber.h>
+//#include <Grabber.h>
 #include <frc/shuffleboard/ShuffleboardTab.h>
 #include <frc/shuffleboard/Shuffleboard.h>
 #include "Limelight.h"
@@ -55,7 +55,10 @@ class ScaraArmModule {
     const double innerSize = 24.625;
     const double outterSize = 32.25;
 
-    Grabber* grabber = new Grabber();
+    std::string tab = "Scara Arm"; // for MakeWidget() calls
+    bool scoreMenuCreated = false; // for ShuffleboardScorer()
+
+    //Grabber* grabber = new Grabber();
 
     //frc::ShuffleboardTab& armTab = frc::Shuffleboard::GetTab("Arm");
 
@@ -109,6 +112,10 @@ class ScaraArmModule {
     double maxAcc = 68;
     void moveProfiled(double angle1, double angle2);
 
+    void ShuffleboardScorer();
+
+    void TeleopControl();
+    
     bool XYInRange(double x, double y);
 
     void checkArmBounds(double outter_pos, double outter_neg, double inner_pos, double inner_neg);

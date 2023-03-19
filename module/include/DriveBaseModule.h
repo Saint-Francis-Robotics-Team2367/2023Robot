@@ -100,6 +100,8 @@ class DriveBaseModule{ //needed for gyroPIDDrive implementation
   double skim(double v);
   void autoBalance();
 
+  std::string tab = "Drive Base"; // for MakeWidget() calls
+
   double getGyroAngleAuto() { //will be positive
     double angle = ahrs->GetAngle();
     if(angle * gyroOffsetVal < 0) { //if signs are different

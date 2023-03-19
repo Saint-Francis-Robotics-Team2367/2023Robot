@@ -1,5 +1,6 @@
 #include "DriveBaseModule.h"
 #include <iostream>
+#include "ShuffleUI.h"
 
 DriveBaseModule::DriveBaseModule() {
     ahrs = new AHRS(frc::SerialPort::kMXP);
@@ -79,8 +80,8 @@ void DriveBaseModule::gyroDriving() {
   float rightStickOutput = driverStick->GetRawAxis(4);
   float calculation = rightStickPID->Calculate(ahrs->GetRate()/150, rightStickOutput); //add skim
   arcadeDrive(driverStick->GetRawAxis(1) * (-1), calculation);
-  frc::SmartDashboard::PutNumber("output", calculation);
-  frc::SmartDashboard::PutNumber("gyro", ahrs->GetRate());
+  ShuffleUI::MakeWidget("output", tab, calculation);
+  ShuffleUI::MakeWidget("gyro", tab, ahrs->GetRate());
 
 }
 
@@ -114,53 +115,53 @@ void DriveBaseModule::PIDTuning() {
   //do getBusVoltage (returns voltage fed into motor controller)
 
 
-  frc::SmartDashboard::PutNumber("Total Current", currentLeftLead+currentRightLead);
-  frc::SmartDashboard::PutNumber("Total Voltage", voltageOverall);
+  ShuffleUI::MakeWidget("Total Current", tab, currentLeftLead+currentRightLead);
+  ShuffleUI::MakeWidget("Total Voltage", tab, voltageOverall);
 
   //Making it so you can manually set m_p and positionTotal: m_p is essential with PID, change by an order of magnitude to start run
-  double m_P = frc::SmartDashboard::GetNumber("Pd", 1);
+  double m_P = ShuffleUI::GetDouble("Pd", tab, 1);
   //bool isNegative;
   lPID.SetP(m_P);
   rPID.SetP(m_P);
-  frc::SmartDashboard::PutNumber("Pd", m_P);
+  ShuffleUI::MakeWidget("Pd", tab, m_P);
 
-  double m_D = frc::SmartDashboard::GetNumber("D Value", 0);
+  double m_D = ShuffleUI::GetDouble("D Value", tab, 0);
   //bool isNegative;
   lPID.SetD(m_D);
   rPID.SetD(m_D);
-  frc::SmartDashboard::PutNumber("D Value", m_D);
+  ShuffleUI::MakeWidget("D Value", tab, m_D);
 
-  double m_I = frc::SmartDashboard::GetNumber("I Value", 0);
+  double m_I = ShuffleUI::GetDouble("I Value", tab, 0);
   //bool isNegative;
   lPID.SetI(m_I);
   rPID.SetI(m_I);
-  frc::SmartDashboard::PutNumber("I Value", m_I);
+  ShuffleUI::MakeWidget("I Value", tab, m_I);
 
- double I_Zone = frc::SmartDashboard::GetNumber("I_Zone", 0);
+ double I_Zone = ShuffleUI::GetDouble("I_Zone", tab, 0);
   //bool isNegative;
   lPID.SetIZone(I_Zone);
   rPID.SetIZone(I_Zone);
-  frc::SmartDashboard::PutNumber("I_Zone", I_Zone);
+  ShuffleUI::MakeWidget("I_Zone", tab, I_Zone);
 
   lPID.SetIZone(I_Zone);
 
-  double waitTime = frc::SmartDashboard::GetNumber("waitTime", 4);
-  frc::SmartDashboard::PutNumber("waitTime", waitTime);
+  double waitTime = ShuffleUI::GetDouble("waitTime", tab, 4);
+  ShuffleUI::MakeWidget("waitTime", tab, waitTime);
 
   double currTime = frc::Timer::GetFPGATimestamp().value();
-  frc::SmartDashboard::PutNumber("currTime", currTime);
-  frc::SmartDashboard::PutNumber("Setpoint", delta);
+  ShuffleUI::MakeWidget("currTime", tab, currTime);
+  ShuffleUI::MakeWidget("Setpoint", tab, delta);
   if(currTime > tuningPrevTime + waitTime) {
    
       lPID.SetReference(delta, rev::ControlType::kPosition);
       rPID.SetReference(delta, rev::ControlType::kPosition);
       delta = delta * -1.0;
  
-      frc::SmartDashboard::PutNumber("Right Encoder", rEncoder.GetPosition());
-      frc::SmartDashboard::PutNumber("Left Encoder", lEncoder.GetPosition());
+      ShuffleUI::MakeWidget("Right Encoder", tab, rEncoder.GetPosition());
+      ShuffleUI::MakeWidget("Left Encoder", tab, lEncoder.GetPosition());
 
       tuningPrevTime = frc::Timer::GetFPGATimestamp().value();
-      frc::SmartDashboard::PutNumber("prev time", tuningPrevTime);
+      ShuffleUI::MakeWidget("prev time", tab, tuningPrevTime);
   }
 }
 
@@ -205,15 +206,15 @@ bool DriveBaseModule::PIDDrive(float totalFeet, bool keepVelocity) {
 
   rEncoder.SetPosition(0);
   lEncoder.SetPosition(0);
-  frc::SmartDashboard::PutBoolean("inPIDDrive", true);
+  ShuffleUI::MakeWidget("inPIDDrive", tab, true);
 
   if(keepVelocity) {
     while(fabs(currentPosition) < fabs(totalFeet)) {
       if(stopAuto) {
         break;
       }
-      frc::SmartDashboard::PutNumber("lEncoder", lEncoder.GetPosition());
-      frc::SmartDashboard::PutNumber("rEncoder", rEncoder.GetPosition());
+      ShuffleUI::MakeWidget("lEncoder", tab, lEncoder.GetPosition());
+      ShuffleUI::MakeWidget("rEncoder", tab, rEncoder.GetPosition());
       timeElapsed = frc::Timer::GetFPGATimestamp().value() - prevTime;
 
       currentVelocity += maxAcc * timeElapsed;
@@ -227,19 +228,19 @@ bool DriveBaseModule::PIDDrive(float totalFeet, bool keepVelocity) {
 
 
       setpoint = (currentPosition * 12);  //amt of rotations needed; / (PI * wheelDiameter) (don't need when have conversion factor)
-      frc::SmartDashboard::PutNumber("setpoint", setpoint);
+      ShuffleUI::MakeWidget("setpoint", tab, setpoint);
       lPID.SetReference(std::copysign(setpoint, totalFeet), rev::CANSparkMax::ControlType::kPosition); //setpoint uses encoder
       rPID.SetReference(std::copysign(setpoint, totalFeet), rev::CANSparkMax::ControlType::kPosition); //everything in abs, so will go backwards
       prevTime = frc::Timer::GetFPGATimestamp().value();
-      frc::SmartDashboard::PutNumber("prevTime", prevTime);
+      ShuffleUI::MakeWidget("prevTime", tab, prevTime);
     }
   } else {
       while(fabs(currentPosition) < fabs(totalFeet)){
         if(stopAuto) {
           break;
         }
-        frc::SmartDashboard::PutNumber("lEncoder", lEncoder.GetPosition());
-        frc::SmartDashboard::PutNumber("rEncoder", rEncoder.GetPosition());
+        ShuffleUI::MakeWidget("lEncoder", tab, lEncoder.GetPosition());
+        ShuffleUI::MakeWidget("rEncoder", tab, rEncoder.GetPosition());
         timeElapsed = frc::Timer::GetFPGATimestamp().value() - prevTime;
         distanceToDeccelerate = (3 * currentVelocity * currentVelocity) / (2 * maxAcc); //change
         if (fabs(distanceToDeccelerate) > fabs(totalFeet - currentPosition)) {
@@ -260,14 +261,14 @@ bool DriveBaseModule::PIDDrive(float totalFeet, bool keepVelocity) {
         }
 
         setpoint = (currentPosition * 12);  //amt of rotations needed; / (PI * wheelDiameter) (don't need when have conversion factor)
-        frc::SmartDashboard::PutNumber("setpoint", setpoint);
+        ShuffleUI::MakeWidget("setpoint", tab, setpoint);
         lPID.SetReference(std::copysign(setpoint, totalFeet), rev::CANSparkMax::ControlType::kPosition); //setpoint uses encoder
         rPID.SetReference(std::copysign(setpoint, totalFeet), rev::CANSparkMax::ControlType::kPosition);
         prevTime = frc::Timer::GetFPGATimestamp().value();
-        frc::SmartDashboard::PutNumber("prevTime", prevTime);
+        ShuffleUI::MakeWidget("prevTime", tab, prevTime);
     }
   }
-  frc::SmartDashboard::PutBoolean("inPIDDrive", false);
+  ShuffleUI::MakeWidget("inPIDDrive", tab, false);
   return true;
 }
 
@@ -275,7 +276,7 @@ bool DriveBaseModule::PIDTurn(float angle, float radius, bool keepVelocity) { //
   rEncoder.SetPosition(0);
   lEncoder.SetPosition(0);
 
-  frc::SmartDashboard::PutBoolean("In PIDTurn Function", true);
+  ShuffleUI::MakeWidget("In PIDTurn Function", tab, true);
   float timeElapsed, distanceToDeccelerate = 0.0; //currentPosition is the set point
   double currentPosition = 0, endpoint = 0; //currentVelocity in class variables
   float prevTime = frc::Timer::GetFPGATimestamp().value();
@@ -285,15 +286,15 @@ bool DriveBaseModule::PIDTurn(float angle, float radius, bool keepVelocity) { //
   bool hasRecalibrated = false;
   gyroOffsetVal = ahrs->GetAngle();
   //fabs(radius + centerToWheel)
-  frc::SmartDashboard::PutNumber("endpoint", endpoint);
+  ShuffleUI::MakeWidget("endpoint", tab, endpoint);
 
   if(keepVelocity) {
     while(fabs(currentPosition) < fabs(endpoint)){
        if(stopAuto) {
         break;
       }
-      frc::SmartDashboard::PutNumber("lEncoder", lEncoder.GetPosition());
-      frc::SmartDashboard::PutNumber("rEncoder", rEncoder.GetPosition());
+      ShuffleUI::MakeWidget("lEncoder", tab, lEncoder.GetPosition());
+      ShuffleUI::MakeWidget("rEncoder", tab, rEncoder.GetPosition());
       timeElapsed = frc::Timer::GetFPGATimestamp().value() - prevTime;
       currentVelocity += (maxAcc * timeElapsed);
       if (fabs(currentVelocity) > fabs(maxVelocity))
@@ -307,10 +308,10 @@ bool DriveBaseModule::PIDTurn(float angle, float radius, bool keepVelocity) { //
       }
 
          double currAngle = std::copysign(getGyroAngleAuto(), angle); //set before while loop
-        frc::SmartDashboard::PutNumber("curr Angle", currAngle);
+        ShuffleUI::MakeWidget("curr Angle", tab, currAngle);
 
         double theoreticalAngle = (currentPosition / endpoint) * angle; //shouldn't use aggregate angle, that's accounted for in endpoint?, or should
-        frc::SmartDashboard::PutNumber("theoretical Angle", theoreticalAngle);
+        ShuffleUI::MakeWidget("theoretical Angle", tab, theoreticalAngle);
 
 
       //this is a test, doesn't work
@@ -323,18 +324,18 @@ bool DriveBaseModule::PIDTurn(float angle, float radius, bool keepVelocity) { //
           //frc::SmartDashboard::PutNumber("adjustment", adjustment); //remove fabs here for agg angle + adjustment, and remove for radius
           double newEndpoint = (fabs(angle  + (adjustment)) / 360.0) * fabs(radius + centerToWheel) * (2 * PI); //fabs of angle, same for radius so can turn negative, have an if statement to change dir later
           //angle += adjustment;
-          frc::SmartDashboard::PutNumber("agg angle", angle);
+          ShuffleUI::MakeWidget("agg angle", tab, angle);
           endpoint = newEndpoint;
-          frc::SmartDashboard::PutNumber("Endpoint Diff", newEndpoint - endpoint);
-          frc::SmartDashboard::PutNumber("NEW endpoint", newEndpoint);
+          ShuffleUI::MakeWidget("Endpoint Diff", tab, newEndpoint - endpoint);
+          ShuffleUI::MakeWidget("NEW endpoint", tab, newEndpoint);
           hasRecalibrated = true;
       } 
 
       double outerSetpoint = (currentPosition * 12); // for now this is ticks (maybe rotations / gearRatio if not then) //change wheel diameter, might not need
       double innerSetpoint = fabs((radius) - centerToWheel)/(fabs((radius) + centerToWheel)) * outerSetpoint; //fabs radius for other things
       
-      frc::SmartDashboard::PutNumber("outerSet", outerSetpoint);
-      frc::SmartDashboard::PutNumber("innerSet", innerSetpoint);
+      ShuffleUI::MakeWidget("outerSet", tab, outerSetpoint);
+      ShuffleUI::MakeWidget("innerSet", tab, innerSetpoint);
 
       int multiplier = 1;
       if(radius < 0) {
@@ -350,7 +351,7 @@ bool DriveBaseModule::PIDTurn(float angle, float radius, bool keepVelocity) { //
 
 
       prevTime = frc::Timer::GetFPGATimestamp().value();
-      frc::SmartDashboard::PutNumber("prevTime", prevTime);
+      ShuffleUI::MakeWidget("prevTime", tab, prevTime);
     }
   } else {
 
@@ -359,14 +360,14 @@ bool DriveBaseModule::PIDTurn(float angle, float radius, bool keepVelocity) { //
     
     //double aggregateAngle = angle;
 
-    frc::SmartDashboard::PutNumber("gyro offset", gyroOffsetVal);
+    ShuffleUI::MakeWidget("gyro offset", tab, gyroOffsetVal);
     // initGyroAuto();
      while(fabs(currentPosition) < fabs(endpoint)){ 
         if(stopAuto) {
           break;
         }
-      frc::SmartDashboard::PutNumber("lEncoder", lEncoder.GetPosition());
-      frc::SmartDashboard::PutNumber("rEncoder", rEncoder.GetPosition());
+      ShuffleUI::MakeWidget("lEncoder", tab, lEncoder.GetPosition());
+      ShuffleUI::MakeWidget("rEncoder", tab, rEncoder.GetPosition());
       timeElapsed = frc::Timer::GetFPGATimestamp().value() - prevTime;
       //should be 2, * Vc^2, check this later
       distanceToDeccelerate = (3 * currentVelocity * currentVelocity) / (2 * maxAcc);
@@ -389,10 +390,10 @@ bool DriveBaseModule::PIDTurn(float angle, float radius, bool keepVelocity) { //
 
       //dynamic angle adjustment (instead of having a gyro adjust at the end)
       double currAngle = std::copysign(getGyroAngleAuto(), angle); //set before while loop
-      frc::SmartDashboard::PutNumber("curr Angle", currAngle);
+      ShuffleUI::MakeWidget("curr Angle", tab, currAngle);
 
       double theoreticalAngle = (currentPosition / endpoint) * angle; //shouldn't use aggregate angle, that's accounted for in endpoint?, or should
-      frc::SmartDashboard::PutNumber("theoretical Angle", theoreticalAngle);
+      ShuffleUI::MakeWidget("theoretical Angle", tab, theoreticalAngle);
 
 
       //this is a test, doesn't work
@@ -405,18 +406,18 @@ bool DriveBaseModule::PIDTurn(float angle, float radius, bool keepVelocity) { //
           //frc::SmartDashboard::PutNumber("adjustment", adjustment); //remove fabs here for agg angle + adjustment, and remove for radius
           double newEndpoint = (fabs(angle  + (adjustment)) / 360.0) * fabs(radius + centerToWheel) * (2 * PI); //fabs of angle, same for radius so can turn negative, have an if statement to change dir later
           //angle += adjustment;
-          frc::SmartDashboard::PutNumber("agg angle", angle);
+          ShuffleUI::MakeWidget("agg angle", tab, angle);
           endpoint = newEndpoint;
-          frc::SmartDashboard::PutNumber("Endpoint Diff", newEndpoint - endpoint);
-          frc::SmartDashboard::PutNumber("NEW endpoint", newEndpoint);
+          ShuffleUI::MakeWidget("Endpoint Diff", tab, newEndpoint - endpoint);
+          ShuffleUI::MakeWidget("NEW endpoint", tab, newEndpoint);
           hasRecalibrated = true;
       } 
     
       double outerSetpoint = (currentPosition * 12); // for now this is ticks (maybe rotations / gearRatio if not then) //change wheel diameter, might not need
       double innerSetpoint = ((radius - centerToWheel)/(radius + centerToWheel)) * outerSetpoint;
       
-      frc::SmartDashboard::PutNumber("outerSet", outerSetpoint);
-      frc::SmartDashboard::PutNumber("innerSet", innerSetpoint);
+      ShuffleUI::MakeWidget("outerSet", tab, outerSetpoint);
+      ShuffleUI::MakeWidget("innerSet", tab, innerSetpoint);
 
       int multiplier = 1;
       if(radius < 0) {
@@ -433,12 +434,12 @@ bool DriveBaseModule::PIDTurn(float angle, float radius, bool keepVelocity) { //
 
 
       prevTime = frc::Timer::GetFPGATimestamp().value();
-      frc::SmartDashboard::PutNumber("prevTime", prevTime);
+      ShuffleUI::MakeWidget("prevTime", tab, prevTime);
     }
   }
 
   //could call gyroDrive adjustment if angle is off, instead of having the dynamic thingy [takes longer, but super accurate] (did this last year)
-  frc::SmartDashboard::PutBoolean("In PIDTurn Function", false);
+  ShuffleUI::MakeWidget("In PIDTurn Function", tab, false);
   return true;
 }
 
@@ -512,12 +513,12 @@ void DriveBaseModule::autonomousSequence() {
       // // delta.x = delta.x + unitDir.x * coordOffset; 
       // // delta.y = delta.y + unitDir.y * coordOffset;
 
-     theta = atan2(delta.x, delta.y) * (180/(3.14159265)); 
-     frc::SmartDashboard::PutNumber("theta", theta);
-      frc::SmartDashboard::PutNumber("d", d);
+      theta = atan2(delta.x, delta.y) * (180/(3.14159265)); 
+      ShuffleUI::MakeWidget("theta", tab, theta);
+      ShuffleUI::MakeWidget("d", tab, d);
 
-     robPos.x += delta.x;
-     robPos.y += delta.y;
+      robPos.x += delta.x;
+      robPos.y += delta.y;
 
     theta = theta - robTheta; //robTheta inited to zero
     robTheta += theta;
@@ -533,17 +534,17 @@ void DriveBaseModule::autonomousSequence() {
       curveIndex++;
     }
     index++;
-    frc::SmartDashboard::PutNumber("index", index);
+    ShuffleUI::MakeWidget("index", tab, index);
   }
 }
 
 void DriveBaseModule::runInit() {
   if (!(initDriveMotor(lMotor, lMotorFollower, lInvert) && initDriveMotor(rMotor, rMotorFollower, rInvert))) {
-    frc::SmartDashboard::PutBoolean("Drive Motor Inits", false);
+    ShuffleUI::MakeWidget("Drive Motor Inits", tab, false);
   }
 
   if (!setDriveCurrLimit(motorInitMaxCurrent, motorInitRatedCurrent, motorInitLimitCycles)) {
-    frc::SmartDashboard::PutBoolean("Drive Curr Limits", false);
+    ShuffleUI::MakeWidget("Drive Curr Limits", tab, false);
   }
   //auto drive PID controllers
   lPID.SetP(PIDProportional);
@@ -569,7 +570,7 @@ void DriveBaseModule::run() {
   int counter = 0;
   while(true) { 
     auto nextRun = std::chrono::steady_clock::now() + std::chrono::milliseconds(5); //change milliseconds at telop
-    frc::SmartDashboard::PutNumber("timesRun", ++counter);
+    ShuffleUI::MakeWidget("timesRun", tab, ++counter);
     
     //frc::SmartDashboard::PutNumber("drivebase y", driverStick->GetRawAxis(1));
 
@@ -595,11 +596,11 @@ void DriveBaseModule::run() {
     if(state == 't') {
       //perioidic routines
       gyroDriving();
-      frc::SmartDashboard::PutNumber("joystick", driverStick->GetRawAxis(1));
+      ShuffleUI::MakeWidget("joystick", tab, driverStick->GetRawAxis(1));
       //honestly let's move to xbox joystick maybe
       //elev->TeleopPeriodic(driverStick->GetLeftTriggerAxis(), driverStick->GetRightTriggerAxis());
-      frc::SmartDashboard::PutNumber("lcheck", lMotor->GetIdleMode() == rev::CANSparkMax::IdleMode::kBrake); 
-      frc::SmartDashboard::PutNumber("rcheck", rMotor->GetIdleMode() == rev::CANSparkMax::IdleMode::kBrake); 
+      ShuffleUI::MakeWidget("lcheck", tab, lMotor->GetIdleMode() == rev::CANSparkMax::IdleMode::kBrake); 
+      ShuffleUI::MakeWidget("rcheck", tab, rMotor->GetIdleMode() == rev::CANSparkMax::IdleMode::kBrake); 
       
       test = true;
       stopAuto = true;

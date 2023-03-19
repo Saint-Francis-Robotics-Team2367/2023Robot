@@ -99,8 +99,25 @@
     "__string": "cpp",
     "__threading_support": "cpp",
     "__tuple": "cpp",
+<<<<<<< HEAD
     "__locale": "cpp",
     "ios": "cpp",
     "locale": "cpp"
+=======
+    "ios": "cpp",
+    "xthread": "cpp",
+    "xfacet": "cpp",
+    "xhash": "cpp",
+    "xiosbase": "cpp",
+    "xlocale": "cpp",
+    "xlocinfo": "cpp",
+    "xlocnum": "cpp",
+    "xmemory": "cpp",
+    "xmemory0": "cpp",
+    "xstddef": "cpp",
+    "xstring": "cpp",
+    "xtr1common": "cpp",
+    "xutility": "cpp"
+>>>>>>> origin/feature/implementingShuffleboard
   }
 }
