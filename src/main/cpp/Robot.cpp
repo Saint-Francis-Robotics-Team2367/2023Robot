@@ -91,15 +91,17 @@ void Robot::AutonomousPeriodic() {
     //frc::SmartDashboard::PutBoolean("straight", path[index].straight); 
     switch(path[index].action){
       case 's': // driving straight 
-        if(!isStage) {
+        if(!isStage) { // if its not currently driving 
           drive.autoDrive(path[index].dis, path[index].keepVelocity);
           isStage = true; 
+          frc::SmartDashboard::PutBoolean("in stage", isStage); 
+          frc::SmartDashboard::PutBoolean("is finished", drive.isFinished);
           frc::SmartDashboard::PutNumber("dis", path[index].dis);
         } 
         
-        if (drive.isFinished){
-            isStage = false; 
-            drive.isFinished = false; 
+        if (drive.isFinished){ // once drive is finished 
+          isStage = false; 
+          drive.isFinished = false; 
         }
         break; 
 
