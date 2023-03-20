@@ -18,6 +18,7 @@ frc::XboxController* ctr2 = new frc::XboxController(1);
 ScaraArmModule scaraArm(ctr2);
 DriveBaseModule drive;
 ElevatorModule elevator(ctr);
+bool in = false; 
 
 autoPath path[5] = {
     autoPath(autoPathType::straight),
@@ -48,6 +49,10 @@ void Robot::RobotPeriodic() {
 }
 
 void Robot::AutonomousInit() {
+  in = true; 
+  frc::SmartDashboard::PutBoolean("in", in);
+
+
   scaraArm.state = 'a';
   drive.state = 'a';
   elevator.state = 'a';
@@ -64,33 +69,31 @@ void Robot::AutonomousInit() {
   autoPath d(autoPathType::straight); 
   d.register_straight(1);
 
-  autoPath e(autoPathType::arm); 
-  e.register_arm(20, 20); 
+  // autoPath e(autoPathType::arm); 
+  // e.register_arm(20, 20); 
 
   // assigning path points  
   path[0] = a; 
   path[1] = b; 
   path[2] = c; 
   path[3] = d;
-  path[4] = e; 
+  // path[4] = e; 
 
-  // drive.initPath(); 
+  // drive.initPath();
+  in = false; 
+  
 }
 
 void Robot::AutonomousPeriodic() {
   int index = 0; 
 
-  drive.stopAuto = false;
-  elevator.stopAuto = false; 
-  scaraArm.stopAuto = false; 
-
   int numSteps = 5; // CHANGE DEPENDING ON LENGTH OF PATH LIST! 
   float angle, radius; 
 
   if(index < numSteps){
-    //frc::SmartDashboard::PutBoolean("straight", path[index].straight); 
-    switch(path[index].action){
-      case 's': // driving straight 
+     switch(path[index].action){
+       case 's': // driving straight
+      
         if(!isStage) { // if its not currently driving 
           drive.autoDrive(path[index].dis, path[index].keepVelocity);
           isStage = true; 
@@ -154,7 +157,7 @@ void Robot::AutonomousPeriodic() {
         index++;
     }
 
-
+     
   }
 }
 

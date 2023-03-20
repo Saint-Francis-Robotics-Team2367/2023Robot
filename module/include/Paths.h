@@ -12,7 +12,7 @@ enum autoPathType
 class autoPath {
     public:
         autoPathType action; 
-        int dis; 
+        float dis; 
         float angle; 
         float radius; 
         bool keepVelocity;

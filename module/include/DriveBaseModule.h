@@ -55,10 +55,10 @@ class DriveBaseModule{ //needed for gyroPIDDrive implementation
   bool isRunningAutoTurn = false;
   bool isRunningAutoDrive = false;
 
-  double totalFeet = 0;
+  float totalFeet = 0;
   bool keepVelocityDrive = false;
-  double angle = 0;
-  double radius = 0;
+  float angle = 0;
+  float radius = 0;
   bool keepVelocityTurn = false;
 
   double maxAcc =  20.0;
@@ -112,8 +112,8 @@ class DriveBaseModule{ //needed for gyroPIDDrive implementation
   void driveBaseTuning();
   double skim(double v);
 
-  bool autoDrive(double totalFeet, bool keepVelocity);
-  bool autoTurn(double angle, double radius, bool keepVelocity);
+  void autoDrive(float totalFeet, bool keepVelocity);
+  void autoTurn(float angle, float radius, bool keepVelocity);
 
   double getGyroAngleAuto() { //will be positive
     double angle = ahrs->GetAngle();
