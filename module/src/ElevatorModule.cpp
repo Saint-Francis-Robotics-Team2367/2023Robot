@@ -144,8 +144,13 @@ void ElevatorModule::AutoPeriodic() {
         frc::SmartDashboard::PutNumber("height", height);
 }
 
-void ElevatorModule::runInit() {
+void ElevatorModule::autoSet(double setpoint) {
+    autoAmount = setpoint;
+    isRunningAuto = true;
+}
 
+void ElevatorModule::runInit() {
+    //put breakmode stuff etc
 }
 
 void ElevatorModule::run() {
@@ -183,20 +188,10 @@ void ElevatorModule::run() {
             
         }
         if(state == 'a') {
-            
-
-            //TeleopPeriodic(ctr->GetLeftTriggerAxis(), ctr->GetRightTriggerAxis()); //for some reason either need this or teleop periodic for moving downwards to work
-
-            // //AutoPeriodic();
-            // if(test) {
-            //     setPos(25, true);
-            //     test = false;
-            // }
-            // if(oneRun && !test) {
-            //     setPos(0, true);
-            //     oneRun = false;
-            // }
-            // frc::SmartDashboard::PutNumber("left trigger", ctr->GetLeftTriggerAxis());
+            if(isRunningAuto) {
+               isFinished = setPos(autoAmount, true);
+               isRunningAuto = false;
+            }
         }
         std::this_thread::sleep_until(nextRun);
     }

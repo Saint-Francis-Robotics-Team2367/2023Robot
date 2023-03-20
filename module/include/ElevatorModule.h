@@ -28,6 +28,11 @@ class ElevatorModule {
     bool test = true;
 
 
+    bool isRunningAuto = false;
+    bool isFinished = false;
+    double autoAmount = 0;
+    void autoSet(double setpoint);
+
 
     double maxVelocity = 15047;
     double maxAcc = 3039;
@@ -43,7 +48,7 @@ class ElevatorModule {
     double height = 0; //starting the elevator at 0 (no absolute encoder)
 
     //constants
-    double kElevatorMinHeight = 7.0;
+    double kElevatorMinHeight = 0.0;
     double kElevatorMaxHeight = 51.25;
     double kLowScoreHeight = 27;
     double kHighScoreHeight = 46;
