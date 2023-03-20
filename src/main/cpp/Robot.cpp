@@ -59,7 +59,7 @@ void Robot::AutonomousInit() {
   b.register_turn(90, 2);
 
   autoPath c(autoPathType::elev); 
-  c.register_elev(25, true); 
+  c.register_elev(25); 
 
   autoPath d(autoPathType::straight); 
   d.register_straight(1);
@@ -94,7 +94,7 @@ void Robot::AutonomousPeriodic() {
         if(!isStage) { // if its not currently driving 
           drive.autoDrive(path[index].dis, path[index].keepVelocity);
           isStage = true; 
-          frc::SmartDashboard::PutBoolean("in stage", isStage); 
+          frc::SmartDashboard::PutBoolean("in stage drive", isStage); 
           frc::SmartDashboard::PutBoolean("is finished", drive.isFinished);
           frc::SmartDashboard::PutNumber("dis", path[index].dis);
         } 
@@ -128,8 +128,17 @@ void Robot::AutonomousPeriodic() {
         break; 
 
       case 'e': // elevator
+        if (!isStage){
+          elevator.autoSet(path[index].setpoint); 
+          isStage = true; 
+          frc::SmartDashboard::PutBoolean("in stage elev", isStage); 
+        }
+
+        if (elevator.isFinished){
+          isStage = false; 
+          elevator.isFinished = false; 
+        }
         
-        elevator.setPos(path[index].setpoint, path[index].motionProfiling); 
         break;
 
       case 'a': // arm 

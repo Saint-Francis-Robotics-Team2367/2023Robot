@@ -466,13 +466,13 @@ void DriveBaseModule::initPath() {  // only initiliazing; maybe move this to "a"
   } */
 }
 
-void DriveBaseModule::autoDrive(double totalFeet, bool keepVelocity) {
+bool DriveBaseModule::autoDrive(double totalFeet, bool keepVelocity) {
   this->totalFeet = totalFeet;
   this->keepVelocityDrive = keepVelocity;
   isRunningAutoDrive = true; //do it here
 }
 
-void DriveBaseModule::autoTurn(double angle, double radius, bool keepVelocity) {
+bool DriveBaseModule::autoTurn(double angle, double radius, bool keepVelocity) {
   this->angle = angle;
   this->radius = radius;
   this->keepVelocityTurn = keepVelocityTurn;

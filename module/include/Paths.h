@@ -36,9 +36,8 @@ class autoPath {
             dis = d; 
         };
 
-        void register_elev(int point, bool motion){
+        void register_elev(int point){
             setpoint = point; 
-            motionProfiling = motion; 
         };
 
         void register_arm(double x, double y){

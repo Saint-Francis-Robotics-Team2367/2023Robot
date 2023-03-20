@@ -112,8 +112,8 @@ class DriveBaseModule{ //needed for gyroPIDDrive implementation
   void driveBaseTuning();
   double skim(double v);
 
-  void autoDrive(double totalFeet, bool keepVelocity);
-  void autoTurn(double angle, double radius, bool keepVelocity);
+  bool autoDrive(double totalFeet, bool keepVelocity);
+  bool autoTurn(double angle, double radius, bool keepVelocity);
 
   double getGyroAngleAuto() { //will be positive
     double angle = ahrs->GetAngle();
