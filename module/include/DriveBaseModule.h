@@ -90,8 +90,8 @@ class DriveBaseModule{ //needed for gyroPIDDrive implementation
   void arcadeDrive(double vel, double dir); //takes two values from the joystick and converts them into motor output %
   bool PIDDrive(float totalFeet, bool keepVelocity);
   bool PIDTurn(float angle, float radius, bool keepVelocity);
-  void autonomousSequence();
-  void initPath();
+  // void autonomousSequence(); 
+  void initPath(); 
   void run();
   void runInit();
   void gyroDriving();

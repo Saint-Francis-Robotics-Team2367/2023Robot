@@ -9,14 +9,24 @@
 #include "ScaraArmModule.h"
 #include "DriveBaseModule.h"
 #include "ElevatorModule.h"
+#include "Paths.h"
 #include <frc/XboxController.h>
 
 frc::XboxController* ctr = new frc::XboxController(0);
 frc::XboxController* ctr2 = new frc::XboxController(1);
 
-ScaraArmModule arm(ctr2);
+ScaraArmModule scaraArm(ctr2);
 DriveBaseModule drive;
-ElevatorModule elev(ctr);
+ElevatorModule elevator(ctr);
+
+autoPath path[5] = {
+    autoPath(autoPathType::straight),
+    autoPath(autoPathType::turn),
+    autoPath(autoPathType::elev), 
+    autoPath(autoPathType::straight),
+    autoPath(autoPathType::arm),
+  };
+
 //Limelight ll; 
 
 //cpr number pulses (4096) per rev, 70 to 1 / 360
@@ -24,8 +34,8 @@ ElevatorModule elev(ctr);
 void Robot::RobotInit()
 {
   drive.driveThread.detach(); 
-  arm.scaraArmThread.detach();
-  elev.elevatorThread.detach();
+  scaraArm.scaraArmThread.detach();
+  elevator.elevatorThread.detach();
 }
 
 void Robot::RobotPeriodic() {
@@ -38,17 +48,109 @@ void Robot::RobotPeriodic() {
 }
 
 void Robot::AutonomousInit() {
-  arm.state = 'a';
+  scaraArm.state = 'a';
   drive.state = 'a';
-  elev.state = 'a';
-}
-void Robot::AutonomousPeriodic() {}
+  elevator.state = 'a';
 
+  autoPath a(autoPathType::straight); 
+  a.register_straight(1); 
+
+  autoPath b(autoPathType::turn); 
+  b.register_turn(90, 2);
+
+  autoPath c(autoPathType::elev); 
+  c.register_elev(25, true); 
+
+  autoPath d(autoPathType::straight); 
+  d.register_straight(1);
+
+  autoPath e(autoPathType::arm); 
+  e.register_arm(20, 20); 
+
+  // assigning path points  
+  path[0] = a; 
+  path[1] = b; 
+  path[2] = c; 
+  path[3] = d;
+  path[4] = e; 
+
+  // drive.initPath(); 
+}
+
+void Robot::AutonomousPeriodic() {
+  bool testing = true; 
+  int index = 0; 
+
+  drive.stopAuto = false;
+  elevator.stopAuto = false; 
+  scaraArm.stopAuto = false; 
+
+  int numSteps = 5; // CHANGE DEPENDING ON LENGTH OF PATH LIST! 
+  float angle, radius; 
+
+  if(testing) {
+    while(index < numSteps) {
+      //frc::SmartDashboard::PutBoolean("straight", path[index].straight); 
+      switch(path[index].action){
+        case 's': // driving straight 
+          if(drive.stopAuto) {
+            break;
+          }
+          frc::SmartDashboard::PutNumber("dis", path[index].dis);
+          drive.PIDDrive(path[index].dis, path[index].keepVelocity);
+          break; 
+
+        case 't': // turn
+          if(drive.stopAuto) {
+            break;
+          }
+          // retrieving angle and radius of turn 
+          angle = path[index].angle; 
+          radius = path[index].radius; 
+          frc::SmartDashboard::PutNumber("angle", angle); 
+          frc::SmartDashboard::PutNumber("radius", radius);
+
+          if (angle > 0){ // robot starts at 180 deg for right turns 
+            angle = -(angle - 180);
+          }
+        
+          drive.PIDTurn(angle, radius, path[index].keepVelocity);
+          break; 
+
+        case 'e': // elevator
+          if(elevator.stopAuto) {
+            break;
+          }
+          elevator.setPos(path[index].setpoint, path[index].motionProfiling); 
+          break;
+
+        case 'a': // arm 
+          if(scaraArm.stopAuto) {
+            break;
+          }
+          scaraArm.movetoXY(path[index].arm_x, path[index].arm_y); 
+          break; 
+
+        default: 
+          break; 
+      }
+      index++; 
+    }
+    testing = false;
+  }
+  else {
+    testing = true;
+    drive.stopAuto = true;
+    elevator.stopAuto = true;
+    scaraArm.stopAuto = true;
+  }
+
+}
 
 void Robot::TeleopInit() {
-  arm.state = 't';
+  scaraArm.state = 't';
   drive.state = 't';
-  elev.state = 't';
+  elevator.state = 't';
 }
 
 void Robot::TeleopPeriodic() {}

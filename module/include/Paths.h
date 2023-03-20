@@ -3,38 +3,49 @@
 
 enum autoPathType
 {
-    turn = false,
-    straight = true
+    turn = 't',
+    straight = 's', 
+    elev = 'e',
+    arm = 'a'
 };
 
 class autoPath {
     public:
-        autoPathType straight; 
+        autoPathType action; 
         int dis; 
-        int angle; 
-        int radius; 
+        float angle; 
+        float radius; 
         bool keepVelocity;
+        bool motionProfiling; 
+        int setpoint; 
+        double arm_x; 
+        double arm_y; 
 
-        autoPath(autoPathType type, bool keepV=false){
-            keepVelocity = keepV;
-            straight = type;
+        autoPath(autoPathType type){
+            action = type;
         };
 
-        void register_turn(int ang, int r=0){
+        void register_turn(float ang, float r=0, bool keepV=false){
+            keepVelocity = keepV; 
             radius = r;
             angle = ang; 
         };
 
-        void register_straight(int d){
+        void register_straight(int d, bool keepV=false){
+            keepVelocity = keepV; 
             dis = d; 
+        };
+
+        void register_elev(int point, bool motion){
+            setpoint = point; 
+            motionProfiling = motion; 
+        };
+
+        void register_arm(double x, double y){
+            arm_x = x; 
+            arm_y = y; 
         };
 };
 
-float angle = 0; 
-float radius = 0; 
 
-// choosing an autonomous path 
-frc::SendableChooser<std::string> chooser;
-const std::string autoDefault = "Default";
-const std::string autoCustom = "Path 1"; // define more variables if there are more custom paths 
-std::string selected;
+

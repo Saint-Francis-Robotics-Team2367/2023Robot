@@ -1,4 +1,5 @@
 #include "ElevatorModule.h"
+#include "Paths.h"
 
 ElevatorModule::ElevatorModule(frc::XboxController* controller) { //pass in joystick too
     //m_ID = motorID;
@@ -182,6 +183,8 @@ void ElevatorModule::run() {
             
         }
         if(state == 'a') {
+            
+
             //TeleopPeriodic(ctr->GetLeftTriggerAxis(), ctr->GetRightTriggerAxis()); //for some reason either need this or teleop periodic for moving downwards to work
 
             // //AutoPeriodic();

@@ -1,6 +1,7 @@
 #include "DriveBaseModule.h"
 #include "Paths.h"
 #include <iostream>
+#include <frc/SmartDashboard/SendableChooser.h>
 
 DriveBaseModule::DriveBaseModule() {
     ahrs = new AHRS(frc::SerialPort::kMXP);
@@ -422,54 +423,33 @@ bool DriveBaseModule::PIDTurn(float angle, float radius, bool keepVelocity) { //
   return true;
 }
 
-void DriveBaseModule::autonomousSequence() {  
-
-  // basic path initialized for default (may change based on what is selected)
-   autoPath path[3] = {
-    autoPath(autoPathType::straight),
-    autoPath(autoPathType::turn),
-    autoPath(autoPathType::straight),
-  };
-
-  int numSteps = 3; // CHANGE DEPENDING ON LENGTH OF LIST BEFORE DEPLOYING
-
-  autoPath a(autoPathType::straight); 
-  a.register_straight(1); 
-
-  autoPath b(autoPathType::turn); 
-  b.register_turn(90, 2);
-
-  autoPath c(autoPathType::straight); 
-  c.register_straight(1);
-
-  // registering default path points  
-  path[0] = a; 
-  path[1] = b; 
-  path[2] = c; 
+void DriveBaseModule::initPath() {  // only initiliazing; maybe move this to "a" state section instead?
+  // choosing an autonomous path 
+  frc::SendableChooser<std::string> chooser;
+  const std::string autoDefault = "Default";
+  const std::string autoCustom = "Path 1"; // define more variables if there are more custom paths 
+  std::string selected; 
 
   // custom path 1 points 
-  // refer to paths.h for more on the class, but for every point created u need to register it as a straight or turn 
-  // straight takes in the distance 
-  // turns take in the angle, radius 
   autoPath a1(autoPathType::straight); 
-  a.register_straight(2); 
+  a1.register_straight(2); 
 
   autoPath b1(autoPathType::turn); 
-  b.register_turn(90, 2);
+  b1.register_turn(90, 2);
 
   autoPath c1(autoPathType::turn); 
-  c.register_turn(-45, 1);
+  c1.register_turn(-45, 1);
 
   autoPath d1(autoPathType::turn); 
-  c.register_turn(360, 0);
- 
-  int index = 0;
+  d1.register_turn(360, 0);
 
   selected = chooser.GetSelected();
 
+  // below code is for having multiple paths (only coded for drive so far); maybe sort it out later after making the rest work 
+
   // changes the default path to a custom one based on what is selected 
   // make sure the autopath types in the list match the point types
-  if (selected == autoCustom){
+  /* if (selected == autoCustom){
     autoPath path[4] = {
     autoPath(autoPathType::straight),
     autoPath(autoPathType::turn),
@@ -483,33 +463,7 @@ void DriveBaseModule::autonomousSequence() {
     path[3] = d1; 
 
     numSteps = 4; 
-  }
-
-  while(index < numSteps) {
-    frc::SmartDashboard::PutBoolean("straight", path[index].straight); 
-    if(stopAuto) {
-      break;
-    }
-    if(path[index].straight) {
-      frc::SmartDashboard::PutNumber("dis", path[index].dis);
-      PIDDrive(path[index].dis, path[index].keepVelocity);
-     } 
-     else { 
-      // retrieving angle and radius of turn 
-      angle = path[index].angle; 
-      radius = path[index].radius; 
-      frc::SmartDashboard::PutNumber("angle", angle); 
-      frc::SmartDashboard::PutNumber("radius", radius);
-
-      if (angle > 0){ // robot starts at 180 deg for right turns 
-        angle = -(angle - 180);
-      }
-    
-      PIDTurn(angle, radius, path[index].keepVelocity);
-    }
-    index++;
-    frc::SmartDashboard::PutNumber("index", index);
-  }
+  } */
 }
 
 void DriveBaseModule::runInit() {
@@ -550,7 +504,7 @@ void DriveBaseModule::run() {
 
     //need mutex to stop
 
-    if(state == 'a') { //ik I have access to isAutonomous
+    /* if(state == 'a') { //ik I have access to isAutonomous
       stopAuto = false;
       if(test) {
           autonomousSequence();
@@ -565,7 +519,7 @@ void DriveBaseModule::run() {
     } else {
       test = true;
       stopAuto = true;
-    }
+    } */
 
     if(state == 't') {
       //perioidic routines
