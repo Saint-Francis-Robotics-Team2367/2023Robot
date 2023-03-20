@@ -95,11 +95,11 @@ void Robot::AutonomousPeriodic() {
           drive.autoDrive(path[index].dis, path[index].keepVelocity);
           isStage = true; 
           frc::SmartDashboard::PutNumber("dis", path[index].dis);
-        } else {
-          if(drive.isFinished){
-              isStage = false; 
-              drive.isFinished = false; 
-          }
+        } 
+        
+        if (drive.isFinished){
+            isStage = false; 
+            drive.isFinished = false; 
         }
         break; 
 
@@ -117,12 +117,10 @@ void Robot::AutonomousPeriodic() {
           drive.autoTurn(angle, radius, path[index].keepVelocity);
           isStage = true; 
         }
-        else {
-          if(drive.isFinished){
-            isStage = false; 
-            drive.isFinished = false; 
-          }
-
+        
+        if (drive.isFinished ){
+          isStage = false; 
+          drive.isFinished = false; 
         }
         
         break; 
