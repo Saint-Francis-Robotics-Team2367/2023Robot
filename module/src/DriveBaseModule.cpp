@@ -466,6 +466,19 @@ void DriveBaseModule::initPath() {  // only initiliazing; maybe move this to "a"
   } */
 }
 
+bool DriveBaseModule::autoDrive(double totalFeet, bool keepVelocity) {
+  this->totalFeet = totalFeet;
+  this->keepVelocityDrive = keepVelocity;
+  isRunningAutoDrive = true; //do it here
+}
+
+bool DriveBaseModule::autoTurn(double angle, double radius, bool keepVelocity) {
+  this->angle = angle;
+  this->radius = radius;
+  this->keepVelocityTurn = keepVelocityTurn;
+  isRunningAutoTurn = true; //do it here
+}
+
 void DriveBaseModule::runInit() {
   if (!(initDriveMotor(lMotor, lMotorFollower, lInvert) && initDriveMotor(rMotor, rMotorFollower, rInvert))) {
     frc::SmartDashboard::PutBoolean("Drive Motor Inits", false);
@@ -496,30 +509,24 @@ void DriveBaseModule::run() {
   // arm->ArmInit();
   bool test = true;
   int counter = 0;
+  
+
   while(true) { 
     auto nextRun = std::chrono::steady_clock::now() + std::chrono::milliseconds(5); //change milliseconds at telop
     frc::SmartDashboard::PutNumber("timesRun", ++counter);
     
-    //frc::SmartDashboard::PutNumber("drivebase y", driverStick->GetRawAxis(1));
-
-    //need mutex to stop
-
-    /* if(state == 'a') { //ik I have access to isAutonomous
-      stopAuto = false;
-      if(test) {
-          autonomousSequence();
-          //PIDDrive(-7, false);
-          //PIDTurn(-110, 0, false);
-          //PIDTurn(110, 0, false);
-
-        test = false;
+    if(state == 'a') {
+      if(isRunningAutoTurn && !isRunningAutoTurn) { //default false
+        isFinished = PIDTurn(angle, radius, keepVelocityTurn);
+        isRunningAutoTurn = false;
       }
-      // elev->AutoPeriodic();
-      
-    } else {
-      test = true;
-      stopAuto = true;
-    } */
+
+      if(isRunningAutoDrive) {
+        isFinished = PIDDrive(totalFeet, keepVelocityDrive);
+        isRunningAutoDrive = false;
+
+      }
+    }
 
     if(state == 't') {
       //perioidic routines

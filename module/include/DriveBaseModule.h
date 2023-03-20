@@ -51,6 +51,17 @@ class DriveBaseModule{ //needed for gyroPIDDrive implementation
 
   //ScaraArmModule* arm = new ScaraArmModule();
 
+
+  bool isRunningAutoTurn = false;
+  bool isRunningAutoDrive = false;
+  bool isFinished = false; 
+
+  double totalFeet = 0;
+  bool keepVelocityDrive = false;
+  double angle = 0;
+  double radius = 0;
+  bool keepVelocityTurn = false;
+
   double maxAcc =  20.0;
   double maxVelocity = 30.0;
   double currentVelocity = 0;
@@ -58,6 +69,8 @@ class DriveBaseModule{ //needed for gyroPIDDrive implementation
   double gyroOffsetVal = 0;
   double delta =10;
   double tuningPrevTime = 0;
+
+
 
   
   frc::Joystick* driverStick = new frc::Joystick(driverStickPort);
@@ -98,6 +111,9 @@ class DriveBaseModule{ //needed for gyroPIDDrive implementation
   void PIDTuning();
   void driveBaseTuning();
   double skim(double v);
+
+  bool autoDrive(double totalFeet, bool keepVelocity);
+  bool autoTurn(double angle, double radius, bool keepVelocity);
 
   double getGyroAngleAuto() { //will be positive
     double angle = ahrs->GetAngle();

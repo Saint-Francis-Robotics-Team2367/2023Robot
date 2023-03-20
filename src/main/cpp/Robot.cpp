@@ -134,8 +134,14 @@ void Robot::AutonomousPeriodic() {
         default: 
           break; 
       }
+
+
+
       index++; 
     }
+
+
+
     testing = false;
   }
   else {
