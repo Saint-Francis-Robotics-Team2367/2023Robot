@@ -16,6 +16,7 @@ bool isDrive = false;
 bool isArm = false;
 bool isElev = false;
 
+
 //rev::CANSparkMax* randomTest = new rev::CANSparkMax(9, rev::CANSparkMax::MotorType::kBrushless);
 
  public:

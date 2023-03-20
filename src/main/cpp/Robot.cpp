@@ -78,7 +78,6 @@ void Robot::AutonomousInit() {
 }
 
 void Robot::AutonomousPeriodic() {
-  bool testing = true; 
   int index = 0; 
 
   drive.stopAuto = false;
@@ -88,23 +87,24 @@ void Robot::AutonomousPeriodic() {
   int numSteps = 5; // CHANGE DEPENDING ON LENGTH OF PATH LIST! 
   float angle, radius; 
 
-  if(testing) {
-    while(index < numSteps) {
-      //frc::SmartDashboard::PutBoolean("straight", path[index].straight); 
-      switch(path[index].action){
-        case 's': // driving straight 
-          if(drive.stopAuto) {
-            break;
-          }
+  if(index < numSteps){
+    //frc::SmartDashboard::PutBoolean("straight", path[index].straight); 
+    switch(path[index].action){
+      case 's': // driving straight 
+        if(!isStage) {
+          drive.autoDrive(path[index].dis, path[index].keepVelocity);
+          isStage = true; 
           frc::SmartDashboard::PutNumber("dis", path[index].dis);
-          drive.PIDDrive(path[index].dis, path[index].keepVelocity);
-          break; 
-
-        case 't': // turn
-          if(drive.stopAuto) {
-            break;
+        } else {
+          if(drive.isFinished){
+              isStage = false; 
+              drive.isFinished = false; 
           }
-          // retrieving angle and radius of turn 
+        }
+        break; 
+
+      case 't': // turn
+        if (!isStage){
           angle = path[index].angle; 
           radius = path[index].radius; 
           frc::SmartDashboard::PutNumber("angle", angle); 
@@ -113,44 +113,40 @@ void Robot::AutonomousPeriodic() {
           if (angle > 0){ // robot starts at 180 deg for right turns 
             angle = -(angle - 180);
           }
+
+          drive.autoTurn(angle, radius, path[index].keepVelocity);
+          isStage = true; 
+        }
+        else {
+          if(drive.isFinished){
+            isStage = false; 
+            drive.isFinished = false; 
+          }
+
+        }
         
-          drive.PIDTurn(angle, radius, path[index].keepVelocity);
-          break; 
+        break; 
 
-        case 'e': // elevator
-          if(elevator.stopAuto) {
-            break;
-          }
-          elevator.setPos(path[index].setpoint, path[index].motionProfiling); 
-          break;
+      case 'e': // elevator
+        
+        elevator.setPos(path[index].setpoint, path[index].motionProfiling); 
+        break;
 
-        case 'a': // arm 
-          if(scaraArm.stopAuto) {
-            break;
-          }
-          scaraArm.movetoXY(path[index].arm_x, path[index].arm_y); 
-          break; 
+      case 'a': // arm 
+        
+        scaraArm.movetoXY(path[index].arm_x, path[index].arm_y); 
+        break; 
 
-        default: 
-          break; 
-      }
-
-
-
-      index++; 
+      default: 
+        break; 
+    }
+    
+    if (!isStage){
+        index++;
     }
 
 
-
-    testing = false;
   }
-  else {
-    testing = true;
-    drive.stopAuto = true;
-    elevator.stopAuto = true;
-    scaraArm.stopAuto = true;
-  }
-
 }
 
 void Robot::TeleopInit() {

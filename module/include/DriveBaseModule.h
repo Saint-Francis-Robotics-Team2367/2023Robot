@@ -54,7 +54,6 @@ class DriveBaseModule{ //needed for gyroPIDDrive implementation
 
   bool isRunningAutoTurn = false;
   bool isRunningAutoDrive = false;
-  bool isFinished = false; 
 
   double totalFeet = 0;
   bool keepVelocityDrive = false;
@@ -97,6 +96,7 @@ class DriveBaseModule{ //needed for gyroPIDDrive implementation
 
   public: 
   std::thread driveThread;
+  bool isFinished = false; 
   double stopAuto = false;
   DriveBaseModule(); 
   void LimitRate(double& s, double& t);
