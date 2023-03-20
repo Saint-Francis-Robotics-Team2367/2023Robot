@@ -466,13 +466,13 @@ void DriveBaseModule::initPath() {  // only initiliazing; maybe move this to "a"
   } */
 }
 
-bool DriveBaseModule::autoDrive(double totalFeet, bool keepVelocity) {
+void DriveBaseModule::autoDrive(double totalFeet, bool keepVelocity) {
   this->totalFeet = totalFeet;
   this->keepVelocityDrive = keepVelocity;
   isRunningAutoDrive = true; //do it here
 }
 
-bool DriveBaseModule::autoTurn(double angle, double radius, bool keepVelocity) {
+void DriveBaseModule::autoTurn(double angle, double radius, bool keepVelocity) {
   this->angle = angle;
   this->radius = radius;
   this->keepVelocityTurn = keepVelocityTurn;
@@ -516,7 +516,7 @@ void DriveBaseModule::run() {
     frc::SmartDashboard::PutNumber("timesRun", ++counter);
     
     if(state == 'a') {
-      if(isRunningAutoTurn && !isRunningAutoTurn) { //default false
+      if(isRunningAutoTurn && !isRunningAutoDrive) { //default false
         isFinished = PIDTurn(angle, radius, keepVelocityTurn);
         isRunningAutoTurn = false;
       }
