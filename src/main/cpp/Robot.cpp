@@ -46,7 +46,10 @@ void Robot::TeleopInit() {
   elev.state = 't';
 }
 
-void Robot::TeleopPeriodic() {}
+void Robot::TeleopPeriodic() {
+  //frc::SmartDashboard::PutNumber("CTR", ctr->GetRightX());
+  //iMotor->Set(ctr->GetRightX());
+}
 
 void Robot::DisabledInit() {
 }

@@ -477,13 +477,12 @@ void ScaraArmModule::runInit() {
   ArmInit();
   //isManualMove = false;
   grabber->Init();
-  grabber->grabberMotor->SetSmartCurrentLimit(10);
+  //grabber->grabberMotor->SetSmartCurrentLimit(5);
 }
 
 void ScaraArmModule::run(){
    runInit();
    test = true;
-
    int counter = 0;
     while(true) {
         auto nextRun = std::chrono::steady_clock::now() + std::chrono::milliseconds(5); //change milliseconds at telop
@@ -501,10 +500,10 @@ void ScaraArmModule::run(){
 
           frc::SmartDashboard::PutBoolean("in telo scara", true);
 
-          // // frc::SmartDashboard::PutNumber("left y scara arm", ctr->GetLeftY());
-          //   inner->Set(ctr->GetRightTriggerAxis() / 5);
-          // // frc::SmartDashboard::PutNumber("right y", ctr->GetRightY());
-          //  outter->Set(ctr->GetLeftTriggerAxis()/ 5);
+          // frc::SmartDashboard::PutNumber("left y scara arm", ctr->GetLeftY());
+            //inner->Set(ctrOperator->GetRightTriggerAxis() / 5);
+          // frc::SmartDashboard::PutNumber("right y", ctr->GetRightY());
+           //outter->Set(ctrOperator->GetLeftTriggerAxis()/ 5);
 
           // // Teleop 2
           grabber->toggle(ctrOperator->GetBButtonPressed());

@@ -5,7 +5,7 @@
 
 class Grabber {
     public:
-    rev::CANSparkMax* grabberMotor = new rev::CANSparkMax(grabberID, rev::CANSparkMax::MotorType::kBrushed);
+    rev::CANSparkMax* grabberMotor = new rev::CANSparkMax(grabberID, rev::CANSparkMax::MotorType::kBrushless);
 
     bool state = true;// T = closed, F = open
 
@@ -14,6 +14,8 @@ class Grabber {
     void Init() {
         grabberMotor->SetIdleMode(rev::CANSparkMax::IdleMode::kCoast);
         grabberMotor->SetSmartCurrentLimit(5);
+        grabberMotor->SetSecondaryCurrentLimit(5, 0);
+        
     }
 
     void open(bool button) {

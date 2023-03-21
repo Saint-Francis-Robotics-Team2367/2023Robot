@@ -16,6 +16,8 @@ double set = 0;
 //rev::CANSparkMax* randomTest = new rev::CANSparkMax(9, rev::CANSparkMax::MotorType::kBrushless);
 
  public:
+  //rev::CANSparkMax* iMotor = new rev::CANSparkMax(9, rev::CANSparkMax::MotorType::kBrushless);
+
 
   void RobotInit() override;
   void RobotPeriodic() override;
