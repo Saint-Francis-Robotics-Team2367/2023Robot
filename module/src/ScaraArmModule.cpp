@@ -342,7 +342,7 @@ void ScaraArmModule::ShuffleboardScorer() {
     ShuffleUI::MakeButtonPos("0 2", atab, false, 0, 2);
     ShuffleUI::MakeButtonPos("1 2", atab, false, 1, 2);
     ShuffleUI::MakeButtonPos("2 2", atab, false, 2, 2);
-    ShuffleUI::MakeWidgetPos("Last button pressed", atab, "n/a", 4, 1);
+    ShuffleUI::MakeWidgetPos("Last btn pressed", atab, std::string("n/a"), 4, 1);
     scoreMenuCreated = true;
   } else {
     for (int x = 0; x < 3; x++) {
@@ -350,7 +350,7 @@ void ScaraArmModule::ShuffleboardScorer() {
         std::string name = std::to_string(x) + " " + std::to_string(y);
         if (ShuffleUI::GetBool(name, atab, false)) {
           //armMoveFunction(corresponding position)
-          ShuffleUI::MakeWidgetPos("Last button pressed", atab, name, 4, 1);
+          ShuffleUI::MakeWidgetPos("Last btn pressed", atab, name, 4, 1);
           ShuffleUI::GetEntry(name, atab)->SetBoolean(false);
         }
       }

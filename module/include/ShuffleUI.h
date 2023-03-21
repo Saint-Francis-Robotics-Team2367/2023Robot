@@ -16,6 +16,22 @@ class ShuffleUI {
      */
     static void AddEntry(UIWidget *widget);
 
+    //for use in the OptimalScorePositions() function
+    static int currentGrid[3][9];
+
+    //for use in the OptimalScorePositions() function
+    static void printGridArray(int arr[3][9]);
+
+    //for use in the OptimalScorePositions() function
+    static void printGridArray(double arr[3][9]);
+
+    /**
+     * Needed for optimalScorePositions() functions, turns an int into a binary number.
+     * Implementation from geeksforgeeks.
+     * 
+     * @return An integer in binary (as a string)
+    */
+    static std::string decimalToBinary(int n);
 
   public:
     /**
@@ -230,4 +246,10 @@ class ShuffleUI {
      * Prints the names of all widgets.
      */
     static void PrintWidgetList();
+
+    /**
+     * Shows optimal positions to score game pieces, according to a google sheet Nitish found at 
+     * https://docs.google.com/spreadsheets/d/193FDkzfXlfjB6lDBid8OlbXigpErREMECpVLT0sQrGU/edit#gid=0
+    */
+   static void OptimalScorePositions();
 };
