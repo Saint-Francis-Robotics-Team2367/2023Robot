@@ -400,6 +400,19 @@ void ScaraArmModule::jstickArmMovement(double jstickX, double jstickY) {
   isManualMove = false;
 }
 
+
+void ScaraArmModule::autoPlace() {
+   std::vector<double> targetPose = ll.getTargetPoseRobotSpace();
+          Limelight::Point targetXY = ll.getTargetXY(targetPose.at(0) * 39.37, targetPose.at(2) * 39.37, targetPose.at(4), Limelight::bottomRightPole); // X, Y, yaw, poleID
+          frc::SmartDashboard::PutNumber("TapeX", targetXY.x);
+          frc::SmartDashboard::PutNumber("TapeY", targetXY.y);
+          frc::SmartDashboard::PutNumber("Detected?", ll.getTargetDetected());
+          if (ll.getTargetDetected()) {
+              movetoXY(targetXY.x, targetXY.y);
+  
+          }
+}
+
 void ScaraArmModule::runInit() {
   ArmInit();
   isManualMove = false;
@@ -446,7 +459,7 @@ void ScaraArmModule::run(){
 
 
           std::vector<double> targetPose = ll.getTargetPoseRobotSpace();
-          Limelight::Point targetXY = ll.getTargetXY(targetPose.at(0) * 39.37, targetPose.at(2) * 39.37, targetPose.at(4), Limelight::topRightPole); // X, Y, yaw, poleID
+          Limelight::Point targetXY = ll.getTargetXY(targetPose.at(0) * 39.37, targetPose.at(2) * 39.37, targetPose.at(4), Limelight::bottomLeftPole); // X, Y, yaw, poleID
           frc::SmartDashboard::PutNumber("TapeX", targetXY.x);
           frc::SmartDashboard::PutNumber("TapeY", targetXY.y);
           frc::SmartDashboard::PutNumber("Detected?", ll.getTargetDetected());
@@ -478,7 +491,11 @@ void ScaraArmModule::run(){
         }
 
         if(state == 'a') {
-        
+        if(!isTime) {
+          autoPlace();
+          isTime = true;
+          //moveProfiled(30, 30);
+        }
           // std::vector<double> targetPose = ll.getTargetPoseRobotSpace();
           // Limelight::Point targetXY = ll.getTargetXY(targetPose.at(0) * 39.37, targetPose.at(2) * 39.37, targetPose.at(4), Limelight::bottomRightPole); // X, Y, yaw, poleID
           // frc::SmartDashboard::PutNumber("TapeX", targetXY.x);

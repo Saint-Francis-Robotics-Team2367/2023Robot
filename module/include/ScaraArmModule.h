@@ -38,7 +38,7 @@ class ScaraArmModule {
     const double startInner = 0;
     const double startOutter = 0;
 
-    const double startX = 24.625;
+    const double startX = 24.125;
     const double startY = 0;
 
     // const int innerID = 10;
@@ -50,8 +50,8 @@ class ScaraArmModule {
     const double innerConv = 36 / 7; //1/(4096/70/360); 
     const double outterConv = 36 / 7; //1
 
-    const double innerSize = 24.625;
-    const double outterSize = 32.25;
+    const double innerSize = 24.125;
+    const double outterSize = 25.5;
 
     Grabber* grabber = new Grabber();
 
@@ -99,8 +99,8 @@ class ScaraArmModule {
 
     void movetoXY(double x, double y);
 
-    double maxVelocity = 130;
-    double maxAcc = 68;
+    double maxVelocity = 100;
+    double maxAcc = 18;
     void moveProfiled(double angle1, double angle2);
 
     bool XYInRange(double x, double y);
@@ -108,6 +108,9 @@ class ScaraArmModule {
     void checkArmBounds(double outter_pos, double outter_neg, double inner_pos, double inner_neg);
 
     void jstickArmMovement(double jstickX, double jstickY);
+
+    bool isTime = false;
+    void autoPlace();
 
 
     armPos currentPosition = {startInner, startOutter, startX, startY};
