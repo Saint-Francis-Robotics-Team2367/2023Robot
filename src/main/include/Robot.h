@@ -13,8 +13,7 @@ class Robot : public frc::TimedRobot {
 
 double set = 0;
 bool isStage = false;
-
-
+int index = 0;
 //rev::CANSparkMax* randomTest = new rev::CANSparkMax(9, rev::CANSparkMax::MotorType::kBrushless);
 
  public:

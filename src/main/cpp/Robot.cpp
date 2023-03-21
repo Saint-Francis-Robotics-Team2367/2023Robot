@@ -50,6 +50,7 @@ void Robot::RobotPeriodic() {
 
 void Robot::AutonomousInit() {
   in = true; 
+  index = 0;
   frc::SmartDashboard::PutBoolean("in", in);
 
 
@@ -85,7 +86,7 @@ void Robot::AutonomousInit() {
 }
 
 void Robot::AutonomousPeriodic() {
-  int index = 0; 
+
 
   int numSteps = 5; // CHANGE DEPENDING ON LENGTH OF PATH LIST! 
   float angle, radius; 
@@ -95,8 +96,8 @@ void Robot::AutonomousPeriodic() {
        case 's': // driving straight
       
         if(!isStage) { // if its not currently driving 
-          drive.autoDrive(path[index].dis, path[index].keepVelocity);
           isStage = true; 
+          drive.autoDrive(path[index].dis, path[index].keepVelocity);
           frc::SmartDashboard::PutBoolean("in stage drive", isStage); 
           frc::SmartDashboard::PutBoolean("is finished", drive.isFinished);
           frc::SmartDashboard::PutNumber("dis", path[index].dis);
@@ -104,12 +105,14 @@ void Robot::AutonomousPeriodic() {
         
         if (drive.isFinished){ // once drive is finished 
           isStage = false; 
+          frc::SmartDashboard::PutBoolean("in stage drive", isStage); 
           drive.isFinished = false; 
         }
         break; 
 
       case 't': // turn
         if (!isStage){
+          isStage = true; 
           angle = path[index].angle; 
           radius = path[index].radius; 
           frc::SmartDashboard::PutNumber("angle", angle); 
@@ -120,10 +123,10 @@ void Robot::AutonomousPeriodic() {
           }
 
           drive.autoTurn(angle, radius, path[index].keepVelocity);
-          isStage = true; 
+          
         }
         
-        if (drive.isFinished ){
+        if (drive.isFinished){
           isStage = false; 
           drive.isFinished = false; 
         }
@@ -155,8 +158,8 @@ void Robot::AutonomousPeriodic() {
     
     if (!isStage){
         index++;
+        frc::SmartDashboard::PutNumber("index", index);
     }
-
      
   }
 }

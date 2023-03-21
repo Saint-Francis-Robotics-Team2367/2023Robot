@@ -519,11 +519,16 @@ void DriveBaseModule::run() {
       if(isRunningAutoTurn && !isRunningAutoDrive) { //default false
         isFinished = PIDTurn(angle, radius, keepVelocityTurn);
         isRunningAutoTurn = false;
+        frc::SmartDashboard::PutBoolean("isRunningAutoTurn", isRunningAutoTurn);
       }
 
       if(isRunningAutoDrive) {
         isFinished = PIDDrive(totalFeet, keepVelocityDrive);
+        // PIDDrive(totalFeet, keepVelocityDrive);
+        // isFinished = true;
         isRunningAutoDrive = false;
+        frc::SmartDashboard::PutBoolean("isFinished", isFinished);
+        frc::SmartDashboard::PutBoolean("isRunningAutoDrive", isRunningAutoDrive);
 
       }
     }
