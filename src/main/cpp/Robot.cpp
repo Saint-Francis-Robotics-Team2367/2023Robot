@@ -62,7 +62,7 @@ void Robot::AutonomousInit() {
   a.register_straight(1); 
 
   autoPath b(autoPathType::turn); 
-  b.register_turn(90, 2);
+  b.register_turn(90, 1);
 
   autoPath c(autoPathType::elev); 
   c.register_elev(25); 
@@ -88,7 +88,7 @@ void Robot::AutonomousInit() {
 void Robot::AutonomousPeriodic() {
 
 
-  int numSteps = 5; // CHANGE DEPENDING ON LENGTH OF PATH LIST! 
+  int numSteps = 4; // CHANGE DEPENDING ON LENGTH OF PATH LIST! 
   float angle, radius; 
 
   if(index < numSteps){

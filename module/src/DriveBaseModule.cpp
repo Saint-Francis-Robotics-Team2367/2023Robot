@@ -12,6 +12,7 @@ bool DriveBaseModule::initDriveMotor(rev::CANSparkMax* motor, rev::CANSparkMax* 
   motor->SetIdleMode(rev::CANSparkMax::IdleMode::kBrake);
   motor->SetInverted(invert);
   follower->Follow(*motor, false);
+  follower->SetIdleMode(rev::CANSparkMax::IdleMode::kBrake);
   return motor->GetLastError() == rev::REVLibError::kOk;
 }
 
@@ -527,17 +528,18 @@ void DriveBaseModule::run() {
     frc::SmartDashboard::PutNumber("timesRun", ++counter);
     
     if(state == 'a') {
-      if(isRunningAutoTurn && !isRunningAutoDrive) { //default false
-        isFinished = PIDTurn(angle, radius, keepVelocityTurn);
+      if(isRunningAutoTurn) { //default false
         isRunningAutoTurn = false;
+        isFinished = PIDTurn(angle, radius, keepVelocityTurn);
+        
         frc::SmartDashboard::PutBoolean("isRunningAutoTurn", isRunningAutoTurn);
       }
 
       if(isRunningAutoDrive) {
+        isRunningAutoDrive = false;
         isFinished = PIDDrive(totalFeet, keepVelocityDrive);
         // PIDDrive(totalFeet, keepVelocityDrive);
         // isFinished = true;
-        isRunningAutoDrive = false;
         frc::SmartDashboard::PutBoolean("isFinished", isFinished);
         frc::SmartDashboard::PutBoolean("isRunningAutoDrive", isRunningAutoDrive);
 
@@ -546,6 +548,12 @@ void DriveBaseModule::run() {
       if(balancing) {
         autoBalance();
       }
+
+      // if(test) {
+      //   test = false;
+      //   PIDDrive(3, false);
+      //   PIDTurn(90, 2, false);
+      // }
     }
 
     if(state == 't') {
@@ -558,7 +566,7 @@ void DriveBaseModule::run() {
       frc::SmartDashboard::PutNumber("rcheck", rMotor->GetIdleMode() == rev::CANSparkMax::IdleMode::kBrake); 
       
       test = true;
-      stopAuto = true;
+  
     }
 
     if(state == 'u') { //tuning auto PID's
