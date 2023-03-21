@@ -97,6 +97,7 @@ class DriveBaseModule{ //needed for gyroPIDDrive implementation
   public: 
   std::thread driveThread;
   bool isFinished = false; 
+  bool balancing = false;
   double stopAuto = false;
   DriveBaseModule(); 
   void LimitRate(double& s, double& t);
@@ -114,6 +115,7 @@ class DriveBaseModule{ //needed for gyroPIDDrive implementation
 
   void autoDrive(float totalFeet, bool keepVelocity);
   void autoTurn(float angle, float radius, bool keepVelocity);
+  void autoBalance();
 
   double getGyroAngleAuto() { //will be positive
     double angle = ahrs->GetAngle();

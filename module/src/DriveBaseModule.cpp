@@ -479,6 +479,17 @@ void DriveBaseModule::autoTurn(float angle, float radius, bool keepVelocity) {
   isRunningAutoTurn = true; //do it here
 }
 
+void DriveBaseModule::autoBalance() {
+  double pitch = ahrs->GetPitch();
+  double absPitch = fabs(pitch);
+  double error = 15 - absPitch;
+
+  std::copysign(error, pitch);
+
+  lPID.SetReference(error, rev::CANSparkMax::ControlType::kPosition);
+  rPID.SetReference(error, rev::CANSparkMax::ControlType::kPosition);
+}
+
 void DriveBaseModule::runInit() {
   if (!(initDriveMotor(lMotor, lMotorFollower, lInvert) && initDriveMotor(rMotor, rMotorFollower, rInvert))) {
     frc::SmartDashboard::PutBoolean("Drive Motor Inits", false);
@@ -530,6 +541,10 @@ void DriveBaseModule::run() {
         frc::SmartDashboard::PutBoolean("isFinished", isFinished);
         frc::SmartDashboard::PutBoolean("isRunningAutoDrive", isRunningAutoDrive);
 
+      }
+
+      if(balancing) {
+        autoBalance();
       }
     }
 
