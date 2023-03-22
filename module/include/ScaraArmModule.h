@@ -52,8 +52,8 @@ class ScaraArmModule {
     const double innerConv = 36 / 7; //1/(4096/70/360); 
     const double outterConv = 36 / 7; //1
 
-    const double innerSize = 24.625;
-    const double outterSize = 32.25;
+    const double innerSize = 23.75;
+    const double outterSize = 31.5;
 
     std::string tab = "Scara Arm"; // for MakeWidget() calls
     bool scoreMenuCreated = false; // for ShuffleboardScorer()

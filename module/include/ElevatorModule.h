@@ -28,6 +28,8 @@ class ElevatorModule {
     double stopAuto = false;
     bool test = true;
 
+    void zeroAtTop();
+
     std::string tab = "Elevator"; // for MakeWidget() calls
 
     enum poleIDs {
@@ -47,6 +49,7 @@ class ElevatorModule {
     rev::CANSparkMax* elevatorMotor = new rev::CANSparkMax(elevatorID, rev::CANSparkMax::MotorType::kBrushless);
     rev::SparkMaxRelativeEncoder enc = elevatorMotor->GetEncoder();
     rev::SparkMaxPIDController elevatorPID = elevatorMotor->GetPIDController();
+    rev::SparkMaxLimitSwitch topSwitch = elevatorMotor->GetForwardLimitSwitch(rev::SparkMaxLimitSwitch::Type::kNormallyOpen);
 
     double height = 0; //starting the elevator at 0 (no absolute encoder)
 

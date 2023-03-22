@@ -615,6 +615,12 @@ void ScaraArmModule::run(){
             //jstickArmMovement(0, 0);
             //movetoPole(ll.bottomRightPole);
             movetoXY(29, 25, false);
+          } else if (ctrOperator->GetXButton()) {
+            std::vector<double> targetPose = ll.getTargetPoseRobotSpace();
+            Limelight::Point targetXY = ll.getTargetXY(targetPose.at(0) * 39.37, targetPose.at(2) * 39.37, targetPose.at(4), ll.bottomLeftPole); // X, Y, yaw, poleID
+            ShuffleUI::MakeWidget("TapeX", tab, targetXY.x);
+            ShuffleUI::MakeWidget("TapeY", tab, targetXY.y);
+            movetoXY(targetXY.x, targetXY.y, false);
           } else {
             jstickArmMovement(0, 0);
           }

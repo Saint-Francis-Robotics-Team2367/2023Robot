@@ -146,6 +146,11 @@ void ElevatorModule::AutoPeriodic() {
         ShuffleUI::MakeWidget("height", tab, height);
 }
 
+void ElevatorModule::zeroAtTop() {
+    //if (forward)
+        elevatorMotor->Set(0.3);
+}
+
 void ElevatorModule::runInit() {
 
 }
