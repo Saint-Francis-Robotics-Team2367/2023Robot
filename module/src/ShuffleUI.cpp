@@ -348,104 +348,113 @@ void ShuffleUI::OptimalScorePositions() {
     int dynamicCoopBonus[3][9];
     double nextGridSpotScore[3][9];
 
+    //running it only when things change to improve efficiency and maybe fix one bug
+    bool anyUpdates = false;
+
     //updating currentGrid
     if (ShuffleUI::optimalScoreGridCreated) {
         for (int row = 0; row < 3; row++) {
             for (int col = 0; col < 9; col++) {
                 std::string aname = std::to_string(row) + " " + std::to_string(col);
                 if (ShuffleUI::GetDouble(aname, "Optimal Positions", 0) < 0) {
+                    if (currentGrid[row][col] == 0) {anyUpdates=true;};
                     currentGrid[row][col] = 1;
                 } else {
+                    if (currentGrid[row][col] == 1) {anyUpdates=true;};
                     currentGrid[row][col] = 0;
                 }
             }
         }
     }
 
-    //dynamicLocationScore and dynamicLinkLocation
-    for (int row = 0; row < 3; row++) {
-        for (int col = 0; col < 9; col++) {
-            //for dynamicLocationScore - works
-            double tot1 = 0;
-            if (row == 0 && col == 0 && currentGrid[row][col] > 0) { // for some reason this check only happens with one cell on the sheet?
-                tot1 = 0;
-            } else if (col == 0) {
-                tot1 = currentGrid[row][col + 1] + 0.5*currentGrid[row][col + 2];
-            } else if (col == 1) {
-                tot1 = currentGrid[row][col + 1] + currentGrid[row][col - 1] + 0.5*currentGrid[row][col + 2];
-            } else if (col == 7) {
-                tot1 = currentGrid[row][col + 1] + currentGrid[row][col - 1] + 0.5*currentGrid[row][col - 2];
-            } else if (col == 8) {
-                tot1 = currentGrid[row][col - 1] + 0.5*currentGrid[row][col - 2];
-            } else {
-                tot1 = currentGrid[row][col + 1] + currentGrid[row][col - 1] + 0.5*(currentGrid[row][col + 2] + currentGrid[row][col - 2]);
-            }
-            dynamicLocationScore[row][col] = tot1;
+    if (anyUpdates || !optimalScoreGridCreated) {
+        //dynamicLocationScore and dynamicLinkLocation
+        for (int row = 0; row < 3; row++) {
+            for (int col = 0; col < 9; col++) {
+                //for dynamicLocationScore - works
+                double tot1 = 0;
+                if (row == 0 && col == 0 && currentGrid[row][col] > 0) { // for some reason this check only happens with one cell on the sheet?
+                    tot1 = 0;
+                } else if (col == 0) {
+                    tot1 = currentGrid[row][col + 1] + 0.5*currentGrid[row][col + 2];
+                } else if (col == 1) {
+                    tot1 = currentGrid[row][col + 1] + currentGrid[row][col - 1] + 0.5*currentGrid[row][col + 2];
+                } else if (col == 7) {
+                    tot1 = currentGrid[row][col + 1] + currentGrid[row][col - 1] + 0.5*currentGrid[row][col - 2];
+                } else if (col == 8) {
+                    tot1 = currentGrid[row][col - 1] + 0.5*currentGrid[row][col - 2];
+                } else {
+                    tot1 = currentGrid[row][col + 1] + currentGrid[row][col - 1] + 0.5*(currentGrid[row][col + 2] + currentGrid[row][col - 2]);
+                }
+                dynamicLocationScore[row][col] = tot1;
 
-            // for dynamicLinkLocation - works
-            int tot2 = 0;
-            int tempInt;
-            if (decimalToBinary(numbers3[row]).length() < numbers1[col]) {
-                tot2 = 0;
-            } else {
-                std::string temp = decimalToBinary(numbers3[row]);
-                tot2 = int(temp[temp.length() - numbers1[col]])-48;
-            }
-            dynamicLinkLocation[row][col] = tot2;
-            //ok so this is actually static, even on the sheet? the sheet may not be the most recent version.
-        }
-    }
-
-    //for dynamicCoopBonus - works
-    int tot3 = 0;
-    for (int row = 0; row < 3; row++) {
-        for (int col = 3; col < 6; col++) {
-            tot3 += currentGrid[row][col];
-        }
-    }
-    for (int row = 0; row < 3; row++) {
-        for (int col = 0; col < 9; col++) {
-            if (col > 2 && col < 6) {
-                dynamicCoopBonus[row][col] = int(tot3 < 3);
-            } else {
-                dynamicCoopBonus[row][col] = 0;
+                // for dynamicLinkLocation - works
+                int tot2 = 0;
+                int tempInt;
+                if (decimalToBinary(numbers3[row]).length() < numbers1[col]) {
+                    tot2 = 0;
+                } else {
+                    std::string temp = decimalToBinary(numbers3[row]);
+                    tot2 = int(temp[temp.length() - numbers1[col]])-48;
+                }
+                dynamicLinkLocation[row][col] = tot2;
+                //ok so this is actually static, even on the sheet? the sheet may not be the most recent version.
             }
         }
-    }
 
-    //for nextGridSpotScore - works
-    for (int row = 0; row < 3; row++) {
-        for (int col = 0; col < 9; col++) {
-            if (currentGrid[row][col] > 0) {
-                nextGridSpotScore[row][col] = -1;
-            } else {
-                // a lot of these numbers come from the "weights" section of the sheet
-                nextGridSpotScore[row][col] = (0.5 * pointPotential[row][col]) + (0.75/difficultyScore[row][col]) +
-                (1 * dynamicLocationScore[row][col]) + (0.25 * dynamicCoopBonus[row][col]) + (1 * dynamicLinkLocation[row][col]);
+        //for dynamicCoopBonus - works
+        int tot3 = 0;
+        for (int row = 0; row < 3; row++) {
+            for (int col = 3; col < 6; col++) {
+                tot3 += currentGrid[row][col];
             }
         }
-    }
-
-    //testing purposes: prints values to console
-    /*std::cout << "Current Grid" << std::endl;
-    printGridArray(currentGrid);
-    std::cout << "Dynamic Location Score" << std::endl;
-    printGridArray(dynamicLocationScore);
-    std::cout << "Dynamic Link Location" << std::endl;
-    printGridArray(dynamicLinkLocation);
-    std::cout << "Dynamic Cooperation Bonus" << std::endl;
-    printGridArray(dynamicCoopBonus);
-    std::cout << "Next Grid Spot Score" << std::endl;
-    printGridArray(nextGridSpotScore);*/
-
-    //putting it onto shuffleboardm- to-do
-    //see if there's a way to change button labels without changing widget name
-
-    for (int row = 0; row < 3; row++) {
-        for (int col = 0; col < 9; col++) {
-            std::string aname = std::to_string(row) + " " + std::to_string(col);
-            ShuffleUI::MakeWidgetPos(aname, "Optimal Positions", nextGridSpotScore[row][col], col, row);
+        for (int row = 0; row < 3; row++) {
+            for (int col = 0; col < 9; col++) {
+                if (col > 2 && col < 6) {
+                    dynamicCoopBonus[row][col] = int(tot3 < 3);
+                } else {
+                    dynamicCoopBonus[row][col] = 0;
+                }
+            }
         }
+
+        //for nextGridSpotScore - works
+        for (int row = 0; row < 3; row++) {
+            for (int col = 0; col < 9; col++) {
+                if (currentGrid[row][col] > 0) {
+                    nextGridSpotScore[row][col] = -1;
+                } else {
+                    // a lot of these numbers come from the "weights" section of the sheet
+                    nextGridSpotScore[row][col] = (0.5 * pointPotential[row][col]) + (0.75/difficultyScore[row][col]) +
+                    (1 * dynamicLocationScore[row][col]) + (0.25 * dynamicCoopBonus[row][col]) + (1 * dynamicLinkLocation[row][col]);
+                }
+            }
+        }
+
+        //testing purposes: prints values to console
+        /*std::cout << "Current Grid" << std::endl;
+        printGridArray(currentGrid);
+        std::cout << "Dynamic Location Score" << std::endl;
+        printGridArray(dynamicLocationScore);
+        std::cout << "Dynamic Link Location" << std::endl;
+        printGridArray(dynamicLinkLocation);
+        std::cout << "Dynamic Cooperation Bonus" << std::endl;
+        printGridArray(dynamicCoopBonus);
+        std::cout << "Next Grid Spot Score" << std::endl;
+        printGridArray(nextGridSpotScore);*/
+
+        //putting it onto shuffleboardm- to-do
+        //see if there's a way to change button labels without changing widget name
+
+        for (int row = 0; row < 3; row++) {
+            for (int col = 0; col < 9; col++) {
+                std::string aname = std::to_string(row) + " " + std::to_string(col);
+                ShuffleUI::MakeWidgetPos(aname, "Optimal Positions", nextGridSpotScore[row][col], col, row);
+            }
+        }
+
+        anyUpdates = false;
     }
 
     if (!optimalScoreGridCreated) {
