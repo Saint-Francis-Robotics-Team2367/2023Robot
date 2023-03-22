@@ -10,6 +10,7 @@ DriveBaseModule::DriveBaseModule() {
 bool DriveBaseModule::initDriveMotor(rev::CANSparkMax* motor, rev::CANSparkMax* follower, bool invert) {
   motor->SetIdleMode(rev::CANSparkMax::IdleMode::kBrake);
   motor->SetInverted(invert);
+  follower->SetIdleMode(rev::CANSparkMax::IdleMode::kBrake);
   follower->Follow(*motor, false);
   return motor->GetLastError() == rev::REVLibError::kOk;
 }

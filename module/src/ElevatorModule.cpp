@@ -158,6 +158,7 @@ void ElevatorModule::run() {
         ShuffleUI::MakeWidget("elev left y", tab, ctrOperator->GetLeftY());
        
         if(state == 't') {
+            
              if(!currentlyMoving) {
                 if(ctr->GetXButtonPressed() || (ShuffleUI::GetInt("Score", "ArmtoElev", -1) == topLeftPole || ShuffleUI::GetInt("Score", "ArmtoElev", -1) == topRightPole)) {
                 currentlyMoving = true;
@@ -180,6 +181,7 @@ void ElevatorModule::run() {
                 currentlyMoving = false;
             }
             }
+            
             //need this line for down movement to work? also is manual, could replace triggers with 0, 0 and it works
             TeleopPeriodic(ctrOperator->GetLeftTriggerAxis(), ctrOperator->GetRightTriggerAxis()); //for some reason either need this or teleop periodic for moving downwards to work
             
