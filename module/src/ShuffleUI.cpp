@@ -6,7 +6,7 @@
 
 std::vector<UIWidget *> ShuffleUI::widgetList;
 
-int currentGrid[3][9] = {
+int ShuffleUI::currentGrid[3][9] = {
     {0, 0, 0, 0, 0, 0, 0, 0, 0},
     {0, 0, 0, 0, 0, 0, 0, 0, 0},
     {0, 0, 0, 0, 0, 0, 0, 0, 0}
@@ -57,6 +57,8 @@ void ShuffleUI::printGridArray(double arr[3][9]) {
         std::cout << "]" << std::endl;
     }
 }
+
+bool ShuffleUI::optimalScoreGridCreated = false;
 
 // makes a widget and returns a pointer to its entry. If widget with that name already exists, updates its value and returns that entry's pointer instead
 nt::GenericEntry *ShuffleUI::MakeWidget(std::string name, std::string tab, int value=0) {
@@ -346,6 +348,20 @@ void ShuffleUI::OptimalScorePositions() {
     int dynamicCoopBonus[3][9];
     double nextGridSpotScore[3][9];
 
+    //updating currentGrid
+    if (ShuffleUI::optimalScoreGridCreated) {
+        for (int row = 0; row < 3; row++) {
+            for (int col = 0; col < 9; col++) {
+                std::string aname = std::to_string(row) + " " + std::to_string(col);
+                if (ShuffleUI::GetDouble(aname, "Optimal Positions", 0) < 0) {
+                    currentGrid[row][col] = 1;
+                } else {
+                    currentGrid[row][col] = 0;
+                }
+            }
+        }
+    }
+
     //dynamicLocationScore and dynamicLinkLocation
     for (int row = 0; row < 3; row++) {
         for (int col = 0; col < 9; col++) {
@@ -375,7 +391,6 @@ void ShuffleUI::OptimalScorePositions() {
                 std::string temp = decimalToBinary(numbers3[row]);
                 tot2 = int(temp[temp.length() - numbers1[col]])-48;
             }
-            std::cout << tot2 << std::endl;
             dynamicLinkLocation[row][col] = tot2;
             //ok so this is actually static, even on the sheet? the sheet may not be the most recent version.
         }
@@ -402,7 +417,7 @@ void ShuffleUI::OptimalScorePositions() {
     for (int row = 0; row < 3; row++) {
         for (int col = 0; col < 9; col++) {
             if (currentGrid[row][col] > 0) {
-                nextGridSpotScore[row][col] = 0;
+                nextGridSpotScore[row][col] = -1;
             } else {
                 // a lot of these numbers come from the "weights" section of the sheet
                 nextGridSpotScore[row][col] = (0.5 * pointPotential[row][col]) + (0.75/difficultyScore[row][col]) +
@@ -425,4 +440,23 @@ void ShuffleUI::OptimalScorePositions() {
 
     //putting it onto shuffleboardm- to-do
     //see if there's a way to change button labels without changing widget name
+
+    for (int row = 0; row < 3; row++) {
+        for (int col = 0; col < 9; col++) {
+            std::string aname = std::to_string(row) + " " + std::to_string(col);
+            ShuffleUI::MakeWidgetPos(aname, "Optimal Positions", nextGridSpotScore[row][col], col, row);
+        }
+    }
+
+    if (!optimalScoreGridCreated) {
+        std::string desc = "The highest values signify the best positions to score."
+        "If a game piece is in a position, set the corresponding widget to have a negative value." 
+        "This tells the code that there is a piece there.";
+        frc::Shuffleboard::GetTab("Optimal Positions").Add("Instructions:", desc)
+            .WithWidget(frc::BuiltInWidgets::kTextView)
+            .WithPosition(0, 3)
+            .WithSize(9, 1);
+    }
+
+    optimalScoreGridCreated = true;
 }

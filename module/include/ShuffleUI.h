@@ -25,6 +25,9 @@ class ShuffleUI {
     //for use in the OptimalScorePositions() function
     static void printGridArray(double arr[3][9]);
 
+    //for use in the OptimalScorePositions() function
+    static bool optimalScoreGridCreated;
+
     /**
      * Needed for optimalScorePositions() functions, turns an int into a binary number.
      * Implementation from geeksforgeeks.
