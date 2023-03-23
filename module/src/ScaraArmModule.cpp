@@ -672,7 +672,7 @@ void ScaraArmModule::run(){
    test = true;
    bool isZero = false;
    bool teleopInit = true; //Run the init if condition in the teleop if condition
-   bool enableManualXY = false;
+   bool setManualXY = true;
 
    int counter = 0;
     while(true) {
@@ -726,6 +726,7 @@ void ScaraArmModule::run(){
             else if (ctrOperator->GetYButtonReleased()) 
             {
               innerPID.SetReference(-130.0f, rev::CANSparkMax::ControlType::kPosition);
+              setManualXY = true;
             } 
             else if (ctrOperator->GetXButtonPressed()) 
             {
@@ -743,12 +744,14 @@ void ScaraArmModule::run(){
           } 
           else if (ctrOperator->GetRightBumper()) 
           {
-              std::vector<double> xy = Angles_to_XY(inner_enc.GetPosition(), outter_enc.GetPosition());
-              currentPosition.armX = xy.at(0);
-              currentPosition.armY = xy.at(1);
-            
-
-            jstickArmMovement(ctrOperator->GetLeftX(), -ctrOperator->GetLeftY());
+              if (setManualXY) {
+                std::vector<double> xy = Angles_to_XY(inner_enc.GetPosition(), outter_enc.GetPosition());
+                currentPosition.armX = xy.at(0);
+                currentPosition.armY = xy.at(1);
+                setManualXY = false;
+              }
+              
+              jstickArmMovement(ctrOperator->GetLeftX(), -ctrOperator->GetLeftY());
 
             
           }
