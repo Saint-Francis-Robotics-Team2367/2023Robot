@@ -747,9 +747,9 @@ void ScaraArmModule::run(){
               currentPosition.armX = xy.at(0);
               currentPosition.armY = xy.at(1);
             
-            if (enableManualXY) {
-              jstickArmMovement(ctrOperator->GetLeftX(), -ctrOperator->GetLeftY());
-            }
+
+            jstickArmMovement(ctrOperator->GetLeftX(), -ctrOperator->GetLeftY());
+
             
           }
 
