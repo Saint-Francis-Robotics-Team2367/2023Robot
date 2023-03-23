@@ -266,10 +266,10 @@ void ScaraArmModule::movetoXY(double x, double y, bool isManualMove) {
       frc::SmartDashboard::PutNumber("InnerFixAngle", atan2(y, x));
       //innerPID.SetReference(atan2(y, x) * 180 / PI, rev::CANSparkMax::ControlType::kPosition);
     }
-    frc::SmartDashboard::PutBoolean("XY Valid?", false);
+    ShuffleUI::MakeWidget("XY Valid?", tab, false);
     return;
   } else {
-    frc::SmartDashboard::PutBoolean("XY Valid?", true);
+    ShuffleUI::MakeWidget("XY Valid?", tab, true);
   }
 
   ShuffleUI::MakeWidget("NumSol", tab, static_cast<int>(angles.size()));
@@ -293,11 +293,8 @@ void ScaraArmModule::movetoXY(double x, double y, bool isManualMove) {
     ShuffleUI::MakeWidget("InnerCalc2", tab, angles.at(1).inner_angle);
     ShuffleUI::MakeWidget("OutterCalc2", tab, angles.at(1).outter_angle);
     ShuffleUI::MakeWidget("SecondSolution?", tab, true);
-    //add the chooser here to choose which one to do
-    //have a button if you want manual here btw...
-    
     if(isManualMove) {
-      //innerPID.SetReference(angles.at(optimalSolutionID).inner_angle, rev::CANSparkMax::ControlType::kPosition);
+      innerPID.SetReference(angles.at(optimalSolutionID).inner_angle, rev::CANSparkMax::ControlType::kPosition);
       outterPID.SetReference(angles.at(optimalSolutionID).outter_angle, rev::CANSparkMax::ControlType::kPosition);
     } else {
       moveProfiled(angles.at(optimalSolutionID).inner_angle, angles.at(optimalSolutionID).outter_angle);
@@ -306,7 +303,7 @@ void ScaraArmModule::movetoXY(double x, double y, bool isManualMove) {
    
   } else {
     if(isManualMove) {
-      //innerPID.SetReference(angles.at(0).inner_angle, rev::CANSparkMax::ControlType::kPosition);
+      innerPID.SetReference(angles.at(0).inner_angle, rev::CANSparkMax::ControlType::kPosition);
       outterPID.SetReference(angles.at(0).outter_angle, rev::CANSparkMax::ControlType::kPosition);
     } else {
       moveProfiled(angles.at(0).inner_angle, angles.at(0).outter_angle);
@@ -569,7 +566,6 @@ void ScaraArmModule::checkArmBounds(double outter_pos, double outter_neg, double
 
 void ScaraArmModule::jstickArmMovement(double jstickX, double jstickY) {
   double factor = 0.5;
-  //isManualMove = true;
   innerPID.SetOutputRange(-0.1, 0.1);
   outterPID.SetOutputRange(-0.1, 0.1);
   if (XYInRange(currentPosition.armX + (jstickX * factor), currentPosition.armY + (jstickY * factor))) {
@@ -583,29 +579,9 @@ void ScaraArmModule::jstickArmMovement(double jstickX, double jstickY) {
   else {
     ShuffleUI::MakeWidget("InnerSet", tab, atan2(jstickY, jstickX) * 180 / PI);
     ShuffleUI::MakeWidget("OutterSet", tab, 0);
-    //innerPID.SetReference(atan2(jstickY, jstickX) * 180 / PI, rev::ControlType::kPosition);
+    innerPID.SetReference(atan2(jstickY, jstickX) * 180 / PI, rev::ControlType::kPosition);
     outterPID.SetReference(0, rev::ControlType::kPosition);
-   //moveProfiled(atan2(currentPosition.armY + (jstickY * factor), currentPosition.armX + (jstickX * factor)) * 180 / PI, 0);
-    /*
-    ShuffleUI::MakeWidget("Invalid?", tab, 1);
-    //
-    
-    currentPosition.armX += jstickX * factor;
-    currentPosition.armY += jstickY * factor;
-
-    PointXY newSetPt = getCircleLineInt(innerSize + outterSize, currentPosition.armX, currentPosition.armY);
-    
-    ShuffleUI::MakeWidget("NewX", tab, newSetPt.x);
-    ShuffleUI::MakeWidget("NewY", tab, newSetPt.y);
-
-
-    
-    movetoXY(newSetPt.x, newSetPt.y, true);
-    frc::SmartDashboard::PutBoolean("Invalid Point", true);
-    */
-    
   }
-  //isManualMove = false;
 }
 
 void ScaraArmModule::movetoPole(Limelight::poleIDs poleID) {
