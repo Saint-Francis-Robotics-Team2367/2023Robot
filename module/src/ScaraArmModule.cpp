@@ -705,7 +705,7 @@ void ScaraArmModule::run(){
           ShuffleUI::MakeWidget("InnerAngle", tab, inner_enc.GetPosition());
           ShuffleUI::MakeWidget("OutterAngle", tab, outter_enc.GetPosition());
 
-          //ShuffleboardScorer();
+
 
 
           ShuffleUI::MakeWidget("CurrentInner", tab, inner->GetOutputCurrent());
@@ -746,6 +746,7 @@ void ScaraArmModule::run(){
           }
           else
           {
+            //ShuffleboardScorer();
           }
         }
 
