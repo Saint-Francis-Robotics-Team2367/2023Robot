@@ -578,7 +578,6 @@ void ScaraArmModule::jstickArmMovement(double jstickX, double jstickY) {
     ShuffleUI::MakeWidget("SetX", tab, currentPosition.armX);
     ShuffleUI::MakeWidget("SetY", tab, currentPosition.armY);
     movetoXY(currentPosition.armX, currentPosition.armY, true);
-    //frc::SmartDashboard::PutBoolean("Invalid Point", false);
     ShuffleUI::MakeWidget("Invalid?", tab, 0);
   }
   else {
@@ -671,9 +670,9 @@ ScaraArmModule::PointXY ScaraArmModule::getCircleLineInt(double r, double currX,
 void ScaraArmModule::run(){
    runInit();
    test = true;
-   bool manualMove = false;
    bool isZero = false;
    bool teleopInit = true; //Run the init if condition in the teleop if condition
+   bool enableManualXY = false;
 
    int counter = 0;
     while(true) {
@@ -694,9 +693,8 @@ void ScaraArmModule::run(){
         if(state == 't') {
           if (teleopInit) {
             inner_enc.SetPosition(0);
-            outter_enc.SetPosition(0);
-            currentPosition.armX = xy.at(0);
-            currentPosition.armY = xy.at(1);
+            outter_enc.SetPosition(0); //Replace with stow
+
             teleopInit = false;
           }
 
@@ -708,7 +706,7 @@ void ScaraArmModule::run(){
           //  outter->Set(ctr->GetLeftTriggerAxis()/ 5);
 
           // // Teleop 2
-          grabber->toggle(ctrOperator->GetBButtonPressed());
+          grabber->toggleTwo(ctrOperator->GetBButtonPressed()); //Only Open/Close
           ShuffleUI::MakeWidget("Grabber", tab, grabber->grab_enc.GetPosition());
 
           ShuffleUI::MakeWidget("InnerAngle", tab, inner_enc.GetPosition());
@@ -721,28 +719,38 @@ void ScaraArmModule::run(){
           if (ctrOperator->GetLeftBumper()) {
             
 
-            if (ctrOperator->GetYButtonPressed()) {
-              outterPID.SetReference(-17.0f, rev::CANSparkMax::ControlType::kPosition);
-                
-
-            }
-            if (ctrOperator->GetYButtonReleased()) {
-              innerPID.SetReference(-130.0f, rev::CANSparkMax::ControlType::kPosition);
-            }
-
-            if (ctrOperator->GetXButtonPressed()) {
+            if (ctrOperator->GetYButtonPressed()) 
+            {
               outterPID.SetReference(-17.0f, rev::CANSparkMax::ControlType::kPosition);
             } 
-            if (ctrOperator->GetXButtonReleased()) {
+            else if (ctrOperator->GetYButtonReleased()) 
+            {
+              innerPID.SetReference(-130.0f, rev::CANSparkMax::ControlType::kPosition);
+            } 
+            else if (ctrOperator->GetXButtonPressed()) 
+            {
+              outterPID.SetReference(-17.0f, rev::CANSparkMax::ControlType::kPosition);
+            }
+            else if (ctrOperator->GetXButtonReleased()) 
+            {
               innerPID.SetReference(0, rev::CANSparkMax::ControlType::kPosition);
             }
 
+            
+
             //jstickArmMovement(ctrOperator->GetLeftX(), -ctrOperator->GetLeftY());
-            manualMove = true;
             
           } 
           else if (ctrOperator->GetRightBumper()) 
           {
+              std::vector<double> xy = Angles_to_XY(inner_enc.GetPosition(), outter_enc.GetPosition());
+              currentPosition.armX = xy.at(0);
+              currentPosition.armY = xy.at(1);
+            
+            if (enableManualXY) {
+              jstickArmMovement(ctrOperator->GetLeftX(), -ctrOperator->GetLeftY());
+            }
+            
           }
 
                     else if (ctrOperator->GetXButton())
@@ -803,11 +811,12 @@ void ScaraArmModule::run(){
             //moveProfiled(inner_enc.GetPosition(), outter_enc.GetPosition() - 20);
             //movetoXY(0, 0, false);
             ShuffleUI::MakeWidget("DONE", tab, 1);
-              isZero = true;
-            }
+            isZero = true;
+          }
             ShuffleUI::MakeWidget("InnerAngle", tab, clampAngle(inner_enc.GetPosition()));
             ShuffleUI::MakeWidget("OutterAngle", tab, clampAngle(outter_enc.GetPosition()));
             teleopInit = true;
+
             
             
           
