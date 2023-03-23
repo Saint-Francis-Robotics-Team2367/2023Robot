@@ -424,49 +424,6 @@ bool DriveBaseModule::PIDTurn(float angle, float radius, bool keepVelocity) { //
   return true;
 }
 
-void DriveBaseModule::initPath() {  // only initiliazing; maybe move this to "a" state section instead?
-  // choosing an autonomous path 
-  frc::SendableChooser<std::string> chooser;
-  const std::string autoDefault = "Default";
-  const std::string autoCustom = "Path 1"; // define more variables if there are more custom paths 
-  std::string selected; 
-
-  // custom path 1 points 
-  autoPath a1(autoPathType::straight); 
-  a1.register_straight(2); 
-
-  autoPath b1(autoPathType::turn); 
-  b1.register_turn(90, 2);
-
-  autoPath c1(autoPathType::turn); 
-  c1.register_turn(-45, 1);
-
-  autoPath d1(autoPathType::turn); 
-  d1.register_turn(360, 0);
-
-  selected = chooser.GetSelected();
-
-  // below code is for having multiple paths (only coded for drive so far); maybe sort it out later after making the rest work 
-
-  // changes the default path to a custom one based on what is selected 
-  // make sure the autopath types in the list match the point types
-  /* if (selected == autoCustom){
-    autoPath path[4] = {
-    autoPath(autoPathType::straight),
-    autoPath(autoPathType::turn),
-    autoPath(autoPathType::turn),
-    autoPath(autoPathType::turn),
-    };
-
-    path[0] = a1; 
-    path[1] = b1; 
-    path[2] = c1; 
-    path[3] = d1; 
-
-    numSteps = 4; 
-  } */
-}
-
 void DriveBaseModule::autoDrive(float totalFeetSent, bool keepVelocitySent) {
   totalFeet = totalFeetSent;
   keepVelocityDrive = keepVelocitySent;

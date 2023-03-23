@@ -19,6 +19,10 @@ double ElevatorModule::manualMove(double Linput, double Rinput) {
     return (R - L) / slowCoefficient; 
 }
 
+void ElevatorModule::setAutoLimit(){
+    forwardSwitch.EnableLimitSwitch(true);
+}
+
 double ElevatorModule::getPos() {
     return enc.GetPosition();
 }
@@ -45,6 +49,7 @@ bool ElevatorModule::setPos(double setpoint, bool isMotionProfiled) {
         elevatorPID.SetD(dDown);
         down = true;
     }
+    setAutoLimit(); 
     while(fabs(currentPosition - setpoint) > 0){ //40 < 20, fix this on arm too!!!!!! while(fabs(currentPosition) < fabs(setpoint)){
         if(stopAuto) {
           break;

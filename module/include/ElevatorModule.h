@@ -3,8 +3,9 @@
 #include <frc/SmartDashboard/SmartDashboard.h>
 #include <thread>
 #include <chrono>
-#include<mutex>
-#include<frc/XboxController.h>
+#include <mutex>
+#include <frc/XboxController.h>
+#include <rev/SparkMaxLimitSwitch.h>
 #include <atomic>
 #include <frc/Timer.h>
 #define triggerDeadband 0.1
@@ -44,6 +45,7 @@ class ElevatorModule {
     rev::CANSparkMax* elevatorMotor = new rev::CANSparkMax(elevatorID, rev::CANSparkMax::MotorType::kBrushless);
     rev::SparkMaxRelativeEncoder enc = elevatorMotor->GetEncoder();
     rev::SparkMaxPIDController elevatorPID = elevatorMotor->GetPIDController();
+    rev::SparkMaxLimitSwitch forwardSwitch = elevatorMotor->GetForwardLimitSwitch(rev::SparkMaxLimitSwitch::Type::kNormallyOpen);
 
     double height = 0; //starting the elevator at 0 (no absolute encoder)
 
@@ -78,6 +80,7 @@ class ElevatorModule {
     double manualMove(double Linput, double Rinput);
     void setPos(double setpoint);
     bool setPos(double setpoint, bool isMotionProfiled);
+    void setAutoLimit(); 
     double getHeight();
     void run();
     void runInit();
