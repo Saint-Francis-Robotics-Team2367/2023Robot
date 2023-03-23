@@ -294,6 +294,8 @@ void ScaraArmModule::movetoXY(double x, double y, bool isManualMove) {
     ShuffleUI::MakeWidget("OutterCalc2", tab, angles.at(1).outter_angle);
     ShuffleUI::MakeWidget("SecondSolution?", tab, true);
     if(isManualMove) {
+          
+      ShuffleUI::MakeWidget("SolID", tab, optimalSolutionID);
       innerPID.SetReference(angles.at(optimalSolutionID).inner_angle, rev::CANSparkMax::ControlType::kPosition);
       outterPID.SetReference(angles.at(optimalSolutionID).outter_angle, rev::CANSparkMax::ControlType::kPosition);
     } else {
@@ -565,7 +567,7 @@ void ScaraArmModule::checkArmBounds(double outter_pos, double outter_neg, double
 }
 
 void ScaraArmModule::jstickArmMovement(double jstickX, double jstickY) {
-  double factor = 0.5;
+  double factor = 1;
   innerPID.SetOutputRange(-0.1, 0.1);
   outterPID.SetOutputRange(-0.1, 0.1);
   if (XYInRange(currentPosition.armX + (jstickX * factor), currentPosition.armY + (jstickY * factor))) {
@@ -668,14 +670,14 @@ void ScaraArmModule::run(){
 
         if(state == 't') {
           if (teleopInit) {
-            inner_enc.SetPosition(0);
-            outter_enc.SetPosition(0); //Replace with stow
+            inner_enc.SetPosition(stowInner);
+            outter_enc.SetPosition(stowOutter); //Replace with stow
             teleopInit = false;
           }
 
           frc::SmartDashboard::PutBoolean("in telo scara", true);
 
-          grabber->toggleTwo(ctrOperator->GetBButtonPressed()); //Only Open/Close
+          //grabber->toggleTwo(ctrOperator->GetBButtonPressed()); //Only Open/Close
 
           ShuffleUI::MakeWidget("Grabber", tab, grabber->grab_enc.GetPosition());
           ShuffleUI::MakeWidget("InnerAngle", tab, inner_enc.GetPosition());
@@ -690,20 +692,27 @@ void ScaraArmModule::run(){
 
             if (ctrOperator->GetYButtonPressed()) 
             {
-              outterPID.SetReference(-17.0f, rev::CANSparkMax::ControlType::kPosition);
+              inner_enc.SetPosition(stowInner);
+              outter_enc.SetPosition(stowOutter); //Replace with stow
+              teleopInit = false;
+              outterPID.SetReference(stowOutter-17.0f, rev::CANSparkMax::ControlType::kPosition);
             } 
             else if (ctrOperator->GetYButtonReleased()) 
             {
-              innerPID.SetReference(-130.0f, rev::CANSparkMax::ControlType::kPosition);
+              innerPID.SetReference(stowInner-130.0f, rev::CANSparkMax::ControlType::kPosition);
               setManualXY = true;
+
             } 
             else if (ctrOperator->GetXButtonPressed()) 
             {
-              outterPID.SetReference(-17.0f, rev::CANSparkMax::ControlType::kPosition);
+              outterPID.SetReference(stowOutter-17.0f, rev::CANSparkMax::ControlType::kPosition);
+              innerPID.SetReference(180 + (180 + stowInner), rev::CANSparkMax::ControlType::kPosition);
             }
             else if (ctrOperator->GetXButtonReleased()) 
             {
-              innerPID.SetReference(0, rev::CANSparkMax::ControlType::kPosition);
+             //inner->Set(0.1);
+              outterPID.SetReference(stowOutter, rev::CANSparkMax::ControlType::kPosition);
+              
             }
 
 
@@ -711,12 +720,21 @@ void ScaraArmModule::run(){
           else if (ctrOperator->GetRightBumper()) 
           {
               if (setManualXY) {
-                std::vector<double> xy = Angles_to_XY(inner_enc.GetPosition(), outter_enc.GetPosition());
+                ShuffleUI::MakeWidget("Clamped", tab, clampAngle(inner_enc.GetPosition()));
+                inner_enc.SetPosition(clampAngle(inner_enc.GetPosition()));
+                innerPID.SetReference(clampAngle(inner_enc.GetPosition()), rev::CANSparkMax::ControlType::kPosition);
+                //outter_enc.SetPosition(clampAngle(outter_enc.GetPosition()));
+                std::vector<double> xy = Angles_to_XY(clampAngle(inner_enc.GetPosition()), clampAngle(outter_enc.GetPosition()));
                 currentPosition.armX = xy.at(0);
                 currentPosition.armY = xy.at(1);
+                ShuffleUI::MakeWidget("StartX", tab, currentPosition.armX);
+                ShuffleUI::MakeWidget("StartY", tab, currentPosition.armY);
                 setManualXY = false;
               }
-              
+              //movetoXY(innerSize, outterSize, true);
+              std::vector<double> xy = Angles_to_XY(clampAngle(inner_enc.GetPosition()), clampAngle(outter_enc.GetPosition()));
+              currentPosition.armX = xy.at(0);
+              currentPosition.armY = xy.at(1);
               jstickArmMovement(ctrOperator->GetLeftX(), -ctrOperator->GetLeftY());
             
           }
