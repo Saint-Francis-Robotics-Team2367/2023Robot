@@ -694,21 +694,14 @@ void ScaraArmModule::run(){
           if (teleopInit) {
             inner_enc.SetPosition(0);
             outter_enc.SetPosition(0); //Replace with stow
-
             teleopInit = false;
           }
 
           frc::SmartDashboard::PutBoolean("in telo scara", true);
 
-          // // frc::SmartDashboard::PutNumber("left y scara arm", ctr->GetLeftY());
-          //   inner->Set(ctr->GetRightTriggerAxis() / 5);
-          // // frc::SmartDashboard::PutNumber("right y", ctr->GetRightY());
-          //  outter->Set(ctr->GetLeftTriggerAxis()/ 5);
-
-          // // Teleop 2
           grabber->toggleTwo(ctrOperator->GetBButtonPressed()); //Only Open/Close
-          ShuffleUI::MakeWidget("Grabber", tab, grabber->grab_enc.GetPosition());
 
+          ShuffleUI::MakeWidget("Grabber", tab, grabber->grab_enc.GetPosition());
           ShuffleUI::MakeWidget("InnerAngle", tab, inner_enc.GetPosition());
           ShuffleUI::MakeWidget("OutterAngle", tab, outter_enc.GetPosition());
 
@@ -737,10 +730,7 @@ void ScaraArmModule::run(){
               innerPID.SetReference(0, rev::CANSparkMax::ControlType::kPosition);
             }
 
-            
 
-            //jstickArmMovement(ctrOperator->GetLeftX(), -ctrOperator->GetLeftY());
-            
           } 
           else if (ctrOperator->GetRightBumper()) 
           {
@@ -752,53 +742,11 @@ void ScaraArmModule::run(){
               }
               
               jstickArmMovement(ctrOperator->GetLeftX(), -ctrOperator->GetLeftY());
-
             
-          }
-
-          else if (ctrOperator->GetXButton())
-          {
-            std::vector<double> targetPose = ll.getTargetPoseRobotSpace();
-            Limelight::Point targetXY = ll.getTargetXY(targetPose.at(0) * 39.37, targetPose.at(2) * 39.37, targetPose.at(4), ll.bottomLeftPole); // X, Y, yaw, poleID
-            ShuffleUI::MakeWidget("TapeX", tab, targetXY.x);
-            ShuffleUI::MakeWidget("TapeY", tab, targetXY.y);
-            //movetoXY(targetXY.x, targetXY.y, false);
           }
           else
           {
           }
-
-          // std::vector<double> targetPose = ll.getTargetPoseRobotSpace();
-          // Limelight::Point targetXY = ll.getTargetXY(targetPose.at(0) * 39.37, targetPose.at(2) * 39.37, targetPose.at(4), Limelight::bottomRightPole); // X, Y, yaw, poleID
-          // frc::SmartDashboard::PutNumber("TapeX", targetXY.x);
-          // frc::SmartDashboard::PutNumber("TapeY", targetXY.y);
-          // frc::SmartDashboard::PutNumber("Detected?", ll.getTargetDetected());
-          // //if (ll.getTargetDetected()) {
-          // if (ctr->GetAButton()) {
-          //   movetoXY(targetXY.x, targetXY.y, false);
-          // }
-          // ShuffleUI::MakeWidget("armX", tab, currentPosition.armX);
-          // ShuffleUI::MakeWidget("armY", tab, currentPosition.armY);
-          // movetoXY(currentPosition.armX, currentPosition.armY, manualMove);
-          
-
-
-          //Teleop 3
-          // if (ctr->GetAButton()) {
-          //   std::vector<double> targetPose = ll.getTargetPoseRobotSpace();
-          //   Limelight::Point targetXY = ll.getTargetXY(targetPose.at(0) * 39.37, targetPose.at(2) * 39.37, targetPose.at(4), Limelight::bottomRightPole); // X, Y, yaw, poleID
-          //   frc::SmartDashboard::PutNumber("TapeX", targetXY.x);
-          //   frc::SmartDashboard::PutNumber("TapeY", targetXY.y);
-          //   movetoXY(targetXY.x, targetXY.y);
-
-          // } else {
-          //   inner->Set(0);
-          //   outter->Set(0);
-          // }
-
-
-          //Grabber
-          //grabber.set(ctr->GetLeftTriggerAxis() - ctr->GetRightTriggerAxis());
         }
 
         if(state == 'a' ) {
