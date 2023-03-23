@@ -188,19 +188,19 @@ void ElevatorModule::run() {
             }
             
             //need this line for down movement to work? also is manual, could replace triggers with 0, 0 and it works
-            TeleopPeriodic(ctrOperator->GetLeftTriggerAxis(), ctrOperator->GetRightTriggerAxis()); //for some reason either need this or teleop periodic for moving downwards to work
+            //TeleopPeriodic(ctrOperator->GetLeftTriggerAxis(), ctrOperator->GetRightTriggerAxis()); //for some reason either need this or teleop periodic for moving downwards to work
             
         }
         if(state == 'a') {
             //AutoPeriodic();
-            if(test) {
-                setPos(25, true);
-                test = false;
-            }
-            if(oneRun && !test) {
-                setPos(0, true);
-                oneRun = false;
-            }
+            // if(test) {
+            //     setPos(25, true);
+            //     test = false;
+            // }
+            // if(oneRun && !test) {
+            //     setPos(0, true);
+            //     oneRun = false;
+            // }
             ShuffleUI::MakeWidget("left trigger", tab, ctr->GetLeftTriggerAxis());
         }
         std::this_thread::sleep_until(nextRun);

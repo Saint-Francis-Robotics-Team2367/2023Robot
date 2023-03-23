@@ -49,6 +49,9 @@ void Robot::TeleopInit() {
 void Robot::TeleopPeriodic() {}
 
 void Robot::DisabledInit() {
+  arm.state = 'd';
+  // drive.state = 'd';
+  // elev.state = 'd';
 }
 
 void Robot::DisabledPeriodic() {}

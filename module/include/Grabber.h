@@ -8,6 +8,7 @@ class Grabber {
     rev::CANSparkMax* grabberMotor = new rev::CANSparkMax(grabberID, rev::CANSparkMax::MotorType::kBrushless);
     rev::SparkMaxPIDController grabberPID = grabberMotor->GetPIDController();
     rev::SparkMaxRelativeEncoder grab_enc = grabberMotor->GetEncoder();
+    rev::SparkMaxLimitSwitch grabSwitch = grabberMotor->GetForwardLimitSwitch(rev::SparkMaxLimitSwitch::Type::kNormallyOpen);
 
     bool state = true;// T = closed, F = open
     double openState = -18;
