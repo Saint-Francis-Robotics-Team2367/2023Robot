@@ -490,6 +490,19 @@ void DriveBaseModule::initPath() {
   //pathOrder.push_back(true);
 }
 
+void DriveBaseModule::autoDrive(float totalFeetSent, bool keepVelocitySent) {
+  totalFeet = totalFeetSent;
+  keepVelocityDrive = keepVelocitySent;
+  isRunningAutoDrive = true; //do it here
+}
+
+void DriveBaseModule::autoTurn(float angle, float radius, bool keepVelocity) {
+  this->angle = angle;
+  this->radius = radius;
+  this->keepVelocityTurn = keepVelocityTurn;
+  isRunningAutoTurn = true; //do it here
+}
+
 void DriveBaseModule::autonomousSequence() {
   initPath();
   int index = 0;
@@ -577,22 +590,27 @@ void DriveBaseModule::run() {
 
     //need mutex to stop
 
-    if(state == 'a') { //ik I have access to isAutonomous
-    //   stopAuto = false;
-    //   if(test) {
-    //       //autonomousSequence();
-    //       //PIDDrive(-7, false);
-    //       PIDTurn(-110, 0, false);
-    //       PIDTurn(110, 0, false);
+ if(state == 'a') {
+      if(isRunningAutoTurn) { //default false
+        isRunningAutoTurn = false;
+        isFinished = PIDTurn(angle, radius, keepVelocityTurn);
+        frc::SmartDashboard::PutBoolean("isRunningAutoTurn", isRunningAutoTurn);
+      }
 
-    //     test = false;
-    //   }
-    //   // elev->AutoPeriodic();
-      
-    // } else {
-    //   test = true;
-    //   stopAuto = true;
-    }
+      if(isRunningAutoDrive) {
+        isRunningAutoDrive = false;
+        isFinished = PIDDrive(totalFeet, keepVelocityDrive);
+        // PIDDrive(totalFeet, keepVelocityDrive);
+        // isFinished = true;
+        frc::SmartDashboard::PutBoolean("isFinished", isFinished);
+        frc::SmartDashboard::PutBoolean("isRunningAutoDrive", isRunningAutoDrive);
+
+      }
+
+      if(balancing) {
+        autoBalance();
+      }
+
 
     if(state == 't') {
       //perioidic routines
@@ -620,6 +638,7 @@ void DriveBaseModule::run() {
     //ADJUST NEXT RUN MAYBE
     std::this_thread::sleep_until(nextRun); //need this here so thread runs every 5 ms, might be faster than PID controller look into it
   }
+}
 }
 
 

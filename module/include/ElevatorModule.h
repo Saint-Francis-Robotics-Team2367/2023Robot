@@ -9,7 +9,7 @@
 #include <frc/Timer.h>
 #include "IntakeModule.h"
 #define triggerDeadband 0.1
-#define PI 3.1415926
+#define PI 3.141592654 // 3.1415926
 
 #pragma once
 
@@ -28,6 +28,12 @@ class ElevatorModule {
     char state = 't';
     double stopAuto = false;
     bool test = true;
+
+    bool isRunningAuto = false;
+    bool isFinished = false;
+    double autoAmount = 0;
+    void autoSet(double setpoint);
+
 
     void zeroAtTop();
 
@@ -87,4 +93,5 @@ class ElevatorModule {
     double getHeight();
     void run();
     void runInit();
+    private:
 };

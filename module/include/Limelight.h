@@ -7,7 +7,7 @@
 #include <LimelightHelpers.h>
 #include <frc/SmartDashboard/SmartDashboard.h>
 
-#define PI 3.14159265359
+#define PI 3.141592654 // 3.14159265359
 
 
 class Limelight {

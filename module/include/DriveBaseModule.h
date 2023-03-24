@@ -42,7 +42,7 @@
 // #define maxVelocity = 21.0
 
 class DriveBaseModule{ //needed for gyroPIDDrive implementation
-
+public: 
   AHRS *ahrs; //needs to be intialized in constructor
 
 
@@ -50,7 +50,21 @@ class DriveBaseModule{ //needed for gyroPIDDrive implementation
 
   //ScaraArmModule* arm = new ScaraArmModule();
 
-  
+  bool isRunningAutoTurn = false;
+  bool isRunningAutoDrive = false;
+
+  bool keepVelocityDrive = false;
+  float totalFeet = 0;
+  float angle = 0;
+  float radius = 0;
+  bool keepVelocityTurn = false;
+
+  bool isFinished = false; 
+  bool balancing = false;
+
+  void autoDrive(float totalFeet, bool keepVelocity);
+  void autoTurn(float angle, float radius, bool keepVelocity);
+
 
   double maxAcc =  20.0;
   double maxVelocity = 30.0;
@@ -83,7 +97,7 @@ class DriveBaseModule{ //needed for gyroPIDDrive implementation
   bool setPowerBudget(rev::CANSparkMax* motor, float iPeak, float iRated, int limitCycles); //changes the current limits on the motors 
   bool setDriveCurrLimit(float iPeak, float iRated, int limitCycles);
 
-  public: 
+  
   std::thread driveThread;
   double stopAuto = false;
   DriveBaseModule(); 

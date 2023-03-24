@@ -1,15 +1,12 @@
 #include <frc/SmartDashboard/SendableChooser.h>
 #include <string> 
 
-#ifndef Paths.h
-#define Paths.h
-
 enum autoPathType
 {
-    turn = 't',
+    turn = 't', 
     straight = 's', 
-    elev = 'e',
-    arm = 'a'
+    elev = 'e', 
+    arm = 'a' 
 };
 
 class autoPath {
@@ -47,10 +44,7 @@ class autoPath {
             arm_x = x; 
             arm_y = y; 
         };
-    private:
 };
-
-#endif
 
 
 

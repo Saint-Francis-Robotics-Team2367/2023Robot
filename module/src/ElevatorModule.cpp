@@ -146,6 +146,11 @@ void ElevatorModule::AutoPeriodic() {
         ShuffleUI::MakeWidget("height", tab, height);
 }
 
+void ElevatorModule::autoSet(double setpoint) {
+    autoAmount = setpoint;
+    isRunningAuto = true;
+}
+
 void ElevatorModule::zeroAtTop() {
     //if (forward)
         elevatorMotor->Set(0.3);
@@ -194,18 +199,12 @@ void ElevatorModule::run() {
             
         }
         if(state == 'a') {
-            //AutoPeriodic();
-            // if(test) {
-            //     setPos(25, true);
-            //     test = false;
-            // }
-            // if(oneRun && !test) {
-            //     setPos(0, true);
-            //     oneRun = false;
-            // }
-            ShuffleUI::MakeWidget("left trigger", tab, ctr->GetLeftTriggerAxis());
+            if(isRunningAuto) {
+               isFinished = setPos(autoAmount, true);
+               isRunningAuto = false;
+            }
         }
         std::this_thread::sleep_until(nextRun);
     }
 
-}
+};
