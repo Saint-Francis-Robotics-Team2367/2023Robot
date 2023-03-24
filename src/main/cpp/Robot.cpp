@@ -110,80 +110,80 @@ void Robot::AutonomousInit() {
 }
 void Robot::AutonomousPeriodic() {
 
-   int index = 0; 
+  //  int index = 0; 
 
-  int numSteps = 5; // CHANGE DEPENDING ON LENGTH OF PATH LIST! 
-  float angle, radius; 
+  // int numSteps = 5; // CHANGE DEPENDING ON LENGTH OF PATH LIST! 
+  // float angle, radius; 
 
-  if(index < numSteps){
-     switch(path[index].action){
-       case 's': // driving straight
+  // if(index < numSteps){
+  //    switch(path[index].action){
+  //      case 's': // driving straight
       
-        if(!isStage) { // if its not currently driving 
-          drive.autoDrive(path[index].dis, path[index].keepVelocity);
-          isStage = true; 
-          frc::SmartDashboard::PutBoolean("in stage drive", isStage); 
-          frc::SmartDashboard::PutBoolean("is finished", drive.isFinished);
-          frc::SmartDashboard::PutNumber("dis", path[index].dis);
-        } 
+  //       if(!isStage) { // if its not currently driving 
+  //         drive.autoDrive(path[index].dis, path[index].keepVelocity);
+  //         isStage = true; 
+  //         frc::SmartDashboard::PutBoolean("in stage drive", isStage); 
+  //         frc::SmartDashboard::PutBoolean("is finished", drive.isFinished);
+  //         frc::SmartDashboard::PutNumber("dis", path[index].dis);
+  //       } 
         
-        if (drive.isFinished){ // once drive is finished 
-          isStage = false; 
-          drive.isFinished = false; 
-        }
-        break; 
+  //       if (drive.isFinished){ // once drive is finished 
+  //         isStage = false; 
+  //         drive.isFinished = false; 
+  //       }
+  //       break; 
 
-      case 't': // turn
-        if (!isStage){
-          angle = path[index].angle; 
-          radius = path[index].radius; 
-          frc::SmartDashboard::PutNumber("angle", angle); 
-          frc::SmartDashboard::PutNumber("radius", radius);
+  //     case 't': // turn
+  //       if (!isStage){
+  //         angle = path[index].angle; 
+  //         radius = path[index].radius; 
+  //         frc::SmartDashboard::PutNumber("angle", angle); 
+  //         frc::SmartDashboard::PutNumber("radius", radius);
 
-          if (angle > 0){ // robot starts at 180 deg for right turns 
-            angle = -(angle - 180);
-          }
+  //         if (angle > 0){ // robot starts at 180 deg for right turns 
+  //           angle = -(angle - 180);
+  //         }
 
-          drive.autoTurn(angle, radius, path[index].keepVelocity);
-          isStage = true; 
-        }
+  //         drive.autoTurn(angle, radius, path[index].keepVelocity);
+  //         isStage = true; 
+  //       }
         
-        if (drive.isFinished ){
-          isStage = false; 
-          drive.isFinished = false; 
-        }
+  //       if (drive.isFinished ){
+  //         isStage = false; 
+  //         drive.isFinished = false; 
+  //       }
         
-        break; 
+  //       break; 
 
-      case 'e': // elevator
-        if (!isStage){
-          elevator.autoSet(path[index].setpoint); 
-          isStage = true; 
-          frc::SmartDashboard::PutBoolean("in stage elev", isStage); 
-        }
+  //     case 'e': // elevator
+  //       if (!isStage){
+  //         elevator.autoSet(path[index].setpoint); 
+  //         isStage = true; 
+  //         frc::SmartDashboard::PutBoolean("in stage elev", isStage); 
+  //       }
 
-        if (elevator.isFinished){
-          isStage = false; 
-          elevator.isFinished = false; 
-        }
+  //       if (elevator.isFinished){
+  //         isStage = false; 
+  //         elevator.isFinished = false; 
+  //       }
         
-        break;
+  //       break;
 
-      case 'a': // arm 
+  //     case 'a': // arm 
         
-        //scaraArm.movetoXY(path[index].arm_x, path[index].arm_y); 
-        break; 
+  //       //scaraArm.movetoXY(path[index].arm_x, path[index].arm_y); 
+  //       break; 
 
-      default: 
-        break; 
-    }
+  //     default: 
+  //       break; 
+  //   }
     
-    if (!isStage){
-        index++;
-    }
+  //   if (!isStage){
+  //       index++;
+  //   }
 
      
-  }
+  // }
 
      
   }
