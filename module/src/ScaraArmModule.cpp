@@ -556,11 +556,12 @@ bool ScaraArmModule::XYInRange(double x, double y) {
   double circle_x = 0;
   double circle_y = 0;
   double rad = outterSize + innerSize;
-  if ((x - circle_x) * (x - circle_x) +
-        (y - circle_y) * (y - circle_y) <= rad * rad)
-        return true;
-    else
-        return false;
+  if ((x - circle_x) * (x - circle_x) + (y - circle_y) * (y - circle_y) <= rad * rad) {
+    return true;
+  }
+  else {
+    return false;
+  }
   //Check if x,y is valid 
 
 }
@@ -746,14 +747,12 @@ void ScaraArmModule::run(){
             {
              //inner->Set(0.1);
               outterPID.SetReference(stowOutter, rev::CANSparkMax::ControlType::kPosition);
-              
             }
-
-
           } 
           else if (teleopMode == 2) 
           {
-              if (setManualXY) {
+              if (setManualXY) 
+              {
                 inner_enc.SetPosition(clampAngle(inner_enc.GetPosition()));
                 innerPID.SetReference(clampAngle(inner_enc.GetPosition()), rev::CANSparkMax::ControlType::kPosition);
                 std::vector<double> xy = Angles_to_XY(clampAngle(inner_enc.GetPosition()), clampAngle(outter_enc.GetPosition()));
@@ -761,7 +760,6 @@ void ScaraArmModule::run(){
                 currentPosition.armY = xy.at(1);
                 setManualXY = false;
               }
-              //movetoXY(innerSize, outterSize, true);
               std::vector<double> xy = Angles_to_XY(clampAngle(inner_enc.GetPosition()), clampAngle(outter_enc.GetPosition()));
               currentPosition.armX = xy.at(0);
               currentPosition.armY = xy.at(1);
@@ -806,8 +804,6 @@ void ScaraArmModule::run(){
                 double leftX = deadZoneCtr(ctrOperator->GetLeftX());
                 double leftY = deadZoneCtr(ctrOperator->GetLeftY());
                 jstickArmMovement(-leftX, leftY);
-
-                
               }
           }
           else
