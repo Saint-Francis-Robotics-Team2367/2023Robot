@@ -288,21 +288,18 @@ void ScaraArmModule::movetoXY(double x, double y, bool isManualMove) {
     } else {
       optimalSolutionID = 0;
     }
+    ShuffleUI::MakeWidget("SolID", tab, optimalSolutionID);
     
     
     ShuffleUI::MakeWidget("InnerCalc2", tab, angles.at(1).inner_angle);
     ShuffleUI::MakeWidget("OutterCalc2", tab, angles.at(1).outter_angle);
     ShuffleUI::MakeWidget("SecondSolution?", tab, true);
     if(isManualMove) {
-          
-      ShuffleUI::MakeWidget("SolID", tab, optimalSolutionID);
       innerPID.SetReference(angles.at(optimalSolutionID).inner_angle, rev::CANSparkMax::ControlType::kPosition);
       outterPID.SetReference(angles.at(optimalSolutionID).outter_angle, rev::CANSparkMax::ControlType::kPosition);
     } else {
       moveProfiled(angles.at(optimalSolutionID).inner_angle, angles.at(optimalSolutionID).outter_angle);
     }
-    
-   
   } else {
     if(isManualMove) {
       innerPID.SetReference(angles.at(0).inner_angle, rev::CANSparkMax::ControlType::kPosition);
@@ -489,6 +486,28 @@ void ScaraArmModule::ShuffleboardScorer() {
   }
 }
 
+void ScaraArmModule::CtrScorer() {
+
+
+  if (ctrOperator->GetAButtonPressed() && (ctrOperator->GetLeftTriggerAxis() > 0.5)) {
+    movetoPole(ll.bottomLeftPole);
+    ShuffleUI::MakeWidget("Score", "ArmtoElev", ll.bottomLeftPole);
+
+  } else if (ctrOperator->GetBButtonPressed() && (ctrOperator->GetLeftTriggerAxis() > 0.5)) {
+    movetoPole(ll.topLeftPole);
+    ShuffleUI::MakeWidget("Score", "ArmtoElev", ll.topLeftPole);
+
+  } else if (ctrOperator->GetAButtonPressed() && (ctrOperator->GetRightTriggerAxis() > 0.5)) {
+    movetoPole(ll.bottomRightPole);
+    ShuffleUI::MakeWidget("Score", "ArmtoElev", ll.bottomRightPole);
+
+  } else if (ctrOperator->GetBButtonPressed() && (ctrOperator->GetRightTriggerAxis() > 0.5)) {
+    movetoPole(ll.topRightPole);
+    ShuffleUI::MakeWidget("Score", "ArmtoElev", ll.topRightPole);
+  }
+
+}
+
 void ScaraArmModule::TeleopControl() {
   //Temporary for One Controller Control
   inner->Set((ctr->GetRightTriggerAxis() - ctr->GetLeftTriggerAxis()) / 2);
@@ -568,8 +587,8 @@ void ScaraArmModule::checkArmBounds(double outter_pos, double outter_neg, double
 
 void ScaraArmModule::jstickArmMovement(double jstickX, double jstickY) {
   double factor = 1;
-  innerPID.SetOutputRange(-0.1, 0.1);
-  outterPID.SetOutputRange(-0.1, 0.1);
+  innerPID.SetOutputRange(-0.3, 0.3);
+  outterPID.SetOutputRange(-0.2, 0.2);
   if (XYInRange(currentPosition.armX + (jstickX * factor), currentPosition.armY + (jstickY * factor))) {
     currentPosition.armX += jstickX * factor;
     currentPosition.armY += jstickY * factor;
@@ -593,12 +612,9 @@ void ScaraArmModule::movetoPole(Limelight::poleIDs poleID) {
   ShuffleUI::MakeWidget("TapeY", tab, targetXY.y);
   //frc::SmartDashboard::PutNumber("Detected?", ll.getTargetDetected());
   //if (ll.getTargetDetected()) {
-  if (ctr->GetAButtonPressed()) {
-    movetoXY(targetXY.x, targetXY.y, false);
+  movetoXY(targetXY.x, targetXY.y, true);
     // currentPosition.armX = targetXY.x;
     // currentPosition.armX = targetXY.y;
-
-  }
   
 }
 
@@ -644,6 +660,13 @@ ScaraArmModule::PointXY ScaraArmModule::getCircleLineInt(double r, double currX,
   }
 }
 
+double ScaraArmModule::deadZoneCtr(double input) {
+  if (fabs(input) < 0.1) {
+    return 0;
+  } else {
+    return input;
+  }
+}
 
 void ScaraArmModule::run(){
    runInit();
@@ -651,17 +674,17 @@ void ScaraArmModule::run(){
    bool isZero = false;
    bool teleopInit = true; //Run the init if condition in the teleop if condition
    bool setManualXY = true;
+   bool setLLXY = true;
+   int teleopMode = 0;
 
    int counter = 0;
     while(true) {
+      frc::SmartDashboard::PutNumber("grabberStuff", grabber->grabSwitch.Get());
         auto nextRun = std::chrono::steady_clock::now() + std::chrono::milliseconds(5); //change milliseconds at telop
         ShuffleUI::MakeWidget("scara arm module", tab, true);
         std::vector<double> xy = Angles_to_XY(inner_enc.GetPosition(), outter_enc.GetPosition());
         ShuffleUI::MakeWidget("X", tab, xy.at(0));
         ShuffleUI::MakeWidget("Y",tab, xy.at(1));
-        // currentPosition.armX = xy.at(0);
-        // currentPosition.armY = xy.at(1);
-        
         ShuffleUI::MakeWidget("InnerAngle", tab, inner_enc.GetPosition());
         ShuffleUI::MakeWidget("OutterAngle", tab, outter_enc.GetPosition());
         ShuffleUI::MakeWidget("InnerSwitch", tab, InnerLimitSwitch.Get());
@@ -671,23 +694,33 @@ void ScaraArmModule::run(){
         if(state == 't') {
           if (teleopInit) {
             inner_enc.SetPosition(stowInner);
-            outter_enc.SetPosition(stowOutter); //Replace with stow
+            outter_enc.SetPosition(stowOutter);
+            innerPID.SetReference(stowInner, rev::CANSparkMax::ControlType::kPosition);
+            outterPID.SetReference(stowOutter, rev::CANSparkMax::ControlType::kPosition);
             teleopInit = false;
           }
 
-          frc::SmartDashboard::PutBoolean("in telo scara", true);
-
-          //grabber->toggleTwo(ctrOperator->GetBButtonPressed()); //Only Open/Close
+          grabber->toggleTwo(ctrOperator->GetBButtonPressed()); //Only Open/Close
 
           ShuffleUI::MakeWidget("Grabber", tab, grabber->grab_enc.GetPosition());
           ShuffleUI::MakeWidget("InnerAngle", tab, inner_enc.GetPosition());
           ShuffleUI::MakeWidget("OutterAngle", tab, outter_enc.GetPosition());
+          ShuffleUI::MakeWidget("TeleopMode", tab, teleopMode);
 
+          if (ctrOperator->GetLeftBumperPressed()) 
+          {
+            teleopMode = 1;
+          } 
+          else if (ctrOperator->GetRightBumperPressed()) {
+            teleopMode = 2;
+          }
 
-
-
-          ShuffleUI::MakeWidget("CurrentInner", tab, inner->GetOutputCurrent());
-          if (ctrOperator->GetLeftBumper()) {
+          if (teleopMode == 0) 
+          {
+            innerPID.SetReference(inner_enc.GetPosition(), rev::CANSparkMax::ControlType::kPosition);
+            outterPID.SetReference(outter_enc.GetPosition(), rev::CANSparkMax::ControlType::kPosition);
+          }
+          else if (teleopMode == 1) {
             
 
             if (ctrOperator->GetYButtonPressed()) 
@@ -701,6 +734,7 @@ void ScaraArmModule::run(){
             {
               innerPID.SetReference(stowInner-130.0f, rev::CANSparkMax::ControlType::kPosition);
               setManualXY = true;
+              setLLXY = true;
 
             } 
             else if (ctrOperator->GetXButtonPressed()) 
@@ -717,80 +751,88 @@ void ScaraArmModule::run(){
 
 
           } 
-          else if (ctrOperator->GetRightBumper()) 
+          else if (teleopMode == 2) 
           {
               if (setManualXY) {
-                ShuffleUI::MakeWidget("Clamped", tab, clampAngle(inner_enc.GetPosition()));
                 inner_enc.SetPosition(clampAngle(inner_enc.GetPosition()));
                 innerPID.SetReference(clampAngle(inner_enc.GetPosition()), rev::CANSparkMax::ControlType::kPosition);
-                //outter_enc.SetPosition(clampAngle(outter_enc.GetPosition()));
                 std::vector<double> xy = Angles_to_XY(clampAngle(inner_enc.GetPosition()), clampAngle(outter_enc.GetPosition()));
                 currentPosition.armX = xy.at(0);
                 currentPosition.armY = xy.at(1);
-                ShuffleUI::MakeWidget("StartX", tab, currentPosition.armX);
-                ShuffleUI::MakeWidget("StartY", tab, currentPosition.armY);
                 setManualXY = false;
               }
               //movetoXY(innerSize, outterSize, true);
               std::vector<double> xy = Angles_to_XY(clampAngle(inner_enc.GetPosition()), clampAngle(outter_enc.GetPosition()));
               currentPosition.armX = xy.at(0);
               currentPosition.armY = xy.at(1);
-              jstickArmMovement(ctrOperator->GetLeftX(), -ctrOperator->GetLeftY());
-            
+
+              if (ctrOperator->GetXButton()) 
+              {
+                if (ctrOperator->GetLeftTriggerAxis() > 0.5) 
+                {
+                  innerPID.SetReference(135, rev::CANSparkMax::ControlType::kPosition);
+                  outterPID.SetReference(-90, rev::CANSparkMax::ControlType::kPosition);
+                } 
+                else if (ctrOperator->GetRightTriggerAxis() >  0.5) 
+                {
+                  innerPID.SetReference(45, rev::CANSparkMax::ControlType::kPosition);
+                  outterPID.SetReference(90, rev::CANSparkMax::ControlType::kPosition);
+                }
+              } 
+              else if (ctrOperator->GetYButton()) 
+              {
+                if (ctrOperator->GetLeftTriggerAxis() > 0.5) 
+                {
+                  movetoPole(Limelight::topLeftPole);
+                } 
+                else if (ctrOperator->GetRightTriggerAxis() >  0.5) 
+                {
+                  movetoPole(Limelight::topRightPole);
+                }
+              } 
+              else if (ctrOperator->GetAButton()) 
+              {
+                if (ctrOperator->GetLeftTriggerAxis() > 0.5) 
+                {
+                  movetoPole(Limelight::bottomLeftPole);
+                } 
+                else if (ctrOperator->GetRightTriggerAxis() >  0.5) 
+                {
+                  movetoPole(Limelight::bottomRightPole);
+                }
+              } 
+              else 
+              {
+                double leftX = deadZoneCtr(ctrOperator->GetLeftX());
+                double leftY = deadZoneCtr(ctrOperator->GetLeftY());
+                jstickArmMovement(-leftX, leftY);
+
+                
+              }
           }
           else
           {
-            //ShuffleboardScorer();
+            
+            
           }
         }
 
         if(state == 'a' ) {
-          if(!isZero) {
-            //moveProfiled(-50, -50);
-            ShuffleUI::MakeWidget("DONE", tab, 0);
-            stow();
-            inner_enc.SetPosition(stowInner);
-            outter_enc.SetPosition(stowOutter);
-            ShuffleUI::MakeWidget("InnerAngle", tab, clampAngle(inner_enc.GetPosition()));
-            ShuffleUI::MakeWidget("OutterAngle", tab, clampAngle(outter_enc.GetPosition()));
+          if(!isZero)
+          {
+            grabber->openAuto();
+            // stow();
+            // inner_enc.SetPosition(stowInner);
+            // outter_enc.SetPosition(stowOutter);
+            // ShuffleUI::MakeWidget("InnerAngle", tab, clampAngle(inner_enc.GetPosition()));
+            // ShuffleUI::MakeWidget("OutterAngle", tab, clampAngle(outter_enc.GetPosition()));
             
-            //moveProfiled(inner_enc.GetPosition(), outter_enc.GetPosition() - 20);
-            //movetoXY(0, 0, false);
-            ShuffleUI::MakeWidget("DONE", tab, 1);
-            isZero = true;
+            // //moveProfiled(inner_enc.GetPosition(), outter_enc.GetPosition() - 20);
+            // //movetoXY(0, 0, false);
+            // ShuffleUI::MakeWidget("DONE", tab, 1);
+            // isZero = true;
           }
-            ShuffleUI::MakeWidget("InnerAngle", tab, clampAngle(inner_enc.GetPosition()));
-            ShuffleUI::MakeWidget("OutterAngle", tab, clampAngle(outter_enc.GetPosition()));
-            teleopInit = true;
-
-            
-            
-          
-          
-          // std::vector<double> targetPose = ll.getTargetPoseRobotSpace();
-          // Limelight::Point targetXY = ll.getTargetXY(targetPose.at(0) * 39.37, targetPose.at(2) * 39.37, targetPose.at(4), Limelight::bottomRightPole); // X, Y, yaw, poleID
-          // frc::SmartDashboard::PutNumber("TapeX", targetXY.x);
-          // frc::SmartDashboard::PutNumber("TapeY", targetXY.y);
-          // frc::SmartDashboard::PutNumber("Detected?", ll.getTargetDetected());
-
-          //if (ll.getTargetDetected()) {
-            
-              //movetoXY(targetXY.x, targetXY.y);
-  
-              
-            
-            //armTab.Add("stuffs", targetXY.x);
-          //} else {
-            //armTab.Add("stuffs", -69);
-
-
-          //}
-
-            // if(test) {
-            //   moveProfiled(30, 30);
-            //   moveProfiled(0, 0);
-            //   test = false;
-            // }
+          teleopInit = true;
           
         }
         if (state == 'd') {

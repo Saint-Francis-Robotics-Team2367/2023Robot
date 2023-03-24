@@ -7,6 +7,7 @@
 #include<frc/XboxController.h>
 #include <atomic>
 #include <frc/Timer.h>
+#include "IntakeModule.h"
 #define triggerDeadband 0.1
 #define PI 3.1415926
 
@@ -39,8 +40,8 @@ class ElevatorModule {
         topLeftPole = 3
     };
 
-    double maxVelocity = 15047;
-    double maxAcc = 3039;
+    double maxVelocity = 25047;
+    double maxAcc = 5039;
     //Mech/Electronics Setup
     //int m_ID = 10;
     //int m_ID = 15;
@@ -54,10 +55,10 @@ class ElevatorModule {
     double height = 0; //starting the elevator at 0 (no absolute encoder)
 
     //constants
-    double kElevatorMinHeight = 7.0;
-    double kElevatorMaxHeight = 51.25;
-    double kLowScoreHeight = 27;
-    double kHighScoreHeight = 46;
+    double kElevatorMinHeight = 0.0;
+    double kElevatorMaxHeight = 34.75;
+    double kLowScoreHeight = 25;
+    double kHighScoreHeight = 34.75;
     double kHighIntakeHeight = 26.375;
     double kLowestHeight = 0.0;
 
@@ -71,6 +72,7 @@ class ElevatorModule {
     double dUp = 0.0;
 
     bool oneRun = true;
+    IntakeModule* intake = new IntakeModule();
 
 
     ElevatorModule(frc::XboxController* controller, frc::XboxController* controllerOperator);

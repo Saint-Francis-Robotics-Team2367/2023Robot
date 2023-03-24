@@ -3,8 +3,6 @@
 #include <math.h> 
 #include <rev/CANSparkMax.h>
 #include <frc/Joystick.h>
-#include "ElevatorModule.h"
-#include "ScaraArmModule.h"
 #include <frc/SmartDashboard/SmartDashboard.h>
 #include "AHRS.h"
 #include <frc/controller/PIDController.h>
@@ -12,7 +10,7 @@
 #include <chrono>
 #include<mutex>
 #include <atomic>
-
+// #include "IntakeModule.h"
 
 #define driverStickPort 0
 #define operatorStickPort 1
@@ -47,9 +45,12 @@ class DriveBaseModule{ //needed for gyroPIDDrive implementation
 
   AHRS *ahrs; //needs to be intialized in constructor
 
+
   //ElevatorModule* elev = new ElevatorModule(10); //Elevator
 
   //ScaraArmModule* arm = new ScaraArmModule();
+
+  
 
   double maxAcc =  20.0;
   double maxVelocity = 30.0;

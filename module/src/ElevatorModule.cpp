@@ -123,7 +123,7 @@ void ElevatorModule::Init() {
     enc.SetPosition(0);
     //resetPos();
     height = enc.GetPosition(); //don't close dashboard
-    elevatorMotor->SetSmartCurrentLimit(40); //Pranav gave me this number
+    elevatorMotor->SetSmartCurrentLimit(30); //Pranav gave me this number
 }
 
 
@@ -157,25 +157,26 @@ void ElevatorModule::runInit() {
 
 void ElevatorModule::run() {
     runInit();
+    Init();
+    int currCount = 0;
     while(true) {
         auto nextRun = std::chrono::steady_clock::now() + std::chrono::milliseconds(5); //change milliseconds at telop
-        ShuffleUI::MakeWidget("elevator module", tab, true);
-        ShuffleUI::MakeWidget("elev left y", tab, ctrOperator->GetLeftY());
+       // elevatorMotor->Set(ctr->GetLeftTriggerAxis() - ctr->GetRightTriggerAxis());
+        // ShuffleUI::MakeWidget("elevator module", tab, true);
+        // ShuffleUI::MakeWidrotget("elev left y", tab, ctrOperator->GetLeftY());
        
         if(state == 't') {
-            
+            // intake->rotaryIntake->Set(ctr->GetRightX());
+            // intake->toggle(ctr->GetAButtonPressed());
+            // // intake->roller->Set(-driverStick->GetRawAxis(2));
+            // //intake->rotaryIntake->Set(driverStick->GetRawAxis(4));
+            // intake->rightStar->Set(driverStick->GetRawAxis(1));
+            // intake->leftStar->Set(driverStick->GetRawAxis(4));
              if(!currentlyMoving) {
-                if(ctr->GetXButtonPressed() || (ShuffleUI::GetInt("Score", "ArmtoElev", -1) == topLeftPole || ShuffleUI::GetInt("Score", "ArmtoElev", -1) == topRightPole)) {
+                if(ctr->GetXButton()) { //|| (ShuffleUI::GetInt("Score", "ArmtoElev", -1) == topLeftPole || ShuffleUI::GetInt("Score", "ArmtoElev", -1) == topRightPole)
                 currentlyMoving = true;
                 setPos(kHighScoreHeight, true);
                 ShuffleUI::MakeWidget("x pressed", tab, true);
-                currentlyMoving = false;
-            }
-
-             if(ctr->GetAButton() || (ShuffleUI::GetInt("Score", "ArmtoElev", -1) == bottomLeftPole || ShuffleUI::GetInt("Score", "ArmtoElev", -1) == bottomRightPole)) {
-                currentlyMoving = true;
-                setPos(kLowScoreHeight, true);
-                ShuffleUI::MakeWidget("B pressed", tab, true);
                 currentlyMoving = false;
             }
 
@@ -188,7 +189,8 @@ void ElevatorModule::run() {
             }
             
             //need this line for down movement to work? also is manual, could replace triggers with 0, 0 and it works
-            //TeleopPeriodic(ctrOperator->GetLeftTriggerAxis(), ctrOperator->GetRightTriggerAxis()); //for some reason either need this or teleop periodic for moving downwards to work
+            TeleopPeriodic(ctr->GetLeftTriggerAxis(), ctr->GetRightTriggerAxis()); //for some reason either need this or teleop periodic for moving downwards to work
+            //elevatorMotor->Set(ctr->GetLeftTriggerAxis() - ctr->GetRightTriggerAxis());
             
         }
         if(state == 'a') {

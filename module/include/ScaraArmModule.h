@@ -98,6 +98,7 @@ class ScaraArmModule {
     void run();
     void runInit();
     void stow();
+    double deadZoneCtr(double inp);
 
     struct armPos {
         double inner_angle;
@@ -140,6 +141,8 @@ class ScaraArmModule {
     PointXY getCircleLineInt(double r, double currX, double currY);
 
     void reverseStow();
+
+    void CtrScorer();
 
 
     armPos currentPosition = {startInner, startOutter, startX, startY};

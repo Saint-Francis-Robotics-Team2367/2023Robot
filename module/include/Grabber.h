@@ -1,5 +1,6 @@
 #include <rev/CANSparkMax.h>
 #include <Macros.h>
+#include <frc/Timer.h>
 
 #pragma once
 
@@ -36,8 +37,15 @@ class Grabber {
     }
 
     void openAuto() {
-        while(grabSwitch.Get() == false) {
+        float startTime = frc::Timer::GetFPGATimestamp().value();
+        while(true) {
+            frc::SmartDashboard::PutNumber("grabberStuff", grabSwitch.Get());
             grabberMotor->Set(-1.0);
+            if(frc::Timer::GetFPGATimestamp().value() - startTime > 3) {
+                break;
+                grabberMotor->Set(0);
+                grab_enc.SetPosition(openState);
+            }
         }
         grabberMotor->Set(0);
         grab_enc.SetPosition(openState);
@@ -48,7 +56,7 @@ class Grabber {
             doubleState += 1;
             doubleState = doubleState % 2;
         }
-        if(tripleState == 0) {
+        if(doubleState == 0) {
             grabberPID.SetReference(openState, rev::CANSparkMax::ControlType::kPosition);
         }
         else {
