@@ -12,11 +12,13 @@
 #include <frc/XboxController.h>
 #include "Paths.h"
 
+DriveBaseModule drive;
+
 frc::XboxController* ctr = new frc::XboxController(0);
 frc::XboxController* ctr2 = new frc::XboxController(1);
 
 ScaraArmModule scaraArm(ctr, ctr2);
-DriveBaseModule drive;
+
 ElevatorModule elevator(ctr, ctr2);
 
 autoPath path[3] = {
