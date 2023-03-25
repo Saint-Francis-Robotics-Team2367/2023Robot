@@ -23,8 +23,8 @@ class Grabber {
         grabberPID.SetD(0);
         grab_enc.SetPosition(0);
         grabberMotor->SetIdleMode(rev::CANSparkMax::IdleMode::kBrake);
-        grabberMotor->SetSmartCurrentLimit(15);
-        grabberMotor->SetSecondaryCurrentLimit(15, 0);
+        grabberMotor->SetSmartCurrentLimit(20);
+        grabberMotor->SetSecondaryCurrentLimit(20, 0);
     }
 
     void open(bool button) {
@@ -66,6 +66,9 @@ class Grabber {
     }
 
 
+    
+
+
 
     void toggle(bool buttonPressed) {
         if (buttonPressed) {
@@ -76,10 +79,10 @@ class Grabber {
             grabberMotor->StopMotor();
         } else if (tripleState == 1) {
             //set(1.0);
-            grabberPID.SetReference(openState, rev::CANSparkMax::ControlType::kPosition);
+            set(-0.3);
         } else {
             //set(-1.0);
-            grabberPID.SetReference(closedState, rev::CANSparkMax::ControlType::kPosition);
+            set(0.3);
         }
         
 
