@@ -18,6 +18,7 @@
 #include "Limelight.h"
 #include <rev/SparkMaxLimitSwitch.h>
 #include <frc/DigitalInput.h>
+#include "moveXY.h"
 
 
 #pragma once
@@ -67,6 +68,11 @@ class ScaraArmModule {
 
     Grabber* grabber = new Grabber();
 
+    MoveXY armCalc = MoveXY(310, stowOutter + 180, innerSize, outterSize);
+
+    void movetoPole(Limelight::poleIDs poleID);
+
+
     //frc::ShuffleboardTab& armTab = frc::Shuffleboard::GetTab("Arm");
 
 
@@ -81,7 +87,6 @@ class ScaraArmModule {
 
     Limelight ll;
 
-    frc::ShuffleboardTab& armTab = frc::Shuffleboard::GetTab("Arm");
 
 
     // frc::DigitalInput InnerLimitSwitch {0};
@@ -101,6 +106,7 @@ class ScaraArmModule {
     void runInit();
     void stow();
     double deadZoneCtr(double inp);
+    void jstickArmMovement(double jstickX, double jstickY);
 
     struct armPos {
         double inner_angle;
@@ -116,36 +122,7 @@ class ScaraArmModule {
     };
 
 
-    std::vector<armPos> XY_to_Arm(double x, double y, double length1, double length2);
-
-    std::vector<double> Angles_to_XY(double inner, double outter);
-
-    double clampAngle(double inp);
-
-    void movetoXY(double x, double y, bool isManualMove);
-
-    double maxVelocity = 130;
-    double maxAcc = 68;
-    void moveProfiled(double angle1, double angle2);
-
-    void ShuffleboardScorer();
-
-    void TeleopControl();
     
-    bool XYInRange(double x, double y);
-
-    void checkArmBounds(double outter_pos, double outter_neg, double inner_pos, double inner_neg);
-
-    void jstickArmMovement(double jstickX, double jstickY);
-
-    void movetoPole(Limelight::poleIDs poleID);
-    
-    PointXY getCircleLineInt(double r, double currX, double currY);
-
-    void reverseStow();
-
-    void CtrScorer();
-
 
     armPos currentPosition = {startInner, startOutter, startX, startY};
     armPos calculatedPosition = {0.0, 0.0, startX, startY};
@@ -168,116 +145,6 @@ class ScaraArmModule {
     rev::SparkMaxPIDController outterPID = outter->GetPIDController();
     rev::SparkMaxLimitSwitch OutterLimitSwitch = outter->GetForwardLimitSwitch(rev::SparkMaxLimitSwitch::Type::kNormallyClosed);
 
-
-
-
-
-class Circle {
-public:
-class Point2d {
-    public:
-    Point2d() {}
-    Point2d(double x, double y)
-        : X(x), Y(y) {}
-     
-    double x() const { return X; }
-    double y() const { return Y; }
-     
-    /**
-     * Returns the norm of this vector.
-     * @return the norm
-    */
-    double norm() const {
-        return sqrt( X * X + Y * Y );
-    }
-     
-    void setCoords(double x, double y) {
-        X = x; Y = y;
-    }
-     
-    // Print point
-    friend std::ostream& operator << ( std::ostream& s, const Point2d& p )  {
-      s << p.x() << " " << p.y();
-      return s;
-    }
-    double X;
-    double Y;
-};
-    /**
-     * @param R - radius
-     * @param C - center
-     */
-    Circle(double R, Point2d& C) 
-        : r(R), c(C) {}
-         
-    /**
-     * @param R - radius
-     * @param X - center's x coordinate
-     * @param Y - center's y coordinate
-     */
-    Circle(double R, double X, double Y) 
-        : r(R), c(X, Y) {}    
-     
-    Point2d getC() const { return c; }
-    double getR() const { return r; }
-     
-    size_t intersect(const Circle& C2, Point2d& i1, Point2d& i2) {
-        // distance between the centers
-        double d = Point2d(c.x() - C2.c.x(), 
-                c.y() - C2.c.y()).norm();
-         
-        // find number of solutions
-        if(d > r + C2.r) // circles are too far apart, no solution(s)
-        {
-            std::cout << "Circles are too far apart\n";
-            return 0;
-        }
-        else if(d == 0 && r == C2.r) // circles coincide
-        {
-            std::cout << "Circles coincide\n";
-            return 0;
-        }
-        // one circle contains the other
-        else if(d + min(r, C2.r) < max(r, C2.r))
-        {
-            std::cout << "One circle contains the other\n";
-            return 0;
-        }
-        else
-        {
-            double a = (r*r - C2.r*C2.r + d*d)/ (2.0*d);
-            double h = sqrt(r*r - a*a);
-             
-            // find p2
-            Point2d p2( c.x() + (a * (C2.c.x() - c.x())) / d,
-                    c.y() + (a * (C2.c.y() - c.y())) / d);
-             
-            // find intersection points p3
-            i1.setCoords( p2.x() + (h * (C2.c.y() - c.y())/ d),
-                    p2.y() - (h * (C2.c.x() - c.x())/ d)
-            );
-            i2.setCoords( p2.x() - (h * (C2.c.y() - c.y())/ d),
-                    p2.y() + (h * (C2.c.x() - c.x())/ d)
-            );
-             
-            if(d == r + C2.r)
-                return 1;
-            return 2;
-        }
-    }
-     
-    // Print circle
-    friend std::ostream& operator << ( std::ostream& s, const Circle& C )  {
-      s << "Center: " << C.getC() << ", r = " << C.getR();
-      return s;
-    }
-  private:
-      // radius
-      double r;
-      // center
-      Point2d c;
-      
-  };
 
 
 
