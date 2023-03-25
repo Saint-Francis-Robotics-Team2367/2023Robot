@@ -226,10 +226,6 @@ bool DriveBaseModule::PIDDrive(float totalFeet, bool keepVelocity)
   {
     while (fabs(currentPosition) < fabs(totalFeet))
     {
-      if (stopAuto)
-      {
-        break;
-      }
       ShuffleUI::MakeWidget("lEncoder", tab, lEncoder.GetPosition());
       ShuffleUI::MakeWidget("rEncoder", tab, rEncoder.GetPosition());
       timeElapsed = frc::Timer::GetFPGATimestamp().value() - prevTime;
@@ -257,10 +253,6 @@ bool DriveBaseModule::PIDDrive(float totalFeet, bool keepVelocity)
   {
     while (fabs(currentPosition) < fabs(totalFeet))
     {
-      if (stopAuto)
-      {
-        break;
-      }
       ShuffleUI::MakeWidget("lEncoder", tab, lEncoder.GetPosition());
       ShuffleUI::MakeWidget("rEncoder", tab, rEncoder.GetPosition());
       timeElapsed = frc::Timer::GetFPGATimestamp().value() - prevTime;
@@ -644,27 +636,32 @@ void DriveBaseModule::run()
 
     if (state == 'a')
     {
-      if (isRunningAutoTurn)
-      { // default false
-        isRunningAutoTurn = false;
-        isFinished = PIDTurn(angle, radius, keepVelocityTurn);
-        frc::SmartDashboard::PutBoolean("isRunningAutoTurn", isRunningAutoTurn);
+      if(test) {
+        frc::SmartDashboard::PutBoolean("hi", true);
+        PIDDrive(5, false);
+        test = false;
       }
+      // if (isRunningAutoTurn)
+      // { // default false
+      //   isRunningAutoTurn = false;
+      //   isFinished = PIDTurn(angle, radius, keepVelocityTurn);
+      //   frc::SmartDashboard::PutBoolean("isRunningAutoTurn", isRunningAutoTurn);
+      // }
 
-      if (isRunningAutoDrive)
-      {
-        isRunningAutoDrive = false;
-        isFinished = PIDDrive(totalFeet, keepVelocityDrive);
-        // PIDDrive(totalFeet, keepVelocityDrive);
-        // isFinished = true;
-        frc::SmartDashboard::PutBoolean("isFinished", isFinished);
-        frc::SmartDashboard::PutBoolean("isRunningAutoDrive", isRunningAutoDrive);
-      }
+      // if (isRunningAutoDrive)
+      // {
+      //   isRunningAutoDrive = false;
+      //   isFinished = PIDDrive(totalFeet, keepVelocityDrive);
+      //   // PIDDrive(totalFeet, keepVelocityDrive);
+      //   // isFinished = true;
+      //   frc::SmartDashboard::PutBoolean("isFinished", isFinished);
+      //   frc::SmartDashboard::PutBoolean("isRunningAutoDrive", isRunningAutoDrive);
+      // }
 
-      if (balancing)
-      {
-        autoBalance();
-      }
+      // if (balancing)
+      // {
+      //   autoBalance();
+      // }
     }
 
     if (state == 't')
@@ -679,7 +676,7 @@ void DriveBaseModule::run()
       ShuffleUI::MakeWidget("rcheck", tab, rMotor->GetIdleMode() == rev::CANSparkMax::IdleMode::kBrake);
 
       test = true;
-      stopAuto = true;
+      //stopAuto = true;
     }
 
     if (state == 'u')
