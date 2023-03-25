@@ -335,8 +335,8 @@ void ScaraArmModule::moveProfiled(double angleInner, double angleOutter) {
     }
 
 
-    innerPID.SetOutputRange(-1, 1);
-    outterPID.SetOutputRange(-1, 1);
+    // innerPID.SetOutputRange(-1, 1);
+    // outterPID.SetOutputRange(-1, 1);
     
 
     while(fabs(currentPositionOutter - angleOutter) > 0 || fabs(currentPositionInner - angleInner) > 0){
@@ -671,7 +671,7 @@ double ScaraArmModule::deadZoneCtr(double input) {
 void ScaraArmModule::run(){
    runInit();
    test = true;
-   bool isZero = false;
+   
    bool teleopInit = true; //Run the init if condition in the teleop if condition
    bool setManualXY = true;
    bool setLLXY = true;
@@ -805,7 +805,7 @@ void ScaraArmModule::run(){
               {
                 double leftX = deadZoneCtr(ctrOperator->GetLeftX());
                 double leftY = deadZoneCtr(ctrOperator->GetLeftY());
-                jstickArmMovement(-leftX, leftY);
+                jstickArmMovement(leftX, -leftY);
 
                 
               }
@@ -818,41 +818,32 @@ void ScaraArmModule::run(){
         }
 
         if(state == 'a' ) {
-          if(!isZero)
+          if(autoStart)
           {
+            
             grabber->grabberMotor->Set(0.3);
             stow();
             
             //Arm Auto Init
-            inner_enc.SetPosition(stowInner);
-            outter_enc.SetPosition(stowOutter);
-            innerPID.SetReference(stowInner, rev::CANSparkMax::ControlType::kPosition);
-            outterPID.SetReference(stowOutter, rev::CANSparkMax::ControlType::kPosition);
-            outterPID.SetReference(stowOutter-17.0f, rev::CANSparkMax::ControlType::kPosition);
-            innerPID.SetReference(stowInner-130.0f, rev::CANSparkMax::ControlType::kPosition);
-            inner_enc.SetPosition(clampAngle(inner_enc.GetPosition()));
-            innerPID.SetReference(clampAngle(inner_enc.GetPosition()), rev::CANSparkMax::ControlType::kPosition);
-            std::vector<double> xy = Angles_to_XY(clampAngle(inner_enc.GetPosition()), clampAngle(outter_enc.GetPosition()));
-            currentPosition.armX = xy.at(0);
-            currentPosition.armY = xy.at(1);
+            inner_enc.SetPosition(0);
+            outter_enc.SetPosition(0);
+            //innerPID.SetReference(stowInner, rev::CANSparkMax::ControlType::kPosition);
+            //outterPID.SetReference(stowOutter, reve::CANSparkMax::ControlType::kPosition);
+            frc::SmartDashboard::PutNumber("setptInner", stowInner + 270);
+            moveProfiled(-140.0, outter_enc.GetPosition() + 17);
 
-            //Move to straight back after drivebase done + Elev done
-            moveProfiled(90, 0);
+            moveProfiled(inner_enc.GetPosition(), -stowOutter);
 
             //Grabber Drop
             grabber->openAuto();
 
             //Stow
-            stow();
+            //stow();
+           // state = 'd';
+            isFinished = true;
 
-
-
-
-
-
-
-            moveProfiled()
-            grabber->openAuto();
+            autoStart = false;
+            //grabber->openAuto();
 
 
             // stow();
@@ -870,8 +861,10 @@ void ScaraArmModule::run(){
           
         }
         if (state == 'd') {
-          isZero = false;
-          teleopInit = true;
+          // isZero = false;
+          // teleopInit = true;
+          inner->Set(0);
+          outter->Set(0);
           ShuffleUI::MakeWidget("disabled", tab, 0);
         }
 
