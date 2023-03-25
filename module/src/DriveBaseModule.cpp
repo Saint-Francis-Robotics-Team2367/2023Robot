@@ -81,6 +81,7 @@ void DriveBaseModule::gyroDriving() {
   float rightStickOutput = driverStick->GetRawAxis(4);
   float calculation = rightStickPID->Calculate(ahrs->GetRate()/150, rightStickOutput); //add skim
   arcadeDrive(driverStick->GetRawAxis(1) * (-1), calculation);
+  frc::SmartDashboard::PutNumber("yeyeye", 10);
   ShuffleUI::MakeWidget("output", tab, calculation);
   ShuffleUI::MakeWidget("gyro", tab, ahrs->GetRate());
 
@@ -610,6 +611,7 @@ void DriveBaseModule::run() {
       if(balancing) {
         autoBalance();
       }
+ }
 
 
     if(state == 't') {
@@ -637,7 +639,7 @@ void DriveBaseModule::run() {
 
     //ADJUST NEXT RUN MAYBE
     std::this_thread::sleep_until(nextRun); //need this here so thread runs every 5 ms, might be faster than PID controller look into it
-  }
+
 }
 }
 
