@@ -23,8 +23,8 @@ class Grabber {
         grabberPID.SetD(0);
         grab_enc.SetPosition(0);
         grabberMotor->SetIdleMode(rev::CANSparkMax::IdleMode::kBrake);
-        grabberMotor->SetSmartCurrentLimit(5);
-        grabberMotor->SetSecondaryCurrentLimit(5, 0);
+        grabberMotor->SetSmartCurrentLimit(15);
+        grabberMotor->SetSecondaryCurrentLimit(15, 0);
     }
 
     void open(bool button) {
