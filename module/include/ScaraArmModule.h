@@ -93,6 +93,8 @@ class ScaraArmModule {
     ScaraArmModule(frc::XboxController* controller, frc::XboxController* controllerOperator);
     char state = 'd';
     bool test = true;
+    bool autoStart = false;
+    bool isFinished = false;
     //bool isManualMove = false;
     void ArmInit();
     void run();
