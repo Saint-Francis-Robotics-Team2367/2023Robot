@@ -53,11 +53,11 @@ void Robot::AutonomousInit() {
   // const std::string autoCustom = "Path 1"; // define more variables if there are more custom paths 
   // std::string selected; 
 
-  autoPath a(autoPathType::elev); 
-  a.register_elev(10); 
+  // autoPath a(autoPathType::elev); 
+  // a.register_elev(10); 
   
-  autoPath x(autoPathType::arm);
-  x.register_arm(10, 10);
+  // autoPath x(autoPathType::arm);
+  // x.register_arm(10, 10);
 
 
   // autoPath b(autoPathType::arm); 
@@ -67,7 +67,7 @@ void Robot::AutonomousInit() {
   // c.register_elev(25); 
 
   autoPath d(autoPathType::straight); 
-  d.register_straight(1);
+  d.register_straight(5);
 
   // autoPath e(autoPathType::arm); 
   // e.register_arm(20, 20); 
@@ -90,11 +90,13 @@ void Robot::AutonomousInit() {
   // selected = chooser.GetSelected(); 
 
   // assigning path points  
-  path[0] = a; 
-  path[1] = x; 
-  path[2] = d; 
+  // path[0] = a; 
+  // path[1] = x; 
+  // path[2] = d; 
   // path[3] = d;
   // path[4] = e; 
+
+  path[0] = d;
 
   // if (selected == autoCustom){ // if custom path 1 is selected 
   //   autoPath path[4] = {
@@ -115,88 +117,88 @@ void Robot::AutonomousPeriodic() {
 
   //  int index = 0; 
 
-  int numSteps = 3; // CHANGE DEPENDING ON LENGTH OF PATH LIST! 
-  float angle, radius; 
+  // // int numSteps = 1; // CHANGE DEPENDING ON LENGTH OF PATH LIST! 
+  // // float angle, radius; 
 
-  if(index < numSteps){
-     switch(path[index].action){
-       case 's': // driving straight
+  // // if(index < numSteps){
+  // //    switch(path[index].action){
+  // //      case 's': // driving straight
       
-        if(!isStage) { // if its not currently driving 
-          drive.autoDrive(path[index].dis, path[index].keepVelocity);
-          isStage = true; 
-          frc::SmartDashboard::PutBoolean("in stage drive", isStage); 
-          frc::SmartDashboard::PutBoolean("is finished", drive.isFinished);
-          frc::SmartDashboard::PutNumber("dis", path[index].dis);
-        } 
+  // //       if(!isStage) { // if its not currently driving 
+  // //         drive.autoDrive(path[index].dis, path[index].keepVelocity);
+  // //         isStage = true; 
+  // //         frc::SmartDashboard::PutBoolean("in stage drive", isStage); 
+  // //         frc::SmartDashboard::PutBoolean("is finished", drive.isFinished);
+  // //         frc::SmartDashboard::PutNumber("dis", path[index].dis);
+  // //       } 
         
-        if (drive.isFinished){ // once drive is finished 
-          isStage = false; 
-          drive.isFinished = false; 
-        }
-        break; 
+  // //       if (drive.isFinished){ // once drive is finished 
+  // //         isStage = false; 
+  // //         drive.isFinished = false; 
+  // //       }
+  // //       break; 
 
-      case 't': // turn
-        if (!isStage){
-          angle = path[index].angle; 
-          radius = path[index].radius; 
-          frc::SmartDashboard::PutNumber("angle", angle); 
-          frc::SmartDashboard::PutNumber("radius", radius);
+  // //     case 't': // turn
+  // //       if (!isStage){
+  // //         angle = path[index].angle; 
+  // //         radius = path[index].radius; 
+  // //         frc::SmartDashboard::PutNumber("angle", angle); 
+  // //         frc::SmartDashboard::PutNumber("radius", radius);
 
-          if (angle > 0){ // robot starts at 180 deg for right turns 
-            angle = -(angle - 180);
-          }
+  // //         if (angle > 0){ // robot starts at 180 deg for right turns 
+  // //           angle = -(angle - 180);
+  // //         }
 
-          drive.autoTurn(angle, radius, path[index].keepVelocity);
-          isStage = true; 
-        }
+  // //         drive.autoTurn(angle, radius, path[index].keepVelocity);
+  // //         isStage = true; 
+  // //       }
         
-        if (drive.isFinished ){
-          isStage = false; 
-          drive.isFinished = false; 
-        }
+  // //       if (drive.isFinished ){
+  // //         isStage = false; 
+  // //         drive.isFinished = false; 
+  // //       }
         
-        break; 
+  // //       break; 
 
-      case 'e': // elevator
-        if (!isStage){
-          elevator.autoSet(path[index].setpoint); 
-          isStage = true; 
-          frc::SmartDashboard::PutBoolean("in stage elev", isStage); 
-        }
+  // //     case 'e': // elevator
+  // //       if (!isStage){
+  // //         elevator.autoSet(path[index].setpoint); 
+  // //         isStage = true; 
+  // //         frc::SmartDashboard::PutBoolean("in stage elev", isStage); 
+  // //       }
 
-        if (elevator.isFinished){
-          isStage = false; 
-          elevator.isFinished = false; 
-        }
+  // //       if (elevator.isFinished){
+  // //         isStage = false; 
+  // //         elevator.isFinished = false; 
+  // //       }
         
-        break;
+  // //       break;
 
-      case 'a': 
-        if(!isStage) {
-          scaraArm.autoStart = true;
-          isStage = true;
-          frc::SmartDashboard::PutBoolean("in stage arm", isStage); 
-        }
+  // //     case 'a': 
+  // //       if(!isStage) {
+  // //         scaraArm.autoStart = true;
+  // //         isStage = true;
+  // //         frc::SmartDashboard::PutBoolean("in stage arm", isStage); 
+  // //       }
 
-        if(scaraArm.isFinished) {
-          isStage = false;
-          scaraArm.isFinished = false;
-        }
+  // //       if(scaraArm.isFinished) {
+  // //         isStage = false;
+  // //         scaraArm.isFinished = false;
+  // //       }
         
-        //scaraArm.movetoXY(path[index].arm_x, path[index].arm_y); 
-        break; 
+  // //       //scaraArm.movetoXY(path[index].arm_x, path[index].arm_y); 
+  // //       break; 
 
-      default: 
-        break; 
-    }
+  // //     default: 
+  // //       break; 
+  // //   }
     
-    if (!isStage){
-        index++;
-    }
+  // //   if (!isStage){
+  // //       index++;
+  // //   }
 
      
-  }
+  // }
 
      
   }
