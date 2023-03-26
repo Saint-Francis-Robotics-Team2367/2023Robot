@@ -9,16 +9,16 @@ ElevatorModule::ElevatorModule(frc::XboxController* controller, frc::XboxControl
 }
 
 
-double ElevatorModule::manualMove(double Linput, double Rinput) {
+double ElevatorModule::manualMove(double Linput) {
     //frc::SmartDashboard::PutNumber("l", Linput);
     //frc::SmartDashboard::PutNumber("r", Rinput);
     //change to ShuffleUI if uncommented
 
     double L = Linput;
-    double R = Rinput;
-    if (Linput < triggerDeadband) {L = 0;}
-    if (Rinput < triggerDeadband) {R = 0;}
-    return (R - L) / slowCoefficient; 
+    // double R = Rinput;
+    if (fabs(Linput) < triggerDeadband) {L = 0;}
+    // if (Rinput < triggerDeadband) {R = 0;}
+    return L / slowCoefficient; 
 }
 
 double ElevatorModule::getPos() {
@@ -130,7 +130,7 @@ void ElevatorModule::Init() {
 void ElevatorModule::TeleopPeriodic(double Linput, double Rinput) {
         ShuffleUI::MakeWidget("position", tab, getPos());
         ShuffleUI::MakeWidget("height", tab, height);
-        double output = manualMove(Linput, Rinput);
+        double output = manualMove(Linput);
         // elevatorMotor->Set(output);
         // height = getPos();
         setPos(height + output);
@@ -171,12 +171,7 @@ void ElevatorModule::run() {
         // ShuffleUI::MakeWidrotget("elev left y", tab, ctrOperator->GetLeftY());
        
         if(state == 't') {
-            // intake->rotaryIntake->Set(ctr->GetRightX());
-            // intake->toggle(ctr->GetAButtonPressed());
-            // // intake->roller->Set(-driverStick->GetRawAxis(2));
-            // //intake->rotaryIntake->Set(driverStick->GetRawAxis(4));
-            // intake->rightStar->Set(driverStick->GetRawAxis(1));
-            // intake->leftStar->Set(driverStick->GetRawAxis(4));
+
              if(!currentlyMoving) {
                 if(ctr->GetXButton()) { //|| (ShuffleUI::GetInt("Score", "ArmtoElev", -1) == topLeftPole || ShuffleUI::GetInt("Score", "ArmtoElev", -1) == topRightPole)
                 currentlyMoving = true;
@@ -194,7 +189,7 @@ void ElevatorModule::run() {
             }
             
             //need this line for down movement to work? also is manual, could replace triggers with 0, 0 and it works
-            TeleopPeriodic(ctr->GetLeftTriggerAxis(), ctr->GetRightTriggerAxis()); //for some reason either need this or teleop periodic for moving downwards to work
+            TeleopPeriodic(-ctrOperator->GetRightY(), 0); //for some reason either need this or teleop periodic for moving downwards to work
             //elevatorMotor->Set(ctr->GetLeftTriggerAxis() - ctr->GetRightTriggerAxis());
             
         }
