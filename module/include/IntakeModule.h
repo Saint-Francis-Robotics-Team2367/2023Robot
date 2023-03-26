@@ -7,10 +7,7 @@
 class IntakeModule {
     public:
     //CHECK THIS WITH ID'S
-    rev::CANSparkMax *rotaryIntake = new rev::CANSparkMax(rotaryID, rev::CANSparkMax::MotorType::kBrushless);
-    rev::CANSparkMax *leftStar = new rev::CANSparkMax(leftStarID, rev::CANSparkMax::MotorType::kBrushed);
-    rev::CANSparkMax *rightStar = new rev::CANSparkMax(rightStarID, rev::CANSparkMax::MotorType::kBrushed);
-    rev::CANSparkMax *roller = new rev::CANSparkMax(rollerID, rev::CANSparkMax::MotorType::kBrushed);
+
 
     // if you don't include getEncoder here, it doesn't build?
     rev::SparkMaxRelativeEncoder rotaryIntakeEncoder = rotaryIntake->GetEncoder();
