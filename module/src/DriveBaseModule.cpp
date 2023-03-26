@@ -638,7 +638,7 @@ void DriveBaseModule::run()
     {
       if(test) {
         frc::SmartDashboard::PutBoolean("hi", true);
-        PIDDrive(5, false);
+        PIDDrive(7, false);
         test = false;
       }
       // if (isRunningAutoTurn)
