@@ -17,6 +17,9 @@ DriveBaseModule drive;
 frc::XboxController* ctr = new frc::XboxController(0);
 frc::XboxController* ctr2 = new frc::XboxController(1);
 
+rev::CANSparkMax *leftStar = new rev::CANSparkMax(leftStarID, rev::CANSparkMax::MotorType::kBrushed);
+rev::CANSparkMax *rightStar = new rev::CANSparkMax(rightStarID, rev::CANSparkMax::MotorType::kBrushed);
+
 ScaraArmModule scaraArm(ctr, ctr2);
 
 ElevatorModule elevator(ctr, ctr2);
@@ -111,11 +114,20 @@ void Robot::AutonomousInit() {
   //   path[0] = a1; 
   //   path[1] = b1; 
   //   path[2] = c1; 
-  //   path[3] = d1; 
+  //   path[3] = d1;
+  leftStar->Set(-1);
+  rightStar->Set(-1);
+  timestamp = frc::Timer::GetFPGATimestamp().value();
   
   }
   
 void Robot::AutonomousPeriodic() {
+  if(frc::Timer::GetFPGATimestamp().value() - timestamp < 5) {
+    leftStar->Set(-1);
+    rightStar->Set(-1);
+  }
+
+
 
   //  int index = 0; 
 
@@ -210,9 +222,36 @@ void Robot::TeleopInit() {
   scaraArm.state = 't';
   drive.state = 't';
   elevator.state = 't';
+  frc::SmartDashboard::PutNumber("scale", 1.0);
 }
 
-void Robot::TeleopPeriodic() {}
+void Robot::TeleopPeriodic() {
+  
+  float scale = frc::SmartDashboard::GetNumber("scale", 0.0);
+
+  if(ctr->GetRawButton(5))
+  {
+    const float forward = 0.5F * scale;
+    leftStar->Set(forward);
+    rightStar->Set(forward);
+  } 
+  else if (ctr->GetRawButton(6))
+  {
+    const float reverse = -0.5F * scale;
+    leftStar->Set(reverse);
+    rightStar->Set(reverse);
+  }
+  else
+  {
+    leftStar->StopMotor();
+    rightStar->StopMotor();
+  }
+  
+   scale = frc::SmartDashboard::PutNumber("scale", scale);
+
+
+
+}
 
 void Robot::DisabledInit() {
   scaraArm.state = 'd';
