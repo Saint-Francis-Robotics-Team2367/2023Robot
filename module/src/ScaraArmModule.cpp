@@ -676,6 +676,7 @@ void ScaraArmModule::run(){
    bool setManualXY = true;
    bool setLLXY = true;
    int teleopMode = 0;
+   int jstickMult = 1;
 
    int counter = 0;
     while(true) {
@@ -700,12 +701,19 @@ void ScaraArmModule::run(){
             teleopInit = false;
           }
 
-          grabber->toggleTwo(ctrOperator->GetBButtonPressed()); //Only Open/Close
+          grabber->toggle(ctrOperator->GetBButtonPressed()); //Only Open/Close
 
           ShuffleUI::MakeWidget("Grabber", tab, grabber->grab_enc.GetPosition());
           ShuffleUI::MakeWidget("InnerAngle", tab, inner_enc.GetPosition());
           ShuffleUI::MakeWidget("OutterAngle", tab, outter_enc.GetPosition());
           ShuffleUI::MakeWidget("TeleopMode", tab, teleopMode);
+
+          if (ctrOperator->GetBackButtonPressed()) {
+            jstickMult = -1;
+          }
+          if (ctrOperator->GetStartButtonPressed()) {
+            jstickMult = 1;
+          }
 
           if (ctrOperator->GetLeftBumperPressed()) 
           {
@@ -768,16 +776,17 @@ void ScaraArmModule::run(){
 
               if (ctrOperator->GetXButton()) 
               {
-                if (ctrOperator->GetLeftTriggerAxis() > 0.5) 
-                {
-                  innerPID.SetReference(135, rev::CANSparkMax::ControlType::kPosition);
-                  outterPID.SetReference(-90, rev::CANSparkMax::ControlType::kPosition);
-                } 
-                else if (ctrOperator->GetRightTriggerAxis() >  0.5) 
-                {
-                  innerPID.SetReference(45, rev::CANSparkMax::ControlType::kPosition);
-                  outterPID.SetReference(90, rev::CANSparkMax::ControlType::kPosition);
-                }
+                 innerPID.SetReference(160, rev::CANSparkMax::ControlType::kPosition);
+                  outterPID.SetReference(75, rev::CANSparkMax::ControlType::kPosition);
+                // if (ctrOperator->GetLeftTriggerAxis() > 0.5) 
+                // {
+                 
+                // } 
+                // else if (ctrOperator->GetRightTriggerAxis() >  0.5) 
+                // {
+                //   innerPID.SetReference(45, rev::CANSparkMax::ControlType::kPosition);
+                //   outterPID.SetReference(90, rev::CANSparkMax::ControlType::kPosition);
+                // }
               } 
               else if (ctrOperator->GetYButton()) 
               {
@@ -805,7 +814,7 @@ void ScaraArmModule::run(){
               {
                 double leftX = deadZoneCtr(ctrOperator->GetLeftX());
                 double leftY = deadZoneCtr(ctrOperator->GetLeftY());
-                jstickArmMovement(leftX, -leftY);
+                jstickArmMovement(leftX * jstickMult, -leftY * jstickMult);
 
                 
               }
@@ -818,6 +827,7 @@ void ScaraArmModule::run(){
         }
 
         if(state == 'a' ) {
+          grabber->set(0.3);
           if(autoStart)
           {
             
