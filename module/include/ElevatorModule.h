@@ -7,7 +7,6 @@
 #include<frc/XboxController.h>
 #include <atomic>
 #include <frc/Timer.h>
-#include "IntakeModule.h"
 #define triggerDeadband 0.1
 #define PI 3.141592654 // 3.1415926
 
@@ -78,7 +77,6 @@ class ElevatorModule {
     double dUp = 0.0;
 
     bool oneRun = true;
-    IntakeModule* intake = new IntakeModule();
 
 
     ElevatorModule(frc::XboxController* controller, frc::XboxController* controllerOperator);
@@ -87,7 +85,7 @@ class ElevatorModule {
     void AutoPeriodic();
     double getPos();
     void resetPos();
-    double manualMove(double Linput, double Rinput);
+    double manualMove(double Linput);
     void setPos(double setpoint);
     bool setPos(double setpoint, bool isMotionProfiled);
     double getHeight();
