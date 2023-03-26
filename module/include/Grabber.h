@@ -1,6 +1,7 @@
 #include <rev/CANSparkMax.h>
 #include <Macros.h>
 #include <frc/Timer.h>
+#include <frc/SmartDashboard/SmartDashboard.h>
 
 #pragma once
 
@@ -14,8 +15,8 @@ class Grabber {
     bool state = true;// T = closed, F = open
     double openState = -18;
     double closedState = 0;
-    int tripleState = 0;
-    int doubleState = 0;
+    int tripleState = 2;
+    int doubleState = 1;
 
     void Init() {
         grabberPID.SetP(1.3);
@@ -57,11 +58,13 @@ class Grabber {
             doubleState = doubleState % 2;
         }
         if(doubleState == 0) {
-            grabberPID.SetReference(openState, rev::CANSparkMax::ControlType::kPosition);
+            set(-0.4);
+            //grabberPID.SetReference(openState, rev::CANSparkMax::ControlType::kPosition);
         }
         else {
             //set(-1.0);
-            grabberPID.SetReference(closedState, rev::CANSparkMax::ControlType::kPosition);
+            set(0.4);
+            //grabberPID.SetReference(closedState, rev::CANSparkMax::ControlType::kPosition);
         }
     }
 
@@ -71,17 +74,21 @@ class Grabber {
 
 
     void toggle(bool buttonPressed) {
+        
         if (buttonPressed) {
             tripleState += 1;
             tripleState = tripleState % 3;
         }
         if(tripleState == 0) {
             grabberMotor->StopMotor();
+            frc::SmartDashboard::PutString("grabberState", "stopped");
         } else if (tripleState == 1) {
             //set(1.0);
             set(-0.3);
+            frc::SmartDashboard::PutString("grabberState", "opening");
         } else {
             //set(-1.0);
+            frc::SmartDashboard::PutString("grabberState", "closing");
             set(0.3);
         }
         
