@@ -20,8 +20,19 @@ void ScaraArmModule::runInit()
   grabber->Init();
   inner_enc.SetPosition(0);
   outter_enc.SetPosition(0);
+  inner->SetInverted(true);
+  outter->SetInverted(true);
   inner_enc.SetPositionConversionFactor(innerConv);
   outter_enc.SetPositionConversionFactor(outterConv);
+  innerPID.SetP(0.32);
+  innerPID.SetI(0.00);
+  innerPID.SetD(0.0);
+  // innerPID.SetIZone(5);
+  outterPID.SetP(0.32);
+  outterPID.SetI(0.00);
+  outterPID.SetD(0.0);
+  innerPID.SetOutputRange(-0.1, 0.1);
+  outterPID.SetOutputRange(-0.1, 0.1);
 
 }
 
@@ -32,8 +43,12 @@ void ScaraArmModule::stow(double innerSet, double outterSet, double outterSlowSe
 
   while (state < 2) {
     currTime = frc::Timer::GetFPGATimestamp().value();
-    if (currTime - startTime > 2) {
+    if (currTime - startTime > 4) {
       frc::SmartDashboard::PutString("StowStatus", "Went Overtime");
+      inner_enc.SetPosition(0);
+      outter_enc.SetPosition(0);
+      innerPID.SetReference(inner_enc.GetPosition(), rev::CANSparkMax::ControlType::kPosition);
+      outterPID.SetReference(outter_enc.GetPosition(), rev::CANSparkMax::ControlType::kPosition);
       break;
     }
     if (state == 0) {
@@ -41,8 +56,8 @@ void ScaraArmModule::stow(double innerSet, double outterSet, double outterSlowSe
           inner->Set(0);
           state = 1;
         } else {
-          inner->Set(innerSet);
-          outter->Set(-outterSlowSet);
+          inner->Set(-innerSet);
+          outter->Set(outterSlowSet);
         }
 
     } else if (state == 1) {
@@ -51,7 +66,7 @@ void ScaraArmModule::stow(double innerSet, double outterSet, double outterSlowSe
         state = 2;
         frc::SmartDashboard::PutString("StowStatus", "Finished!");
       } else {
-        outter->Set(outterSet);
+        outter->Set(-outterSet);
       }
     }
     inner_enc.SetPosition(0);
@@ -89,8 +104,8 @@ void ScaraArmModule::run()
       }
       else if (ctrOperator->GetXButtonPressed()) 
       {
-        innerPID.SetReference(-64.4569, rev::CANSparkMax::ControlType::kPosition);
-        outterPID.SetReference(-36.6667, rev::CANSparkMax::ControlType::kPosition);
+        innerPID.SetReference(111, rev::CANSparkMax::ControlType::kPosition);
+        outterPID.SetReference(45, rev::CANSparkMax::ControlType::kPosition);
 
       }
       else if (ctrOperator->GetAButtonPressed())
@@ -100,6 +115,8 @@ void ScaraArmModule::run()
         MoveXY::ArmAngles motor_angle = armCalc.get_command_solution();
         frc::SmartDashboard::PutNumber("innerCalc", motor_angle.shoulder);
         frc::SmartDashboard::PutNumber("outterCalc", motor_angle.elbow);
+        //outterPID.SetReference(motor_angle.elbow, rev::CANSparkMax::ControlType::kPosition);
+        //innerPID.SetReference(motor_angle.shoulder, rev::CANSparkMax::ControlType::kPosition);
 
 
       }
