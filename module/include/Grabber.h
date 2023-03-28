@@ -13,6 +13,9 @@ public:
     rev::SparkMaxRelativeEncoder grab_enc = grabberMotor->GetEncoder();
     rev::SparkMaxLimitSwitch grabSwitch = grabberMotor->GetForwardLimitSwitch(rev::SparkMaxLimitSwitch::Type::kNormallyOpen);
 
+    // 0 - closed, 1 - open
+    int state = 0;
+
     void Init()
     {
         grabberPID.SetP(1.3);
@@ -24,8 +27,27 @@ public:
         grabberMotor->SetSecondaryCurrentLimit(20, 0);
     }
 
-    void openAuto() {
-        
+    void delay(int n) 
+    {
+        auto start = std::chrono::system_clock::now();
+        auto end = start + std::chrono::seconds(n);
+        std::chrono::duration<double> elapsed;
+        do {
+            elapsed = end - std::chrono::system_clock::now();
+        } while (elapsed.count() > 0);
+    }
+
+    void openAuto() 
+    {
+        delay(2);
+        state = 1;
+        grabberMotor->Set(-1.0);
+    }
+
+    void closeAuto(){
+        delay(2);
+        state = 0;
+        grabberMotor->Set(0);
     }
 
 private:
