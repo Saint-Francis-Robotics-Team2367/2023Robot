@@ -42,8 +42,8 @@ class ScaraArmModule {
     const double stowOutter = 141.189407;
     const double stowInner = -130.83564;
 
-    const double innerConv = 3.6; 
-    const double outterConv = 36 / 7; //1
+    const double innerConv = 8.789;  //1/(4096/100/360)
+    const double outterConv = 6.1523; //1/(4096/70/360)
 
     const double innerSize = 23.75;
     const double outterSize = 31.5;
