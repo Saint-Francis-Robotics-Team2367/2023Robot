@@ -4,23 +4,27 @@
 #include <iostream>
 #include <tuple>
 
+#include "Macros.h"
+#include "Limelight.h"
+#include "Grabber.h"
+#include "MoveXY.h"
+
+
 #include <rev/CANSparkMax.h>
+#include<frc/XboxController.h>
+#include <rev/SparkMaxLimitSwitch.h>
+#include <frc/DigitalInput.h>
+
 #include <frc/SmartDashboard/SmartDashboard.h>
+#include <frc/shuffleboard/ShuffleboardTab.h>
+#include <frc/shuffleboard/Shuffleboard.h>
+#include <frc/DriverStation.h>
+
 #include <thread>
 #include <chrono>
 #include<mutex>
 #include <atomic>
-#include "Macros.h"
-#include<frc/XboxController.h>
-#include <Grabber.h>
-#include <frc/shuffleboard/ShuffleboardTab.h>
-#include <frc/shuffleboard/Shuffleboard.h>
-#include "Limelight.h"
-#include <rev/SparkMaxLimitSwitch.h>
-#include <frc/DigitalInput.h>
 
-
-#pragma once
 
 #ifndef max
   #define max(a,b) (((a) > (b)) ? (a) : (b))
@@ -35,72 +39,14 @@
 class ScaraArmModule {
     public:
 
-    // const double startInner = 146 + 180;
-    //startOutter is 141.189407
-    //startInner is 229.16436
-    // const double startOutter = 150;
-    const double startInner = 141.189407;
-    const double startOutter = -1 * (360 - 229.16436);
-
     const double stowOutter = 141.189407;
-    const double stowInner = -1 * (360 - 229.16436);
-
-    const double startX = 24.625;
-    const double startY = 0;
-
-    // const int innerID = 10;
-    // const int outterID = 14;
-
-    // const double innerConv = 6.15234; //1/(4096/70/360); 
-    // const double outterConv = 4.394; //1/(4096/70/360); //50 now
-    //36 / 7; 
-    //1/(4096/70/360); 
+    const double stowInner = -130.83564;
 
     const double innerConv = 3.6; 
     const double outterConv = 36 / 7; //1
 
     const double innerSize = 23.75;
     const double outterSize = 31.5;
-
-    std::string tab = "Scara Arm"; // for MakeWidget() calls
-    bool scoreMenuCreated = false; // for ShuffleboardScorer()
-
-    Grabber* grabber = new Grabber();
-
-    //frc::ShuffleboardTab& armTab = frc::Shuffleboard::GetTab("Arm");
-
-
-    
-    //Shuffleboard Tabs:
-    //NetworkTableEntry myBoolean = Shuffleboard.getTab("Example Tab").add("My Boolean", false)
-
-
-
-    // Can also use a different widget type:
-    // .WithWidget(&frc::BuiltInWidgets::kSplitButtonChooser);
-
-    Limelight ll;
-
-    frc::ShuffleboardTab& armTab = frc::Shuffleboard::GetTab("Arm");
-
-
-    // frc::DigitalInput InnerLimitSwitch {0};
-    // frc::DigitalInput OuterLimitSwitch {1};
-    std::thread scaraArmThread;
-    double stopAuto = false;
-    frc::XboxController* ctr;
-    frc::XboxController* ctrOperator;
-    ScaraArmModule(frc::XboxController* controller, frc::XboxController* controllerOperator);
-    char state = 'd';
-    bool test = true;
-    bool autoStart = false;
-    bool isFinished = false;
-    //bool isManualMove = false;
-    void ArmInit();
-    void run();
-    void runInit();
-    void stow();
-    double deadZoneCtr(double inp);
 
     struct armPos {
         double inner_angle;
@@ -115,48 +61,28 @@ class ScaraArmModule {
         double y;
     };
 
+    Grabber* grabber = new Grabber();
+    Limelight ll;
+    frc::XboxController* ctr;
+    frc::XboxController* ctrOperator;
+    MoveXY armCalc = MoveXY(360 + (stowInner + 90), 360 - (180 - stowOutter), innerSize, outterSize);
 
-    std::vector<armPos> XY_to_Arm(double x, double y, double length1, double length2);
+    std::thread scaraArmThread;
+    double stopAuto = false;
+    std::string tab = "Scara Arm"; // for MakeWidget() calls
+    bool scoreMenuCreated = false; // for ShuffleboardScorer()
 
-    std::vector<double> Angles_to_XY(double inner, double outter);
+    char state = 'd';
+    bool test = true;
+    bool autoStart = false;
+    bool isFinished = false;
 
-    double clampAngle(double inp);
+    ScaraArmModule(frc::XboxController* controller, frc::XboxController* controllerOperator);
+    void run();
+    void runInit();
+    double deadZoneCtr(double inp);
+    void stow(double innerSet, double outterSet, double outterSlowSet);
 
-    void movetoXY(double x, double y, bool isManualMove);
-
-    double maxVelocity = 130;
-    double maxAcc = 68;
-    void moveProfiled(double angle1, double angle2);
-
-    void ShuffleboardScorer();
-
-    void TeleopControl();
-    
-    bool XYInRange(double x, double y);
-
-    void checkArmBounds(double outter_pos, double outter_neg, double inner_pos, double inner_neg);
-
-    void jstickArmMovement(double jstickX, double jstickY);
-
-    void movetoPole(Limelight::poleIDs poleID);
-    
-    PointXY getCircleLineInt(double r, double currX, double currY);
-
-    void reverseStow();
-
-    void CtrScorer();
-
-
-    armPos currentPosition = {startInner, startOutter, startX, startY};
-    armPos calculatedPosition = {0.0, 0.0, startX, startY};
-
-    //Unstow Path Points, WE ARE NOT USING ANGLES PLS DONT HATE ME
-    
-    armPos backRight = {-1, -1, 0, 0};
-    armPos backLeft = {-1, -1, 0, 0};
-    armPos frontLeft = {-1, -1, 0, 0};
-    std::vector<armPos> reverseStowPositions = {backRight, backLeft, frontLeft};
-    
 
     rev::CANSparkMax* inner = new rev::CANSparkMax(scaraArmInner, rev::CANSparkMax::MotorType::kBrushless);
     rev::SparkMaxRelativeEncoder inner_enc = inner->GetEncoder();
