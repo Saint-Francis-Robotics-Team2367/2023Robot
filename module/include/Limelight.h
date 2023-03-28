@@ -11,7 +11,7 @@
 
 
 class Limelight {
-    public:
+    public: 
 
     enum poleIDs {
         bottomRightPole = 0,
@@ -153,8 +153,6 @@ class Limelight {
     int getTargetDetected() {
        return nt::NetworkTableInstance::GetDefault().GetTable("limelight")->GetNumber("tv", 0);
     }
-    
+
     private:
-
-
 };
