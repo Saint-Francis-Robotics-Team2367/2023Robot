@@ -36,3 +36,6 @@
 #define rollerID 16
 // #define testLeft 14
 // #define testRight 1
+
+#define inverseDriveButtonPOV 180
+#define regularDriveButtonPOV 0
