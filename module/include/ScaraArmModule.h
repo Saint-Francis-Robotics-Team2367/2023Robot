@@ -48,6 +48,9 @@ class ScaraArmModule {
     const double innerSize = 23.75;
     const double outterSize = 31.5;
 
+    double delta = 10;
+    double tuningPrevTime = 0;
+
     struct armPos {
         double inner_angle;
         double outter_angle;
@@ -82,6 +85,7 @@ class ScaraArmModule {
     void runInit();
     double deadZoneCtr(double inp);
     void stow(double innerSet, double outterSet, double outterSlowSet);
+    void PIDTuning();
 
 
     rev::CANSparkMax* inner = new rev::CANSparkMax(scaraArmInner, rev::CANSparkMax::MotorType::kBrushless);

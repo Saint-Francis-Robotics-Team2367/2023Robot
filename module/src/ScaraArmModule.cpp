@@ -78,7 +78,52 @@ void ScaraArmModule::stow(double innerSet, double outterSet, double outterSlowSe
 
 
 
+void ScaraArmModule::PIDTuning() {
+  std::string tab = "arm PID";
+  //maybe have input determine if it tunes inner or outer?
 
+  // PID Inner
+  double innerOutput = inner->GetOutputCurrent();
+  double innerVoltage = inner->GetBusVoltage();
+
+  ShuffleUI::MakeWidget("inner current", tab, innerOutput);
+  ShuffleUI::MakeWidget("inner voltage", tab, innerVoltage);
+
+  ShuffleUI::MakeSlider("P value inner", tab, 5, 5, 0);
+  innerPID.SetP(ShuffleUI::GetDouble("P value inner", tab, 0));
+
+  ShuffleUI::MakeSlider("I value inner", tab, 5, 5, 0);
+  innerPID.SetI(ShuffleUI::GetDouble("I value inner", tab, 0));
+
+  ShuffleUI::MakeSlider("D value", tab, 5, 5, 0);
+  innerPID.SetD(ShuffleUI::GetDouble("P value", tab, 0));
+
+  ShuffleUI::MakeSlider("I Zone inner", tab, 5, 5, 0);
+  innerPID.SetIZone(ShuffleUI::GetDouble("I Zone inner", tab, 0));
+
+  //so this line is a quick fix for a potential error. I want to fix this by changing the ShuffleUI code, but for now this should work
+  if (ShuffleUI::GetEntry("wait time", tab) == NULL) {ShuffleUI::MakeWidget("wait time", tab, 4);}
+  double waitTime = ShuffleUI::GetDouble("wait time", tab, 4);
+  ShuffleUI::MakeWidget("wait time", tab, waitTime);
+
+  double currTime = frc::Timer::GetFPGATimestamp().value();
+  ShuffleUI::MakeWidget("currTime", tab, currTime);
+  ShuffleUI::MakeWidget("Setpoint", tab, delta);
+  if (currTime > tuningPrevTime + waitTime)
+  {
+
+    innerPID.SetReference(delta, rev::ControlType::kPosition);
+    delta = delta * -1.0;
+
+    ShuffleUI::MakeWidget("Right Encoder", tab, inner_enc.GetPosition());
+
+    tuningPrevTime = frc::Timer::GetFPGATimestamp().value();
+    ShuffleUI::MakeWidget("prev time", tab, tuningPrevTime);
+  }
+
+
+  // PID Outer
+}
 
 
 void ScaraArmModule::run()
