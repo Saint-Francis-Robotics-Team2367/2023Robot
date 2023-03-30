@@ -86,10 +86,24 @@ void DriveBaseModule::arcadeDrive(double xSpeedi, double zRotationi)
 }
 
 void DriveBaseModule::gyroDriving()
-{
+{ 
+  int pov = driverStick->GetPOV();
+  frc::SmartDashboard::PutNumber("POV", pov);
+
+  if (pov == -1) {
+
+  }
+  else if(pov > 270 || pov < 90){
+    gyroDriveInverse = false;
+  }
+  else if(90 < pov < 270){
+    gyroDriveInverse = true;
+  }
+
   float rightStickOutput = driverStick->GetRawAxis(4);
   float calculation = rightStickPID->Calculate(ahrs->GetRate() / 150, rightStickOutput); // add skim
-  arcadeDrive(driverStick->GetRawAxis(1) * (-1), calculation);
+  float gyroDir = gyroDriveInverse?-1:1;
+  arcadeDrive(driverStick->GetRawAxis(1) * gyroDir, calculation * gyroDir);
   frc::SmartDashboard::PutNumber("yeyeye", 10);
   ShuffleUI::MakeWidget("output", tab, calculation);
   ShuffleUI::MakeWidget("gyro", tab, ahrs->GetRate());

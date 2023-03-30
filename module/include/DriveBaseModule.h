@@ -49,6 +49,8 @@ public:
 
   //ScaraArmModule* arm = new ScaraArmModule();
 
+  bool gyroDriveInverse = false;
+
   bool isRunningAutoTurn = false;
   bool isRunningAutoDrive = false;
 
