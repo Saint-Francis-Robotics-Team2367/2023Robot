@@ -92,7 +92,10 @@ void ScaraArmModule::run()
     frc::SmartDashboard::PutNumber("OutterAngle", outter_enc.GetPosition());
 
     if (isStowing) {
+      grabber->grabberMotor->Set(0.1);
       stow(0.2, 0.1, 0.05);
+      grabber->grabberMotor->Set(0);
+      grabber->grab_enc.SetPosition(0);
       isStowing = false;
       continue;
     }
@@ -115,10 +118,13 @@ void ScaraArmModule::run()
         MoveXY::ArmAngles motor_angle = armCalc.get_command_solution();
         frc::SmartDashboard::PutNumber("innerCalc", motor_angle.shoulder);
         frc::SmartDashboard::PutNumber("outterCalc", motor_angle.elbow);
-        //outterPID.SetReference(motor_angle.elbow, rev::CANSparkMax::ControlType::kPosition);
-        //innerPID.SetReference(motor_angle.shoulder, rev::CANSparkMax::ControlType::kPosition);
-
-
+        outterPID.SetReference(motor_angle.elbow, rev::CANSparkMax::ControlType::kPosition);
+        innerPID.SetReference(motor_angle.shoulder, rev::CANSparkMax::ControlType::kPosition);
+      } else 
+      {
+        //innerPID.SetReference()
+        //innerPID.SetReference(inner_enc.GetPosition(),  rev::CANSparkMax::ControlType::kPosition);
+        //outterPID.SetReference(outter_enc.GetPosition(),  rev::CANSparkMax::ControlType::kPosition);
       }
 
 

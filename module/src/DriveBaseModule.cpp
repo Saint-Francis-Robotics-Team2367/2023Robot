@@ -636,7 +636,8 @@ void DriveBaseModule::run()
 
     if (state == 'a')
     {
-      if(test) {
+      if (test)
+      {
         frc::SmartDashboard::PutBoolean("hi", true);
         PIDDrive(7, false);
         test = false;
@@ -676,7 +677,7 @@ void DriveBaseModule::run()
       ShuffleUI::MakeWidget("rcheck", tab, rMotor->GetIdleMode() == rev::CANSparkMax::IdleMode::kBrake);
 
       test = true;
-      //stopAuto = true;
+      // stopAuto = true;
     }
 
     if (state == 'u')

@@ -15,6 +15,7 @@ public:
 
     // 0 - closed, 1 - open
     int state = 0;
+    double range = 18.0;
 
     void Init()
     {
@@ -39,15 +40,34 @@ public:
 
     void openAuto() 
     {
+        grabberMotor->Set(-1.0);
         delay(2);
         state = 1;
-        grabberMotor->Set(-1.0);
+        grabberMotor->Set(0);
+        grab_enc.SetPosition(-range);
+        
     }
 
     void closeAuto(){
+        grabberMotor->Set(1.0);
         delay(2);
         state = 0;
         grabberMotor->Set(0);
+        grab_enc.SetPosition(0);
+
+    }
+
+    void togglePID(bool buttonPressed) {
+        if (buttonPressed) {
+            state += 1;
+            state = state % 2;
+        }
+        if (state == 0) {
+            grabberPID.SetReference(-range, rev::CANSparkMax::ControlType::kPosition);
+        } else if (state == 1) {
+            grabberPID.SetReference(0, rev::CANSparkMax::ControlType::kPosition);
+        }
+
     }
 
 private:

@@ -189,9 +189,8 @@ void ElevatorModule::run() {
             }
             
             //need this line for down movement to work? also is manual, could replace triggers with 0, 0 and it works
-            TeleopPeriodic(-ctrOperator->GetRightY(), 0); //for some reason either need this or teleop periodic for moving downwards to work
+            TeleopPeriodic(ctrOperator->GetLeftTriggerAxis(), ctrOperator->GetRightTriggerAxis()); //for some reason either need this or teleop periodic for moving downwards to work
             //elevatorMotor->Set(ctr->GetLeftTriggerAxis() - ctr->GetRightTriggerAxis());
-            
         }
         if(state == 'a') {
             if(isRunningAuto) {
