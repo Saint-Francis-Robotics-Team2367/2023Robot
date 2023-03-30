@@ -6,7 +6,7 @@
 
 #include "Macros.h"
 #include "Limelight.h"
-#include "Grabber.h"
+//#include "Grabber.h"
 #include "MoveXY.h"
 
 
@@ -47,6 +47,27 @@ class ScaraArmModule {
 
     const double innerSize = 23.75;
     const double outterSize = 31.5;
+    
+    double maxVelocity = 130;
+    double maxAcc = 68;
+
+    struct armProfile{
+        float timeElapsed, DistanceToDeccelerate, currentVelocity = 0.0; //currentPositionInner is the set point
+        double currentPosition; //current velocity is a class variable
+        float prevTime;
+        bool positive;
+        bool isProfiling = false;
+        bool firstRun = true;
+    };
+
+    enum motorMappings {
+        innerMotor = 0,
+        outterMotor = 1
+    };
+
+    armProfile innerProfile;
+    armProfile outterProfile;
+        
 
     struct armPos {
         double inner_angle;
@@ -61,11 +82,11 @@ class ScaraArmModule {
         double y;
     };
 
-    Grabber* grabber = new Grabber();
+    //Grabber* grabber = new Grabber();
     Limelight ll;
     frc::XboxController* ctr;
     frc::XboxController* ctrOperator;
-    MoveXY armCalc = MoveXY(360 + (stowInner + 90), 360 - (180 - stowOutter), innerSize, outterSize);
+    MoveXY armCalc = MoveXY(450 + stowInner, 180 + stowOutter, innerSize, outterSize);
 
     std::thread scaraArmThread;
     double stopAuto = false;
@@ -82,6 +103,7 @@ class ScaraArmModule {
     void runInit();
     double deadZoneCtr(double inp);
     void stow(double innerSet, double outterSet, double outterSlowSet);
+    void moveProfiled(double setpoint, motorMappings motor);
 
 
     rev::CANSparkMax* inner = new rev::CANSparkMax(scaraArmInner, rev::CANSparkMax::MotorType::kBrushless);
