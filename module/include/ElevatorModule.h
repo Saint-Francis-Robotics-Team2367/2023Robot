@@ -13,7 +13,7 @@
 #pragma once
 
 class ElevatorModule {
-
+    
     frc::XboxController* ctr;
     frc::XboxController* ctrOperator;
     int run_counter = 0;
@@ -28,9 +28,11 @@ class ElevatorModule {
     double stopAuto = false;
     bool test = true;
 
+    
     bool isRunningAuto = false;
     bool isFinished = false;
-    double autoAmount = 0;
+    double autoAmount = 30;
+
     void autoSet(double setpoint);
 
 

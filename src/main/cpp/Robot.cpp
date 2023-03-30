@@ -73,7 +73,8 @@ void Robot::AutonomousInit() {
 
   autoPath d(autoPathType::straight); 
   d.register_straight(5);
-
+  elevator.isRunningAuto = true;
+  
   // autoPath e(autoPathType::arm); 
   // e.register_arm(20, 20); 
 
