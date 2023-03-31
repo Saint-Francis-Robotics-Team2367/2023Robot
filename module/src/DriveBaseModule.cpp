@@ -59,6 +59,15 @@ void DriveBaseModule::LimitRate(double &s, double &t)
 // need to TEST SKIM CONSTANT
 void DriveBaseModule::arcadeDrive(double xSpeedi, double zRotationi)
 {
+
+    double pitch = ahrs->GetRoll();
+    // pitch = std::clamp(pitch, -15.0, 15.0);
+    double absPitch = fabs(pitch);
+    double error = 15 - absPitch; // 15 - pitch
+    frc::SmartDashboard::PutNumber("pitch", pitch);
+    frc::SmartDashboard::PutNumber("error", error);
+
+    // ^ testing for autobalance
   if (fabs(xSpeedi) < xDeadband)
     xSpeedi = 0;
 
@@ -97,23 +106,40 @@ void DriveBaseModule::gyroDriving()
 
 void DriveBaseModule::autoBalance()
 {
-  double pitch = ahrs->GetPitch();
+  // values of error
+  // 
+  // 1.77 at bottom, -12 at top 
+  // -0.3 at top, -11.5 at bottom
+  lPID.SetOutputRange(-0.1, 0.1);
+  rPID.SetOutputRange(-0.1, 0.1);
+  double pitch = ahrs->GetRoll();
   // pitch = std::clamp(pitch, -15.0, 15.0);
-  double error = 15 - pitch;
-  double maxDegrees = 15;
-  double length = 12;
+  double absPitch = fabs(pitch);
+  double error;
+  if (-2.0 < pitch < 0.0) error = 0;
+  if (-2.0 > pitch > -11.0) error = 0.1;
+  if (0.0 < pitch < 2.0) error = 0;
+  if (2.0 < pitch < 11.0) error = -0.1; 
+  // double error = 15 - absPitch; // 15 - pitch
+  // double maxDegrees = 15;
+  // double length = 12;
   frc::SmartDashboard::PutNumber("pitch", pitch);
   frc::SmartDashboard::PutNumber("error", error);
-  // ouble gyroOutput = autoBalancePID->Calculate(pitch); // should I make this setpoint nothing?
-  // double gyroOutput = autoBalancePID->Calculate(pitch, 0.01);
-  // frc::SmartDashboard::PutNumber("gyroOutput", gyroOutput);
 
-  // uncomment later
-  // lPID.SetReference(error, rev::CANSparkMax::ControlType::kPosition);
-  // rPID.SetReference(error, rev::CANSparkMax::ControlType::kPosition);
-  //-------------
+  // double gyroOutput = autoBalancePID->Calculate(pitch); // should I make this setpoint nothing?
+  // double gyroOutput = autoBalancePID->Calculate(pitch, 0.01);
+  double gyroOutput = ahrs->GetRate();
+  frc::SmartDashboard::PutNumber("gyroOutput", gyroOutput);
+  // uncomment later 
+  
+  // if (error > 16) {
+  //   frc::SmartDashboard::PutBoolean("tipping?", true)
+  // }
+  lPID.SetReference(error, rev::CANSparkMax::ControlType::kVelocity);
+  rPID.SetReference(error, rev::CANSparkMax::ControlType::kVelocity);
 
   // PIDDrive(gyroOutput, false);
+  
   // arcadeDrive(gyroOutput/10, 0);
 }
 
@@ -624,6 +650,7 @@ void DriveBaseModule::run()
   runInit();
   // arm->ArmInit();
   bool test = true;
+  bool balancing = true;
   int counter = 0;
   while (true)
   {
@@ -658,10 +685,10 @@ void DriveBaseModule::run()
       //   frc::SmartDashboard::PutBoolean("isRunningAutoDrive", isRunningAutoDrive);
       // }
 
-      // if (balancing)
-      // {
-      //   autoBalance();
-      // }
+      if (balancing)
+      {
+        autoBalance();
+      }
     }
 
     if (state == 't')
