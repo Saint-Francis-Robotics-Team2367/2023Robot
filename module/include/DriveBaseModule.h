@@ -14,9 +14,9 @@
 #define driverStickPort 0
 #define operatorStickPort 1
 
-#define PIDProportional 0.59
+#define PIDProportional 0.1 //0.59
 #define PIDIntegral 0
-#define PIDDerivative 0.28
+#define PIDDerivative 0 //0.28
 #define PIDIZone 0
 
 #define driveTurningGain 0.25
@@ -123,6 +123,7 @@ public:
     }
     return fabs(fabs(ahrs->GetAngle()) - fabs(gyroOffsetVal)); //should alwyas return positive because PIDTurn method requires (changes signs in setpoint)
    }
+void autoBalance();
 
   //old system doesn't work, need to fix for radius
   struct pathPoint {
@@ -147,8 +148,34 @@ public:
 
   char state = 't';
 
- frc2::PIDController* rightStickPID = new frc2::PIDController(driveProportional, driveIntegral, driveDerivitive);
+  //Target Relative Positioning
 
+  std::vector<double> getCoords();
+  void setTarget(double x, double y);
+  void updatePos(double left, double right, double angle);
+  double getAngleToTarget();
+  double getDistanceToTarget();
+  double range360(double inp);
+
+  //TRP Variables
+
+  double target_x = 0;
+  double target_y = 10;
+  double start_x = 0;
+  double start_y = 0;
+  std::vector<double> position{0, 0, 0};
+
+  double current_x = start_x;
+  double current_y = start_y;
+  double current_theta;
+  double last_Lencoder = 0;
+  double last_Rencoder= 0;
+
+  // End of TRP
+
+  //units::second_t period = 5.0;
+ frc2::PIDController* rightStickPID = new frc2::PIDController(driveProportional, driveIntegral, driveDerivitive);
+ frc2::PIDController* autoBalancePID = new frc2::PIDController(1, 0, 0.0, 5_ms); //bang bang
   private:
 	    double m_out;
 };

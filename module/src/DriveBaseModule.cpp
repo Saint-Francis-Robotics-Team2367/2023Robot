@@ -1,5 +1,6 @@
 #include "DriveBaseModule.h"
 #include <iostream>
+
 #include "ShuffleUI.h"
 
 DriveBaseModule::DriveBaseModule()
@@ -524,6 +525,7 @@ void DriveBaseModule::initPath()
   // rpoint2.angle = -180;
   // radiusTurnPoints.push_back(rpoint2);
 
+
   // pathPoint point2; //example
   // point2.x = 0;
   // point2.y = 10;
@@ -617,6 +619,81 @@ void DriveBaseModule::autonomousSequence()
   }
 }
 
+std::vector<double> DriveBaseModule::getCoords() {
+    std::vector<double> temp {current_x, current_y};
+    return temp; 
+}
+
+void DriveBaseModule::setTarget(double x, double y) {
+    target_x = x;
+    target_y = y;
+  }
+
+void DriveBaseModule::updatePos(double left, double right, double angle) { // Run in a loop, uses gyro, USE CHANGE IN DISTNACE
+  double x = position.at(0);
+  double y = position.at(1);
+  double theta = range360(angle);
+  theta = angle * PI / 180; // theta should come in as a radian but output in degrees
+
+  double dcenter = (left + right) / 2;
+  double phi = (right - left) / (centerToWheel * 2); // In radians
+
+  double f_theta = theta + phi;
+  //f_theta = fmod(f_theta * 180 / wpi::numbers::pi, 360);
+  double f_x = x + (dcenter * cos(theta));
+  double f_y = y + (dcenter * sin(theta));
+
+  position.at(0) = f_x;
+  position.at(1) = f_y;
+  //position.at(2) = f_theta;
+
+  }
+
+double DriveBaseModule::getAngleToTarget() {
+    double angle;
+    double relative_x = fabs(target_x - current_x);
+    double relative_y = fabs(target_y - current_y);
+    angle = range360(atan2(relative_y, relative_x) * (180 / PI));
+    if (current_x > target_x) {
+      
+      if (current_y > target_y) {
+        angle += 180;
+        return (range360(current_theta - angle));
+        
+      } else {
+        angle = (180 - angle);
+        return (range360(current_theta- angle));
+      }
+      
+    } else {
+      if (current_y > target_y) {
+        angle = 360 - angle;
+        return (range360(current_theta - angle));
+      } else {
+        return (range360(current_theta - angle));
+      }
+    }
+
+
+  }
+
+double DriveBaseModule::getDistanceToTarget() { //Linear Distance NOT 3D
+    double xsqr = (current_x - target_x) * (current_x - target_x);
+    double ysqr = (current_y - target_y) * (current_y - target_y);
+    return (sqrt(xsqr + ysqr));
+  }
+
+double DriveBaseModule::range360(double inp) {
+    double out;
+    if (inp < 0) {
+        out = 360 + inp;
+        out = fmod(out, 360);
+    } else {
+        out = fmod(inp, 360);
+    }
+    return out;
+}
+
 void DriveBaseModule::runInit()
 {
   if (!(initDriveMotor(lMotor, lMotorFollower, lInvert) && initDriveMotor(rMotor, rMotorFollower, rInvert)))
@@ -664,44 +741,26 @@ void DriveBaseModule::run()
     if (state == 'a')
     {
       if(test) {
-        frc::SmartDashboard::PutBoolean("hi", true);
-        PIDDrive(7, false);
+          //autonomousSequence();
+          //PIDDrive(-7, false);
+          PIDTurn(-110, 0, false);
+          PIDTurn(110, 0, false);
+
         test = false;
       }
-      // if (isRunningAutoTurn)
-      // { // default false
-      //   isRunningAutoTurn = false;
-      //   isFinished = PIDTurn(angle, radius, keepVelocityTurn);
-      //   frc::SmartDashboard::PutBoolean("isRunningAutoTurn", isRunningAutoTurn);
-      // }
-
-      // if (isRunningAutoDrive)
-      // {
-      //   isRunningAutoDrive = false;
-      //   isFinished = PIDDrive(totalFeet, keepVelocityDrive);
-      //   // PIDDrive(totalFeet, keepVelocityDrive);
-      //   // isFinished = true;
-      //   frc::SmartDashboard::PutBoolean("isFinished", isFinished);
-      //   frc::SmartDashboard::PutBoolean("isRunningAutoDrive", isRunningAutoDrive);
-      // }
-
-      if (balancing)
-      {
-        autoBalance();
-      }
+      elev->AutoPeriodic();
+      
+    } else {
+      test = true;
+      stopAuto = true;
     }
 
     if (state == 't')
     {
       // perioidic routines
       gyroDriving();
-
-      ShuffleUI::MakeWidget("joystick", tab, driverStick->GetRawAxis(1));
-      // honestly let's move to xbox joystick maybe
-      // elev->TeleopPeriodic(driverStick->GetLeftTriggerAxis(), driverStick->GetRightTriggerAxis());
-      ShuffleUI::MakeWidget("lcheck", tab, lMotor->GetIdleMode() == rev::CANSparkMax::IdleMode::kBrake);
-      ShuffleUI::MakeWidget("rcheck", tab, rMotor->GetIdleMode() == rev::CANSparkMax::IdleMode::kBrake);
-
+      //honestly let's move to xbox joystick maybe
+      //elev->TeleopPeriodic(driverStick->GetLeftTriggerAxis(), driverStick->GetRightTriggerAxis()); 
       test = true;
       //stopAuto = true;
     }
