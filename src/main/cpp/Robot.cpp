@@ -24,11 +24,11 @@ ScaraArmModule scaraArm(ctr, ctr2);
 
 ElevatorModule elevator(ctr, ctr2);
 
-autoPath path[3] = {
+autoPath path[1] = {
     autoPath(autoPathType::elev),
-    autoPath(autoPathType::arm),
+    //autoPath(autoPathType::arm),
     // autoPath(autoPathType::turn), 
-    autoPath(autoPathType::straight),
+    //autoPath(autoPathType::straight),
     //autoPath(autoPathType::arm),
   };
 
@@ -58,8 +58,8 @@ void Robot::AutonomousInit() {
   // const std::string autoCustom = "Path 1"; // define more variables if there are more custom paths 
   // std::string selected; 
 
-  // autoPath a(autoPathType::elev); 
-  // a.register_elev(10); 
+  autoPath a(autoPathType::elev); 
+  a.register_elev(30.0); 
   
   // autoPath x(autoPathType::arm);
   // x.register_arm(10, 10);
@@ -71,10 +71,10 @@ void Robot::AutonomousInit() {
   // autoPath c(autoPathType::straight); 
   // c.register_elev(25); 
 
-  autoPath d(autoPathType::straight); 
-  d.register_straight(5);
-  elevator.isRunningAuto = true;
-  
+  // autoPath d(autoPathType::straight); 
+  // d.register_straight(5);
+  // elevator.isRunningAuto = true;
+  // scaraArm.autoStart = true;
   // autoPath e(autoPathType::arm); 
   // e.register_arm(20, 20); 
 
@@ -102,7 +102,7 @@ void Robot::AutonomousInit() {
   // path[3] = d;
   // path[4] = e; 
 
-  path[0] = d;
+  path[0] = a;
 
   // if (selected == autoCustom){ // if custom path 1 is selected 
   //   autoPath path[4] = {
@@ -115,108 +115,105 @@ void Robot::AutonomousInit() {
   //   path[0] = a1; 
   //   path[1] = b1; 
   //   path[2] = c1; 
-  //   path[3] = d1;
-  leftStar->Set(-1);
-  rightStar->Set(-1);
-  timestamp = frc::Timer::GetFPGATimestamp().value();
+  // //   path[3] = d1;
+  // leftStar->Set(-1);
+  // rightStar->Set(-1);
+  // timestamp = frc::Timer::GetFPGATimestamp().value();
   
   }
   
 void Robot::AutonomousPeriodic() {
-  if(frc::Timer::GetFPGATimestamp().value() - timestamp < 5) {
-    leftStar->Set(-1);
-    rightStar->Set(-1);
-  }
-
-
-
-  //  int index = 0; 
-
-  // // int numSteps = 1; // CHANGE DEPENDING ON LENGTH OF PATH LIST! 
-  // // float angle, radius; 
-
-  // // if(index < numSteps){
-  // //    switch(path[index].action){
-  // //      case 's': // driving straight
-      
-  // //       if(!isStage) { // if its not currently driving 
-  // //         drive.autoDrive(path[index].dis, path[index].keepVelocity);
-  // //         isStage = true; 
-  // //         frc::SmartDashboard::PutBoolean("in stage drive", isStage); 
-  // //         frc::SmartDashboard::PutBoolean("is finished", drive.isFinished);
-  // //         frc::SmartDashboard::PutNumber("dis", path[index].dis);
-  // //       } 
-        
-  // //       if (drive.isFinished){ // once drive is finished 
-  // //         isStage = false; 
-  // //         drive.isFinished = false; 
-  // //       }
-  // //       break; 
-
-  // //     case 't': // turn
-  // //       if (!isStage){
-  // //         angle = path[index].angle; 
-  // //         radius = path[index].radius; 
-  // //         frc::SmartDashboard::PutNumber("angle", angle); 
-  // //         frc::SmartDashboard::PutNumber("radius", radius);
-
-  // //         if (angle > 0){ // robot starts at 180 deg for right turns 
-  // //           angle = -(angle - 180);
-  // //         }
-
-  // //         drive.autoTurn(angle, radius, path[index].keepVelocity);
-  // //         isStage = true; 
-  // //       }
-        
-  // //       if (drive.isFinished ){
-  // //         isStage = false; 
-  // //         drive.isFinished = false; 
-  // //       }
-        
-  // //       break; 
-
-  // //     case 'e': // elevator
-  // //       if (!isStage){
-  // //         elevator.autoSet(path[index].setpoint); 
-  // //         isStage = true; 
-  // //         frc::SmartDashboard::PutBoolean("in stage elev", isStage); 
-  // //       }
-
-  // //       if (elevator.isFinished){
-  // //         isStage = false; 
-  // //         elevator.isFinished = false; 
-  // //       }
-        
-  // //       break;
-
-  // //     case 'a': 
-  // //       if(!isStage) {
-  // //         scaraArm.autoStart = true;
-  // //         isStage = true;
-  // //         frc::SmartDashboard::PutBoolean("in stage arm", isStage); 
-  // //       }
-
-  // //       if(scaraArm.isFinished) {
-  // //         isStage = false;
-  // //         scaraArm.isFinished = false;
-  // //       }
-        
-  // //       //scaraArm.movetoXY(path[index].arm_x, path[index].arm_y); 
-  // //       break; 
-
-  // //     default: 
-  // //       break; 
-  // //   }
-    
-  // //   if (!isStage){
-  // //       index++;
-  // //   }
-
-     
+  // if(frc::Timer::GetFPGATimestamp().value() - timestamp < 5) {
+  //   leftStar->Set(-1);
+  //   rightStar->Set(-1);
   // }
 
+
+  int numSteps = 1; // CHANGE DEPENDING ON LENGTH OF PATH LIST! 
+  float angle, radius; 
+
+  if(index < numSteps){
+     switch(path[index].action){
+       case 's': // driving straight
+      
+        if(!isStage) { // if its not currently driving 
+          drive.autoDrive(path[index].dis, path[index].keepVelocity);
+          isStage = true; 
+          frc::SmartDashboard::PutBoolean("in stage drive", isStage); 
+          frc::SmartDashboard::PutBoolean("is finished", drive.isFinished);
+          frc::SmartDashboard::PutNumber("dis", path[index].dis);
+        } 
+        
+        if (drive.isFinished){ // once drive is finished 
+          isStage = false; 
+          drive.isFinished = false; 
+        }
+        break; 
+
+      case 't': // turn
+        if (!isStage){
+          angle = path[index].angle; 
+          radius = path[index].radius; 
+          frc::SmartDashboard::PutNumber("angle", angle); 
+          frc::SmartDashboard::PutNumber("radius", radius);
+
+          if (angle > 0){ // robot starts at 180 deg for right turns 
+            angle = -(angle - 180);
+          }
+
+          drive.autoTurn(angle, radius, path[index].keepVelocity);
+          isStage = true; 
+        }
+        
+        if (drive.isFinished ){
+          isStage = false; 
+          drive.isFinished = false; 
+        }
+        
+        break; 
+
+      case 'e': // elevator
+        if (!isStage){
+          elevator.autoSet(path[index].setpoint);
+          frc::SmartDashboard::PutNumber("setpoint  in robot.cpp", path[index].setpoint);
+          //elevator.autoAmount = path[index].setpoint; 
+          isStage = true; 
+          frc::SmartDashboard::PutBoolean("in stage elev", isStage); 
+        }
+
+        if (elevator.isFinished){
+          isStage = false; 
+          elevator.isFinished = false; 
+        }
+        
+        break;
+
+      case 'a': 
+        if(!isStage) {
+          scaraArm.autoStart = true;
+          isStage = true;
+          frc::SmartDashboard::PutBoolean("in stage arm", isStage); 
+        }
+
+        if(scaraArm.isFinished) {
+          isStage = false;
+          scaraArm.isFinished = false;
+        }
+        
+        //scaraArm.movetoXY(path[index].arm_x, path[index].arm_y); 
+        break; 
+
+      default: 
+        break; 
+    }
+    
+    if (!isStage){
+        index++;
+    }
+
      
   }
+}
 
 
 void Robot::TeleopInit() {

@@ -12,12 +12,13 @@ enum autoPathType
 class autoPath {
     public:
         autoPathType action; 
+        
         float dis; 
         float angle; 
         float radius; 
         bool keepVelocity;
         bool motionProfiling; 
-        int setpoint; 
+        float setpoint; 
         double arm_x; 
         double arm_y; 
 
@@ -36,7 +37,7 @@ class autoPath {
             dis = d; 
         };
 
-        void register_elev(int point){
+        void register_elev(float point){
             setpoint = point; 
         };
 
@@ -44,6 +45,7 @@ class autoPath {
             arm_x = x; 
             arm_y = y; 
         };
+
 };
 
 

@@ -650,28 +650,28 @@ void DriveBaseModule::run()
 
     if (state == 'a')
     {
-      if (test)
-      {
-        frc::SmartDashboard::PutBoolean("hi", true);
-        PIDDrive(7, false);
-        test = false;
-      }
-      // if (isRunningAutoTurn)
-      // { // default false
-      //   isRunningAutoTurn = false;
-      //   isFinished = PIDTurn(angle, radius, keepVelocityTurn);
-      //   frc::SmartDashboard::PutBoolean("isRunningAutoTurn", isRunningAutoTurn);
-      // }
-
-      // if (isRunningAutoDrive)
+      // if (test)
       // {
-      //   isRunningAutoDrive = false;
-      //   isFinished = PIDDrive(totalFeet, keepVelocityDrive);
-      //   // PIDDrive(totalFeet, keepVelocityDrive);
-      //   // isFinished = true;
-      //   frc::SmartDashboard::PutBoolean("isFinished", isFinished);
-      //   frc::SmartDashboard::PutBoolean("isRunningAutoDrive", isRunningAutoDrive);
+      //   frc::SmartDashboard::PutBoolean("hi", true);
+      //   PIDDrive(7, false);
+      //   test = false;
       // }
+      if (isRunningAutoTurn)
+      { // default false
+        isRunningAutoTurn = false;
+        isFinished = PIDTurn(angle, radius, keepVelocityTurn);
+        frc::SmartDashboard::PutBoolean("isRunningAutoTurn", isRunningAutoTurn);
+      }
+
+      if (isRunningAutoDrive)
+      {
+        isRunningAutoDrive = false;
+        isFinished = PIDDrive(totalFeet, keepVelocityDrive);
+        // PIDDrive(totalFeet, keepVelocityDrive);
+        // isFinished = true;
+        frc::SmartDashboard::PutBoolean("isFinished", isFinished);
+        frc::SmartDashboard::PutBoolean("isRunningAutoDrive", isRunningAutoDrive);
+      }
 
       // if (balancing)
       // {

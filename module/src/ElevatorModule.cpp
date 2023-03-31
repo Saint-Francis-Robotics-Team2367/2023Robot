@@ -148,6 +148,7 @@ void ElevatorModule::AutoPeriodic() {
 
 void ElevatorModule::autoSet(double setpoint) {
     autoAmount = setpoint;
+    frc::SmartDashboard::PutNumber("auto amount", setpoint);
     isRunningAuto = true;
 }
 
@@ -195,8 +196,12 @@ void ElevatorModule::run() {
         if(state == 'a') {
             if(isRunningAuto) {
                isFinished = setPos(autoAmount, true);
+               frc::SmartDashboard::PutNumber("autoAmount", autoAmount);
                isRunningAuto = false;
-            }
+            } 
+            // setPos(autoAmount, false); //keeping it in place
+            frc::SmartDashboard::PutNumber("autoAmount in Elev A", autoAmount);
+
         }
         std::this_thread::sleep_until(nextRun);
     }

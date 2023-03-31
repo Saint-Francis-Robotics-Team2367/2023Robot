@@ -132,6 +132,11 @@ void ScaraArmModule::run()
 
     if (state == 'a')
     {
+      if(autoStart) {
+        outterPID.SetReference(stowOutter, rev::CANSparkMax::ControlType::kPosition);
+        innerPID.SetReference(-stowInner, rev::CANSparkMax::ControlType::kPosition);
+        autoStart = false;
+      }
     }
 
     if (state == 'd')

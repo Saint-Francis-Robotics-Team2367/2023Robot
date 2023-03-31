@@ -31,7 +31,7 @@ class ElevatorModule {
     
     bool isRunningAuto = false;
     bool isFinished = false;
-    double autoAmount = 30;
+    double autoAmount = 0;  
 
     void autoSet(double setpoint);
 
