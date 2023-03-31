@@ -255,8 +255,8 @@ void Robot::TeleopPeriodic() {
 
 void Robot::DisabledInit() {
   scaraArm.state = 'd';
-  // drive.state = 'd';
-  // elev.state = 'd';
+  drive.state = 'd';
+  elevator.state = 'd';
 }
 
 void Robot::DisabledPeriodic() {}
