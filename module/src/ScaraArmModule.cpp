@@ -31,8 +31,8 @@ void ScaraArmModule::runInit()
   outterPID.SetP(0.32);
   outterPID.SetI(0.00);
   outterPID.SetD(0.0);
-  innerPID.SetOutputRange(-0.1, 0.1);
-  outterPID.SetOutputRange(-0.1, 0.1);
+  innerPID.SetOutputRange(-0.2, 0.2);
+  outterPID.SetOutputRange(-0.2, 0.2);
 }
 
 void ScaraArmModule::stow(double innerSet, double outterSet, double outterSlowSet)
@@ -62,8 +62,8 @@ void ScaraArmModule::stow(double innerSet, double outterSet, double outterSlowSe
       }
       else
       {
-        inner->Set(-innerSet);
-        outter->Set(outterSlowSet);
+        inner->Set(innerSet);
+        outter->Set(-outterSlowSet);
       }
     }
     else if (state == 1)
@@ -76,7 +76,7 @@ void ScaraArmModule::stow(double innerSet, double outterSet, double outterSlowSe
       }
       else
       {
-        outter->Set(-outterSet);
+        outter->Set(outterSet);
       }
     }
     inner_enc.SetPosition(0);
@@ -84,6 +84,15 @@ void ScaraArmModule::stow(double innerSet, double outterSet, double outterSlowSe
   }
   // Set encoders here if necessary
 }
+
+ScaraArmModule::PointXY ScaraArmModule::getPoleXY(Limelight::poleIDs poleID) {
+  std::vector<double> targetPose = ll.getTargetPoseRobotSpace();
+  Limelight::Point targetXY = ll.getTargetXY(targetPose.at(0) * 39.37, targetPose.at(2) * 39.37, targetPose.at(4), poleID); // X, Y, yaw, poleID
+  frc::SmartDashboard::PutNumber("TapeX", targetXY.x);
+  frc::SmartDashboard::PutNumber("TapeY", targetXY.y);
+  return PointXY{targetXY.x, targetXY.y};
+}
+
 
 void ScaraArmModule::moveProfiled(double setpoint, motorMappings motor)
 {
@@ -186,6 +195,7 @@ void ScaraArmModule::run()
 {
   runInit();
   bool isStowing = false;
+  bool isPlacing = false;
   while (true)
   {
     auto nextRun = std::chrono::steady_clock::now() + std::chrono::milliseconds(5); // change milliseconds at telop
@@ -212,6 +222,17 @@ void ScaraArmModule::run()
       else if (ctrOperator->GetAButtonPressed())
       {
         MoveXY::Point target{innerSize, outterSize};
+        armCalc.calc_solution_to_target(target);
+        MoveXY::ArmAngles motor_angle = armCalc.get_command_solution();
+        frc::SmartDashboard::PutNumber("innerCalc", motor_angle.shoulder);
+        frc::SmartDashboard::PutNumber("outterCalc", motor_angle.elbow);
+        outterPID.SetReference(motor_angle.elbow, rev::CANSparkMax::ControlType::kPosition);
+        innerPID.SetReference(motor_angle.shoulder, rev::CANSparkMax::ControlType::kPosition);
+      }
+      else if (ctrOperator->GetStartButtonPressed()) 
+      {
+        PointXY poleXY = getPoleXY(ll.bottomLeftPole);
+        MoveXY::Point target{poleXY.x, poleXY.y};
         armCalc.calc_solution_to_target(target);
         MoveXY::ArmAngles motor_angle = armCalc.get_command_solution();
         frc::SmartDashboard::PutNumber("innerCalc", motor_angle.shoulder);
