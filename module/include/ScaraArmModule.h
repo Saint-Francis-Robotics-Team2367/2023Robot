@@ -40,7 +40,7 @@ class ScaraArmModule {
     public:
 
     const double stowOutter = 141.189407;
-    const double stowInner = -130.83564;
+    const double stowInner = 130.83564;
 
     const double innerConv = 8.789;  //1/(4096/100/360)
     const double outterConv = 6.1523; //1/(4096/70/360)
@@ -86,7 +86,7 @@ class ScaraArmModule {
     Limelight ll;
     frc::XboxController* ctr;
     frc::XboxController* ctrOperator;
-    MoveXY armCalc = MoveXY(450 + stowInner, 180 + stowOutter, innerSize, outterSize);
+    MoveXY armCalc = MoveXY((360 - stowInner) + 90, 180 + stowOutter, innerSize, outterSize);
 
     std::thread scaraArmThread;
     double stopAuto = false;
@@ -104,6 +104,7 @@ class ScaraArmModule {
     double deadZoneCtr(double inp);
     void stow(double innerSet, double outterSet, double outterSlowSet);
     void moveProfiled(double setpoint, motorMappings motor);
+    PointXY getPoleXY(Limelight::poleIDs poleID);
 
 
     rev::CANSparkMax* inner = new rev::CANSparkMax(scaraArmInner, rev::CANSparkMax::MotorType::kBrushless);
