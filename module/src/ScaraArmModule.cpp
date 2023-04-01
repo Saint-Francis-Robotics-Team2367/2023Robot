@@ -43,14 +43,17 @@ void ScaraArmModule::stow(double innerSet, double outterSet, double outterSlowSe
 
   while (state < 2)
   {
+    if (!isStowing) {
+      inner->Set(0);
+      outter->Set(0);
+      break;
+    }
     currTime = frc::Timer::GetFPGATimestamp().value();
     if (currTime - startTime > 4)
     {
       frc::SmartDashboard::PutString("StowStatus", "Went Overtime");
-      inner_enc.SetPosition(0);
-      outter_enc.SetPosition(0);
-      innerPID.SetReference(inner_enc.GetPosition(), rev::CANSparkMax::ControlType::kPosition);
-      outterPID.SetReference(outter_enc.GetPosition(), rev::CANSparkMax::ControlType::kPosition);
+      inner->Set(0);
+      outter->Set(0);
       break;
     }
     if (state == 0)
@@ -79,9 +82,13 @@ void ScaraArmModule::stow(double innerSet, double outterSet, double outterSlowSe
         outter->Set(outterSet);
       }
     }
-    inner_enc.SetPosition(0);
-    outter_enc.SetPosition(0);
+    // innerPID.SetReference(inner_enc.GetPosition(), rev::CANSparkMax::ControlType::kPosition);
+    // outterPID.SetReference(outter_enc.GetPosition(), rev::CANSparkMax::ControlType::kPosition);
   }
+  inner->Set(0);
+  outter->Set(0);
+
+  
   // Set encoders here if necessary
 }
 
@@ -94,7 +101,7 @@ ScaraArmModule::PointXY ScaraArmModule::getPoleXY(Limelight::poleIDs poleID) {
 }
 
 
-void ScaraArmModule::moveProfiled(double setpoint, motorMappings motor)
+bool ScaraArmModule::moveProfiled(double setpoint, motorMappings motor)
 {
   armProfile currProfile;
   if (motor == motorMappings::innerMotor)
@@ -110,6 +117,7 @@ void ScaraArmModule::moveProfiled(double setpoint, motorMappings motor)
 
 
   if (currProfile.firstRun) { // Reset profile
+    currProfile.startPosition = currProfile.currentPosition;
     currProfile.DistanceToDeccelerate = 0.0;
     currProfile.timeElapsed = 0.0;
     currProfile.currentVelocity = 0.0;
@@ -122,17 +130,24 @@ void ScaraArmModule::moveProfiled(double setpoint, motorMappings motor)
     currProfile.firstRun = false;
   }
   // float timeElapsedInner, DistanceToDeccelerateInner, currentVelocityInner = 0.0; //currentPositionInner is the set point
+  bool checkPastSetpoint;
+  if (currProfile.startPosition > setpoint) {
+    checkPastSetpoint = currProfile.currentPosition > setpoint;
+  } else {
+    checkPastSetpoint = currProfile.currentPosition < setpoint;
+  }
 
 
-
-  if ((fabs(currProfile.currentPosition - setpoint) > 0) && currProfile.isProfiling)
+  //statePosition
+  //if ()
+  if (checkPastSetpoint && currProfile.isProfiling)
   {
 
     if (fabs(currProfile.currentPosition - setpoint) > 0)
     {
       if (stopAuto)
       {
-        return;
+        return true;
       }
 
       currProfile.timeElapsed = frc::Timer::GetFPGATimestamp().value() - currProfile.prevTime;
@@ -182,20 +197,27 @@ void ScaraArmModule::moveProfiled(double setpoint, motorMappings motor)
 
       // include clamps here!!!
       frc::SmartDashboard::PutNumber("setpoint", setpoint);
-      outterPID.SetReference(std::copysign(currProfile.currentPosition, setpoint), rev::CANSparkMax::ControlType::kPosition); // setpoint uses encoder
+      if (motor == motorMappings::innerMotor) {
+        innerPID.SetReference(std::copysign(currProfile.currentPosition, setpoint), rev::CANSparkMax::ControlType::kPosition); // setpoint uses encoder
+      } else if (motor == motorMappings::outterMotor) {
+        outterPID.SetReference(std::copysign(currProfile.currentPosition, setpoint), rev::CANSparkMax::ControlType::kPosition); // setpoint uses encoder
+      }
       currProfile.prevTime = frc::Timer::GetFPGATimestamp().value();
+      return false;
     }
   } else {
     currProfile.firstRun = true;
     currProfile.isProfiling = false;
+    return true;
   }
 }
 
 void ScaraArmModule::run()
 {
   runInit();
-  bool isStowing = false;
+  isStowing = false;
   bool isPlacing = false;
+  PointXY placePoint;
   while (true)
   {
     auto nextRun = std::chrono::steady_clock::now() + std::chrono::milliseconds(5); // change milliseconds at telop
@@ -205,10 +227,33 @@ void ScaraArmModule::run()
     if (isStowing)
     {
       stow(0.2, 0.1, 0.05);
+
+      inner_enc.SetPosition(0);
+      outter_enc.SetPosition(0);
+      innerPID.SetReference(inner_enc.GetPosition() - 15.0, rev::CANSparkMax::ControlType::kPosition);
+      outterPID.SetReference(outter_enc.GetPosition() - 15.0, rev::CANSparkMax::ControlType::kPosition);
+      
+
       isStowing = false;
       continue;
+    } 
+    else if (isPlacing) 
+    {
+      placePoint = getPoleXY(ll.bottomRightPole);
+      //Three states: placing, waiting, going back
+      MoveXY::Point target{placePoint.x, placePoint.y};
+      armCalc.calc_solution_to_target(target);
+      MoveXY::ArmAngles motor_angle = armCalc.get_command_solution();
+      frc::SmartDashboard::PutNumber("innerCalc", motor_angle.shoulder);
+      frc::SmartDashboard::PutNumber("outterCalc", motor_angle.elbow);
+      moveProfiled(motor_angle.elbow, motorMappings::outterMotor);
+      moveProfiled(motor_angle.shoulder, motorMappings::innerMotor);
+
+
+      // outterPID.SetReference(motor_angle.elbow, rev::CANSparkMax::ControlType::kPosition);
+      // innerPID.SetReference(motor_angle.shoulder, rev::CANSparkMax::ControlType::kPosition);
     }
-    if (state == 't')
+    else if (state == 't')
     {
       if (ctrOperator->GetYButtonPressed())
       {
@@ -216,8 +261,8 @@ void ScaraArmModule::run()
       }
       else if (ctrOperator->GetXButtonPressed())
       {
-        innerPID.SetReference(-111, rev::CANSparkMax::ControlType::kPosition);
-        outterPID.SetReference(-45, rev::CANSparkMax::ControlType::kPosition);
+        innerPID.SetReference(-45, rev::CANSparkMax::ControlType::kPosition);
+        outterPID.SetReference(-35, rev::CANSparkMax::ControlType::kPosition);
       }
       else if (ctrOperator->GetAButtonPressed())
       {
@@ -229,9 +274,9 @@ void ScaraArmModule::run()
         outterPID.SetReference(motor_angle.elbow, rev::CANSparkMax::ControlType::kPosition);
         innerPID.SetReference(motor_angle.shoulder, rev::CANSparkMax::ControlType::kPosition);
       }
-      else if (ctrOperator->GetStartButtonPressed()) 
+      else if (ctrOperator->GetBackButtonPressed()) 
       {
-        PointXY poleXY = getPoleXY(ll.bottomLeftPole);
+        PointXY poleXY = getPoleXY(ll.bottomRightPole);
         MoveXY::Point target{poleXY.x, poleXY.y};
         armCalc.calc_solution_to_target(target);
         MoveXY::ArmAngles motor_angle = armCalc.get_command_solution();
@@ -239,6 +284,14 @@ void ScaraArmModule::run()
         frc::SmartDashboard::PutNumber("outterCalc", motor_angle.elbow);
         outterPID.SetReference(motor_angle.elbow, rev::CANSparkMax::ControlType::kPosition);
         innerPID.SetReference(motor_angle.shoulder, rev::CANSparkMax::ControlType::kPosition);
+      } 
+      else if (ctrOperator->GetStartButton()) 
+      {
+        moveProfiled(-10.0, motorMappings::outterMotor);
+      } 
+      else if (ctrOperator->GetLeftBumperPressed()) 
+      {
+        isPlacing = true;
       }
       else
       {
@@ -250,6 +303,9 @@ void ScaraArmModule::run()
 
     if (state == 'a')
     {
+      //grabber->grabberMotor->Set(0.01);
+      stow(0.2, 0.1, 0.05);
+
     }
 
     if (state == 'd')

@@ -42,8 +42,8 @@ class ScaraArmModule {
     const double stowOutter = 141.189407;
     const double stowInner = 130.83564;
 
-    const double innerConv = 8.789;  //1/(4096/100/360)
-    const double outterConv = 6.1523; //1/(4096/70/360)
+    const double innerConv = 3.6;  //1/(4096/100/360)
+    const double outterConv = 36 / 7; //1/(4096/70/360)
 
     const double innerSize = 23.75;
     const double outterSize = 31.5;
@@ -58,6 +58,7 @@ class ScaraArmModule {
         bool positive;
         bool isProfiling = false;
         bool firstRun = true;
+        double startPosition;
     };
 
     enum motorMappings {
@@ -97,13 +98,14 @@ class ScaraArmModule {
     bool test = true;
     bool autoStart = false;
     bool isFinished = false;
+    bool isStowing = false;
 
     ScaraArmModule(frc::XboxController* controller, frc::XboxController* controllerOperator);
     void run();
     void runInit();
     double deadZoneCtr(double inp);
     void stow(double innerSet, double outterSet, double outterSlowSet);
-    void moveProfiled(double setpoint, motorMappings motor);
+    bool moveProfiled(double setpoint, motorMappings motor);
     PointXY getPoleXY(Limelight::poleIDs poleID);
 
 
