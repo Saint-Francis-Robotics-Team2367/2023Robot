@@ -142,6 +142,8 @@ void DriveBaseModule::autoBalance() {
       currEncoderPos += tilt;
       if(currEncoderPos < 0) {
         stateCounter++; //if it somehow drives backwards all the way down the ramp stop the robot
+        lMotor->StopMotor();
+        rMotor->StopMotor();
       }
       //do I need some timer to wait for next command?
       frc::SmartDashboard::PutNumber("currEncoderPos", currEncoderPos);
@@ -152,56 +154,9 @@ void DriveBaseModule::autoBalance() {
       lEncoder.SetPosition(0); //this is to continue the loop to continuously update the error
       rEncoder.SetPosition(0);
 
-      // if(fabs(tilt) <= (fabs(offsetTilt) + 0.5)) {
-      //   stateCounter++;
-      //   frc::SmartDashboard::PutBoolean("less than 1", true);
-      // }
-  }
-  // if(stateCounter == 3) {
-  //     //makes sure the robot stays in place at the top of the charge station
-  //     lPID.SetReference(lEncoder.GetPosition(), rev::CANSparkMax::ControlType::kPosition); //setpoint uses encoder
-  //     rPID.SetReference(rEncoder.GetPosition(), rev::CANSparkMax::ControlType::kPosition); //everything in abs, so will go backwards
-  //   frc::SmartDashboard::PutBoolean("lMotorDocked", true);
-  // }
 }
 }
 
-
-  
-  //   case 3:
-//     lMotor->StopMotor();
-//     rMotor->StopMotor();
-// }
-
-
-//   switch(stateCounter) {
-//     case 0:
-//       if(fabs(getTilt()) < 6) { //go forward until we are on a known location at charge
-//         arcadeDrive(0.3, 0);
-//         frc::SmartDashboard::PutBoolean("forward", true);
-//       } else {
-//         stateCounter++;
-//         frc::SmartDashboard::PutBoolean("forward", false);
-
-//       }
-//     case 1:
-//       lMotor->StopMotor();
-//       rMotor->StopMotor();
-//       currEncoderPos = lEncoder.GetPosition();
-//       stateCounter++;
-//     case 2:
-//     if(lEncoder.GetPosition() < currEncoderPos) {
-//        stateCounter++;
-//     }
-//       lPID.SetReference(std::copysign(fabs(tilt) / 4, tilt), rev::CANSparkMax::ControlType::kPosition); //setpoint uses encoder
-//       rPID.SetReference(std::copysign(fabs(tilt) / 4, tilt), rev::CANSparkMax::ControlType::kPosition); //everything in abs, so will go backwards
-//       if(fabs(tilt) <= 2) {
-//         stateCounter++;
-//       }
-//   case 3:
-//     lMotor->StopMotor();
-//     rMotor->StopMotor();
-// }
 
 void DriveBaseModule::PIDTuning() {
   //double prevTime = frc::Timer::GetFPGATimestamp().value();
