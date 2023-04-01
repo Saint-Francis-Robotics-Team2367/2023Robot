@@ -13,6 +13,126 @@ ScaraArmModule::ScaraArmModule(frc::XboxController *controller, frc::XboxControl
   scaraArmThread = std::thread(&ScaraArmModule::run, this); // initializing thread so can detach in robot init
 }
 
+void ScaraArmModule::run()
+{
+  runInit();
+  isStowing = false;
+  bool isPlacing = false;
+  PointXY placePoint;
+  int placeState = 0;
+  while (true)
+  {
+    auto nextRun = std::chrono::steady_clock::now() + std::chrono::milliseconds(5); // change milliseconds at telop
+    frc::SmartDashboard::PutNumber("InnerAngle", inner_enc.GetPosition());
+    frc::SmartDashboard::PutNumber("OutterAngle", outter_enc.GetPosition());
+
+    if (isStowing)
+    {
+      stow(0.2, 0.1, 0.05);
+
+      inner_enc.SetPosition(0);
+      outter_enc.SetPosition(0);
+      innerPID.SetReference(-10.0, rev::CANSparkMax::ControlType::kPosition);
+      outterPID.SetReference(-10.0, rev::CANSparkMax::ControlType::kPosition);
+      
+      isStowing = false;
+      continue;
+    } 
+    else if (isPlacing) 
+    {
+      placePoint = getPoleXY(ll.bottomRightPole);
+      //Three states: placing, waiting, going back
+      MoveXY::Point target{placePoint.x, placePoint.y};
+      armCalc.calc_solution_to_target(target);
+      MoveXY::ArmAngles motor_angle = armCalc.get_command_solution();
+      frc::SmartDashboard::PutNumber("innerCalc", motor_angle.shoulder);
+      frc::SmartDashboard::PutNumber("outterCalc", motor_angle.elbow);
+      //Put a time limit on this
+      if (placeState == 0 && moveProfiled(motor_angle.elbow, motorMappings::outterMotor) && moveProfiled(motor_angle.shoulder, motorMappings::innerMotor)) {
+        placeState += 1;
+      }
+      else if (placeState == 2) {
+        if (ctrOperator->GetBButtonPressed()) {
+          //Open Grabber
+          isPlacing == false;
+        }
+      }
+      
+      
+
+
+      // outterPID.SetReference(motor_angle.elbow, rev::CANSparkMax::ControlType::kPosition);
+      // innerPID.SetReference(motor_angle.shoulder, rev::CANSparkMax::ControlType::kPosition);
+    }
+    else if (state == 't')
+    {
+      if (ctrOperator->GetYButtonPressed())
+      {
+        isStowing = true;
+      }
+      else if (ctrOperator->GetXButtonPressed())
+      {
+        innerPID.SetReference(-45, rev::CANSparkMax::ControlType::kPosition);
+        outterPID.SetReference(-35, rev::CANSparkMax::ControlType::kPosition);
+      }
+      else if (ctrOperator->GetAButtonPressed())
+      {
+        MoveXY::Point target{innerSize, outterSize};
+        armCalc.calc_solution_to_target(target);
+        MoveXY::ArmAngles motor_angle = armCalc.get_command_solution();
+        frc::SmartDashboard::PutNumber("innerCalc", motor_angle.shoulder);
+        frc::SmartDashboard::PutNumber("outterCalc", motor_angle.elbow);
+        outterPID.SetReference(motor_angle.elbow, rev::CANSparkMax::ControlType::kPosition);
+        innerPID.SetReference(motor_angle.shoulder, rev::CANSparkMax::ControlType::kPosition);
+      }
+      else if (ctrOperator->GetBackButtonPressed()) 
+      {
+        PointXY poleXY = getPoleXY(ll.bottomRightPole);
+        MoveXY::Point target{poleXY.x, poleXY.y};
+        armCalc.calc_solution_to_target(target);
+        MoveXY::ArmAngles motor_angle = armCalc.get_command_solution();
+        frc::SmartDashboard::PutNumber("innerCalc", motor_angle.shoulder);
+        frc::SmartDashboard::PutNumber("outterCalc", motor_angle.elbow);
+        outterPID.SetReference(motor_angle.elbow, rev::CANSparkMax::ControlType::kPosition);
+        innerPID.SetReference(motor_angle.shoulder, rev::CANSparkMax::ControlType::kPosition);
+      } 
+      else if (ctrOperator->GetStartButton()) 
+      {
+        moveProfiled(-10.0, motorMappings::outterMotor);
+      } 
+      else if (ctrOperator->GetLeftBumperPressed()) 
+      {
+        isPlacing = true;
+      }
+      else if (ctrOperator->GetRightBumper()) 
+      {
+        jstickArmMovement(ctrOperator->GetLeftX(), ctrOperator->GetLeftY());
+      }
+      else
+      {
+        // innerPID.SetReference()
+        // innerPID.SetReference(inner_enc.GetPosition(),  rev::CANSparkMax::ControlType::kPosition);
+        // outterPID.SetReference(outter_enc.GetPosition(),  rev::CANSparkMax::ControlType::kPosition);
+      }
+    }
+
+    if (state == 'a')
+    {
+      //grabber->grabberMotor->Set(0.01);
+      stow(0.2, 0.1, 0.05);
+
+    }
+
+    if (state == 'd')
+    {
+      isStowing = false;
+    }
+
+    std::this_thread::sleep_until(nextRun);
+  }
+}
+
+
 void ScaraArmModule::runInit()
 {
   InnerLimitSwitch.EnableLimitSwitch(false);
@@ -212,107 +332,44 @@ bool ScaraArmModule::moveProfiled(double setpoint, motorMappings motor)
   }
 }
 
-void ScaraArmModule::run()
-{
-  runInit();
-  isStowing = false;
-  bool isPlacing = false;
-  PointXY placePoint;
-  while (true)
-  {
-    auto nextRun = std::chrono::steady_clock::now() + std::chrono::milliseconds(5); // change milliseconds at telop
-    frc::SmartDashboard::PutNumber("InnerAngle", inner_enc.GetPosition());
-    frc::SmartDashboard::PutNumber("OutterAngle", outter_enc.GetPosition());
+void ScaraArmModule::jstickArmMovement(double jstickX, double jstickY) {
+  double factor = 1;
+  MoveXY::Point currXY = armCalc.command_to_xy(MoveXY::ArmAngles{inner_enc.GetPosition(), outter_enc.GetPosition()});
+  currentPosition.armX = currXY.x;
+  currentPosition.armY = currXY.y;
 
-    if (isStowing)
-    {
-      stow(0.2, 0.1, 0.05);
-
-      inner_enc.SetPosition(0);
-      outter_enc.SetPosition(0);
-      innerPID.SetReference(inner_enc.GetPosition() - 15.0, rev::CANSparkMax::ControlType::kPosition);
-      outterPID.SetReference(outter_enc.GetPosition() - 15.0, rev::CANSparkMax::ControlType::kPosition);
-      
-
-      isStowing = false;
-      continue;
-    } 
-    else if (isPlacing) 
-    {
-      placePoint = getPoleXY(ll.bottomRightPole);
-      //Three states: placing, waiting, going back
-      MoveXY::Point target{placePoint.x, placePoint.y};
-      armCalc.calc_solution_to_target(target);
-      MoveXY::ArmAngles motor_angle = armCalc.get_command_solution();
-      frc::SmartDashboard::PutNumber("innerCalc", motor_angle.shoulder);
-      frc::SmartDashboard::PutNumber("outterCalc", motor_angle.elbow);
-      moveProfiled(motor_angle.elbow, motorMappings::outterMotor);
-      moveProfiled(motor_angle.shoulder, motorMappings::innerMotor);
-
-
-      // outterPID.SetReference(motor_angle.elbow, rev::CANSparkMax::ControlType::kPosition);
-      // innerPID.SetReference(motor_angle.shoulder, rev::CANSparkMax::ControlType::kPosition);
-    }
-    else if (state == 't')
-    {
-      if (ctrOperator->GetYButtonPressed())
-      {
-        isStowing = true;
-      }
-      else if (ctrOperator->GetXButtonPressed())
-      {
-        innerPID.SetReference(-45, rev::CANSparkMax::ControlType::kPosition);
-        outterPID.SetReference(-35, rev::CANSparkMax::ControlType::kPosition);
-      }
-      else if (ctrOperator->GetAButtonPressed())
-      {
-        MoveXY::Point target{innerSize, outterSize};
-        armCalc.calc_solution_to_target(target);
-        MoveXY::ArmAngles motor_angle = armCalc.get_command_solution();
-        frc::SmartDashboard::PutNumber("innerCalc", motor_angle.shoulder);
-        frc::SmartDashboard::PutNumber("outterCalc", motor_angle.elbow);
-        outterPID.SetReference(motor_angle.elbow, rev::CANSparkMax::ControlType::kPosition);
-        innerPID.SetReference(motor_angle.shoulder, rev::CANSparkMax::ControlType::kPosition);
-      }
-      else if (ctrOperator->GetBackButtonPressed()) 
-      {
-        PointXY poleXY = getPoleXY(ll.bottomRightPole);
-        MoveXY::Point target{poleXY.x, poleXY.y};
-        armCalc.calc_solution_to_target(target);
-        MoveXY::ArmAngles motor_angle = armCalc.get_command_solution();
-        frc::SmartDashboard::PutNumber("innerCalc", motor_angle.shoulder);
-        frc::SmartDashboard::PutNumber("outterCalc", motor_angle.elbow);
-        outterPID.SetReference(motor_angle.elbow, rev::CANSparkMax::ControlType::kPosition);
-        innerPID.SetReference(motor_angle.shoulder, rev::CANSparkMax::ControlType::kPosition);
-      } 
-      else if (ctrOperator->GetStartButton()) 
-      {
-        moveProfiled(-10.0, motorMappings::outterMotor);
-      } 
-      else if (ctrOperator->GetLeftBumperPressed()) 
-      {
-        isPlacing = true;
-      }
-      else
-      {
-        // innerPID.SetReference()
-        // innerPID.SetReference(inner_enc.GetPosition(),  rev::CANSparkMax::ControlType::kPosition);
-        // outterPID.SetReference(outter_enc.GetPosition(),  rev::CANSparkMax::ControlType::kPosition);
-      }
-    }
-
-    if (state == 'a')
-    {
-      //grabber->grabberMotor->Set(0.01);
-      stow(0.2, 0.1, 0.05);
-
-    }
-
-    if (state == 'd')
-    {
-      isStowing = false;
-    }
-
-    std::this_thread::sleep_until(nextRun);
+  innerPID.SetOutputRange(-0.3, 0.3);
+  outterPID.SetOutputRange(-0.2, 0.2);
+  if (XYInRange(currentPosition.armX + (jstickX * factor), currentPosition.armY + (jstickY * factor))) {
+    currentPosition.armX += jstickX * factor;
+    currentPosition.armY += jstickY * factor;
+    ShuffleUI::MakeWidget("SetX", tab, currentPosition.armX);
+    ShuffleUI::MakeWidget("SetY", tab, currentPosition.armY);
+    armCalc.calc_solution_to_target(MoveXY::Point{currentPosition.armX, currentPosition.armY});
+    MoveXY::ArmAngles motor_angle = armCalc.get_command_solution();
+    frc::SmartDashboard::PutNumber("innerCalc", motor_angle.shoulder);
+    frc::SmartDashboard::PutNumber("outterCalc", motor_angle.elbow);
+    outterPID.SetReference(motor_angle.elbow, rev::CANSparkMax::ControlType::kPosition);
+    innerPID.SetReference(motor_angle.shoulder, rev::CANSparkMax::ControlType::kPosition);
+    ShuffleUI::MakeWidget("Invalid?", tab, 0);
   }
+  else {
+    ShuffleUI::MakeWidget("InnerSet", tab, atan2(jstickY, jstickX) * 180 / PI);
+    ShuffleUI::MakeWidget("OutterSet", tab, 0);
+    innerPID.SetReference(atan2(jstickY, jstickX) * 180 / PI, rev::ControlType::kPosition);
+    outterPID.SetReference(0, rev::ControlType::kPosition);
+  }
+}
+
+bool ScaraArmModule::XYInRange(double x, double y) {
+  double circle_x = 0;
+  double circle_y = 0;
+  double rad = outterSize + innerSize;
+  if ((x - circle_x) * (x - circle_x) +
+        (y - circle_y) * (y - circle_y) <= rad * rad)
+        return true;
+    else
+        return false;
+  //Check if x,y is valid 
+
 }

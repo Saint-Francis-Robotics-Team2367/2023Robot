@@ -99,6 +99,7 @@ class ScaraArmModule {
     bool autoStart = false;
     bool isFinished = false;
     bool isStowing = false;
+    armPos currentPosition;
 
     ScaraArmModule(frc::XboxController* controller, frc::XboxController* controllerOperator);
     void run();
@@ -107,6 +108,8 @@ class ScaraArmModule {
     void stow(double innerSet, double outterSet, double outterSlowSet);
     bool moveProfiled(double setpoint, motorMappings motor);
     PointXY getPoleXY(Limelight::poleIDs poleID);
+    void jstickArmMovement(double jstickX, double jstickY);
+    bool XYInRange(double x, double y);
 
 
     rev::CANSparkMax* inner = new rev::CANSparkMax(scaraArmInner, rev::CANSparkMax::MotorType::kBrushless);
