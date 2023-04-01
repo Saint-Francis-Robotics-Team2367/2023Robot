@@ -60,6 +60,12 @@ void Robot::TeleopInit()
 void Robot::TeleopPeriodic()
 {
   static double max_vel = 0;
+  static double last_vel = 0;
+  static double max_accel =0;
+  static double last_accel = 0;
+  static float cur_time = 0;
+  static float last_time = 0;
+
 
 
   // read PID coefficients from SmartDashboard
@@ -117,6 +123,17 @@ void Robot::TeleopPeriodic()
   {
     max_vel = cur_vel;
   }
+
+  double cur_accel = fabs(last_vel - cur_vel) / (last_time- cur_time);
+  if (cur_accel > max_accel) {
+    max_accel = cur_accel;
+  }
+
+  
+
+  last_time = cur_time;
+  last_vel = cur_vel;
+  
 
   frc::SmartDashboard::PutNumber("SetPoint", rotations);
   frc::SmartDashboard::PutNumber("ProcessVariable", m_encoder.GetPosition());
