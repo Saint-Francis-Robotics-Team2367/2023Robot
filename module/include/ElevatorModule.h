@@ -85,7 +85,7 @@ class ElevatorModule {
     void AutoPeriodic();
     double getPos();
     void resetPos();
-    double manualMove(double Linput);
+    double manualMove(double Linput, double Rinput);
     void setPos(double setpoint);
     bool setPos(double setpoint, bool isMotionProfiled);
     double getHeight();
