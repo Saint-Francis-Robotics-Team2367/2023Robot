@@ -121,6 +121,7 @@ public:
   double n = 0;
   bool hasStarted = false;
   double offset = 0;
+  double timesRun = 0;
 
   std::string tab = "Drive Base"; // for MakeWidget() calls
 

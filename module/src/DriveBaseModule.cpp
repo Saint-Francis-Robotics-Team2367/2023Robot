@@ -108,9 +108,14 @@ void DriveBaseModule::autoBalance() {
     }
       if(fabs(getTilt()) < 11) { //go forward until we are on a known location at charge
         // arcadeDrive(0.5, 0);
-        lPID.SetReference(40, rev::CANSparkMax::ControlType::kPosition);
-        rPID.SetReference(40, rev::CANSparkMax::ControlType::kPosition); //temporary half
-        frc::SmartDashboard::PutBoolean("forward", true);
+        if(timesRun < 2) {
+          PIDDrive(40, false);
+          frc::SmartDashboard::PutBoolean("forward", true);
+          maxAcc+=10; //these are global variables that are used in PIDDrive
+          maxVelocity+=20;
+          timesRun++;
+        } //run this two times, increase maxAcc and maxVelocity the second time
+        
       } else {
         stateCounter++;
         frc::SmartDashboard::PutBoolean("forward", false);
@@ -309,7 +314,6 @@ bool DriveBaseModule::PIDDrive(float totalFeet, bool keepVelocity) {
       if(fabs(currentPosition) > fabs(totalFeet)) {
           currentPosition = totalFeet;
       }
-
 
       setpoint = (currentPosition * 12);  //amt of rotations needed; / (PI * wheelDiameter) (don't need when have conversion factor)
       ShuffleUI::MakeWidget("setpoint", tab, setpoint);
