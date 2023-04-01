@@ -47,6 +47,8 @@ class ScaraArmModule {
 
     const double innerSize = 23.75;
     const double outterSize = 31.5;
+
+    const float teleopFactor = 1;
     
     double maxVelocity = 130;
     double maxAcc = 68;

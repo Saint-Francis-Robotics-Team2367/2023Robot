@@ -333,16 +333,13 @@ bool ScaraArmModule::moveProfiled(double setpoint, motorMappings motor)
 }
 
 void ScaraArmModule::jstickArmMovement(double jstickX, double jstickY) {
-  double factor = 1;
   MoveXY::Point currXY = armCalc.command_to_xy(MoveXY::ArmAngles{inner_enc.GetPosition(), outter_enc.GetPosition()});
   currentPosition.armX = currXY.x;
   currentPosition.armY = currXY.y;
 
-  innerPID.SetOutputRange(-0.3, 0.3);
-  outterPID.SetOutputRange(-0.2, 0.2);
-  if (XYInRange(currentPosition.armX + (jstickX * factor), currentPosition.armY + (jstickY * factor))) {
-    currentPosition.armX += jstickX * factor;
-    currentPosition.armY += jstickY * factor;
+  if (XYInRange(currentPosition.armX + (jstickX * teleopFactor), currentPosition.armY + (jstickY * teleopFactor))) {
+    currentPosition.armX += jstickX * teleopFactor;
+    currentPosition.armY += jstickY * teleopFactor;
     ShuffleUI::MakeWidget("SetX", tab, currentPosition.armX);
     ShuffleUI::MakeWidget("SetY", tab, currentPosition.armY);
     armCalc.calc_solution_to_target(MoveXY::Point{currentPosition.armX, currentPosition.armY});
