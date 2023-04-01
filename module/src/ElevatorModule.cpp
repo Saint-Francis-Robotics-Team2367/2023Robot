@@ -9,16 +9,16 @@ ElevatorModule::ElevatorModule(frc::XboxController* controller, frc::XboxControl
 }
 
 
-double ElevatorModule::manualMove(double Linput) {
+double ElevatorModule::manualMove(double Linput, double Rinput) {
     //frc::SmartDashboard::PutNumber("l", Linput);
     //frc::SmartDashboard::PutNumber("r", Rinput);
     //change to ShuffleUI if uncommented
 
     double L = Linput;
-    // double R = Rinput;
+    double R = Rinput;
     if (fabs(Linput) < triggerDeadband) {L = 0;}
-    // if (Rinput < triggerDeadband) {R = 0;}
-    return L / slowCoefficient; 
+    if (Rinput < triggerDeadband) {R = 0;}
+    return (L - R) / slowCoefficient; 
 }
 
 double ElevatorModule::getPos() {
@@ -130,7 +130,7 @@ void ElevatorModule::Init() {
 void ElevatorModule::TeleopPeriodic(double Linput, double Rinput) {
         ShuffleUI::MakeWidget("position", tab, getPos());
         ShuffleUI::MakeWidget("height", tab, height);
-        double output = manualMove(Linput);
+        double output = manualMove(Linput, Rinput);
         // elevatorMotor->Set(output);
         // height = getPos();
         setPos(height + output);
