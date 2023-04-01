@@ -113,7 +113,14 @@ public:
   void PIDTuning();
   void driveBaseTuning();
   double skim(double v);
+
+  int stateCounter = 0;
+  double currEncoderPos = 0;
   void autoBalance();
+  double getTilt();
+  double n = 0;
+  bool hasStarted = false;
+  double offset = 0;
 
   std::string tab = "Drive Base"; // for MakeWidget() calls
 

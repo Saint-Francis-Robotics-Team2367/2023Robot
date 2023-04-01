@@ -79,6 +79,7 @@ void DriveBaseModule::arcadeDrive(double xSpeedi, double zRotationi) {
 
 void DriveBaseModule::gyroDriving() {
   float rightStickOutput = driverStick->GetRawAxis(4);
+  frc::SmartDashboard::PutNumber("right stick output", rightStickOutput);
   float calculation = rightStickPID->Calculate(ahrs->GetRate()/150, rightStickOutput); //add skim
   arcadeDrive(driverStick->GetRawAxis(1) * (-1), calculation);
   ShuffleUI::MakeWidget("output", tab, calculation);
@@ -86,26 +87,108 @@ void DriveBaseModule::gyroDriving() {
 
 }
 
-void DriveBaseModule::autoBalance() {
+double DriveBaseModule::getTilt() {
   double pitch = ahrs->GetPitch();
-  //pitch = std::clamp(pitch, -15.0, 15.0);
-  double error = 15 - pitch;
-  double maxDegrees = 15;
-  double length = 12;
-  frc::SmartDashboard::PutNumber("pitch", pitch);
-  frc::SmartDashboard::PutNumber("error", error);
-  //ouble gyroOutput = autoBalancePID->Calculate(pitch); // should I make this setpoint nothing?
-  //double gyroOutput = autoBalancePID->Calculate(pitch, 0.01);
-  //frc::SmartDashboard::PutNumber("gyroOutput", gyroOutput);
-  
-  //uncomment later
-  //lPID.SetReference(error, rev::CANSparkMax::ControlType::kPosition);
-  //rPID.SetReference(error, rev::CANSparkMax::ControlType::kPosition);
-  //------------- 
-
-  //PIDDrive(gyroOutput, false);
-  //arcadeDrive(gyroOutput/10, 0);
+	double roll = ahrs->GetRoll();
+    if((pitch + roll)>= 0){
+        return std::sqrt(pitch*pitch + roll*roll);
+    } else {
+        return -std::sqrt(pitch*pitch + roll*roll);
+    }
 }
+
+void DriveBaseModule::autoBalance() {
+  double tilt = -getTilt(); //you also might be able to just use roll() or just use pitch(), but both work
+  frc::SmartDashboard::PutNumber("Tilt", tilt);
+  frc::SmartDashboard::PutNumber("stage", stateCounter);
+  if(stateCounter==0) {
+    if(!hasStarted) {
+      offset = tilt; //the original balanced thing
+      hasStarted = true;
+    }
+      if(fabs(getTilt()) < 11) { //go forward until we are on a known location at charge
+        // arcadeDrive(0.5, 0);
+        lPID.SetReference(40, rev::CANSparkMax::ControlType::kPosition);
+        rPID.SetReference(40, rev::CANSparkMax::ControlType::kPosition); //temporary half
+        frc::SmartDashboard::PutBoolean("forward", true);
+      } else {
+        stateCounter++;
+        frc::SmartDashboard::PutBoolean("forward", false);
+  } 
+
+  if(stateCounter == 1) { //at known position set encoder values to 0
+      // lMotor->StopMotor(); //bridge between arcade drive and PID's
+      // rMotor->StopMotor();
+      lEncoder.SetPosition(0);
+      rEncoder.SetPosition(0);
+      currEncoderPos = lEncoder.GetPosition();
+      stateCounter++;
+  }
+
+  if(stateCounter == 2) {
+      currEncoderPos += tilt;
+      if(currEncoderPos < 0) {
+        stateCounter++; //if it somehow drives backwards all the way down the ramp stop the robot
+      }
+      //do I need some timer to wait for next command?
+      frc::SmartDashboard::PutNumber("currEncoderPos", currEncoderPos);
+      lPID.SetReference(tilt - 0, rev::CANSparkMax::ControlType::kPosition); //setpoint uses encoder (tilt - 0 = error, you don't need the 0)
+      rPID.SetReference(tilt - 0, rev::CANSparkMax::ControlType::kPosition); //everything in abs, so will go backwards
+
+      //CHANGE THIS LATERRRRRRRRRRRRRRRRRRRRR
+      lEncoder.SetPosition(0); //this is to continue the loop to continuously update the error
+      rEncoder.SetPosition(0);
+
+      if(fabs(tilt) <= (fabs(offset) + 0.5)) {
+        stateCounter++;
+        frc::SmartDashboard::PutBoolean("less than 1", true);
+      }
+  }
+  if(stateCounter == 3) {
+      //makes sure the robot stays in place at the top of the charge station
+      lPID.SetReference(lEncoder.GetPosition(), rev::CANSparkMax::ControlType::kPosition); //setpoint uses encoder
+      rPID.SetReference(rEncoder.GetPosition(), rev::CANSparkMax::ControlType::kPosition); //everything in abs, so will go backwards
+    frc::SmartDashboard::PutBoolean("lMotorDocked", true);
+  }
+}
+}
+
+
+  
+  //   case 3:
+//     lMotor->StopMotor();
+//     rMotor->StopMotor();
+// }
+
+
+//   switch(stateCounter) {
+//     case 0:
+//       if(fabs(getTilt()) < 6) { //go forward until we are on a known location at charge
+//         arcadeDrive(0.3, 0);
+//         frc::SmartDashboard::PutBoolean("forward", true);
+//       } else {
+//         stateCounter++;
+//         frc::SmartDashboard::PutBoolean("forward", false);
+
+//       }
+//     case 1:
+//       lMotor->StopMotor();
+//       rMotor->StopMotor();
+//       currEncoderPos = lEncoder.GetPosition();
+//       stateCounter++;
+//     case 2:
+//     if(lEncoder.GetPosition() < currEncoderPos) {
+//        stateCounter++;
+//     }
+//       lPID.SetReference(std::copysign(fabs(tilt) / 4, tilt), rev::CANSparkMax::ControlType::kPosition); //setpoint uses encoder
+//       rPID.SetReference(std::copysign(fabs(tilt) / 4, tilt), rev::CANSparkMax::ControlType::kPosition); //everything in abs, so will go backwards
+//       if(fabs(tilt) <= 2) {
+//         stateCounter++;
+//       }
+//   case 3:
+//     lMotor->StopMotor();
+//     rMotor->StopMotor();
+// }
 
 void DriveBaseModule::PIDTuning() {
   //double prevTime = frc::Timer::GetFPGATimestamp().value();
@@ -582,7 +665,10 @@ void DriveBaseModule::run() {
   // arm->ArmInit();
   bool test = true;
   int counter = 0;
+
   while(true) { 
+        double tilt = -getTilt(); 
+  frc::SmartDashboard::PutNumber("Tilt", tilt);
     auto nextRun = std::chrono::steady_clock::now() + std::chrono::milliseconds(5); //change milliseconds at telop
     ShuffleUI::MakeWidget("timesRun", tab, ++counter);
     
@@ -591,26 +677,27 @@ void DriveBaseModule::run() {
     //need mutex to stop
 
  if(state == 'a') {
-      if(isRunningAutoTurn) { //default false
-        isRunningAutoTurn = false;
-        isFinished = PIDTurn(angle, radius, keepVelocityTurn);
-        frc::SmartDashboard::PutBoolean("isRunningAutoTurn", isRunningAutoTurn);
-      }
+    autoBalance();
+      // if(isRunningAutoTurn) { //default false
+      //   isRunningAutoTurn = false;
+      //   isFinished = PIDTurn(angle, radius, keepVelocityTurn);
+      //   frc::SmartDashboard::PutBoolean("isRunningAutoTurn", isRunningAutoTurn);
+      // }
 
-      if(isRunningAutoDrive) {
-        isRunningAutoDrive = false;
-        isFinished = PIDDrive(totalFeet, keepVelocityDrive);
-        // PIDDrive(totalFeet, keepVelocityDrive);
-        // isFinished = true;
-        frc::SmartDashboard::PutBoolean("isFinished", isFinished);
-        frc::SmartDashboard::PutBoolean("isRunningAutoDrive", isRunningAutoDrive);
+      // if(isRunningAutoDrive) {
+      //   isRunningAutoDrive = false;
+      //   isFinished = PIDDrive(totalFeet, keepVelocityDrive);
+      //   // PIDDrive(totalFeet, keepVelocityDrive);
+      //   // isFinished = true;
+      //   frc::SmartDashboard::PutBoolean("isFinished", isFinished);
+      //   frc::SmartDashboard::PutBoolean("isRunningAutoDrive", isRunningAutoDrive);
 
-      }
+      // }
 
-      if(balancing) {
-        autoBalance();
-      }
-
+      // if(balancing) {
+      //   autoBalance();
+      // }
+ }
 
     if(state == 't') {
       //perioidic routines
@@ -639,7 +726,7 @@ void DriveBaseModule::run() {
     std::this_thread::sleep_until(nextRun); //need this here so thread runs every 5 ms, might be faster than PID controller look into it
   }
 }
-}
+
 
 
 

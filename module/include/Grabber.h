@@ -40,7 +40,7 @@ class Grabber {
         float startTime = frc::Timer::GetFPGATimestamp().value();
         while(true) {
             frc::SmartDashboard::PutNumber("grabberStuff", grabSwitch.Get());
-            grabberMotor->Set(-1.0);
+            grabberMotor->Set(1.0);
             if(frc::Timer::GetFPGATimestamp().value() - startTime > 3) {
                 break;
                 grabberMotor->Set(0);

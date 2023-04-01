@@ -820,51 +820,51 @@ void ScaraArmModule::run(){
         if(state == 'a' ) {
           if(!isZero)
           {
-            grabber->grabberMotor->Set(0.3);
-            stow();
-            
-            //Arm Auto Init
-            inner_enc.SetPosition(stowInner);
-            outter_enc.SetPosition(stowOutter);
-            innerPID.SetReference(stowInner, rev::CANSparkMax::ControlType::kPosition);
-            outterPID.SetReference(stowOutter, rev::CANSparkMax::ControlType::kPosition);
-            outterPID.SetReference(stowOutter-17.0f, rev::CANSparkMax::ControlType::kPosition);
-            innerPID.SetReference(stowInner-130.0f, rev::CANSparkMax::ControlType::kPosition);
-            inner_enc.SetPosition(clampAngle(inner_enc.GetPosition()));
-            innerPID.SetReference(clampAngle(inner_enc.GetPosition()), rev::CANSparkMax::ControlType::kPosition);
-            std::vector<double> xy = Angles_to_XY(clampAngle(inner_enc.GetPosition()), clampAngle(outter_enc.GetPosition()));
-            currentPosition.armX = xy.at(0);
-            currentPosition.armY = xy.at(1);
-
-            //Move to straight back after drivebase done + Elev done
-            moveProfiled(90, 0);
-
-            //Grabber Drop
-            grabber->openAuto();
-
-            //Stow
-            stow();
-
-
-
-
-
-
-
-            moveProfiled()
-            grabber->openAuto();
-
-
+            // grabber->grabberMotor->Set(0.3);
             // stow();
+            
+            // //Arm Auto Init
             // inner_enc.SetPosition(stowInner);
             // outter_enc.SetPosition(stowOutter);
-            // ShuffleUI::MakeWidget("InnerAngle", tab, clampAngle(inner_enc.GetPosition()));
-            // ShuffleUI::MakeWidget("OutterAngle", tab, clampAngle(outter_enc.GetPosition()));
+            // innerPID.SetReference(stowInner, rev::CANSparkMax::ControlType::kPosition);
+            // outterPID.SetReference(stowOutter, rev::CANSparkMax::ControlType::kPosition);
+            // outterPID.SetReference(stowOutter-17.0f, rev::CANSparkMax::ControlType::kPosition);
+            // innerPID.SetReference(stowInner-130.0f, rev::CANSparkMax::ControlType::kPosition);
+            // inner_enc.SetPosition(clampAngle(inner_enc.GetPosition()));
+            // innerPID.SetReference(clampAngle(inner_enc.GetPosition()), rev::CANSparkMax::ControlType::kPosition);
+            // std::vector<double> xy = Angles_to_XY(clampAngle(inner_enc.GetPosition()), clampAngle(outter_enc.GetPosition()));
+            // currentPosition.armX = xy.at(0);
+            // currentPosition.armY = xy.at(1);
+
+            // //Move to straight back after drivebase done + Elev done
+            // //moveProfiled(90, 0);
+
+            // //Grabber Drop
+            // grabber->openAuto();
+
+            // //Stow
+            // stow();
+
+
+
+
+
+
+
+            // // moveProfiled()
+            // // grabber->openAuto();
+
+
+            // // stow();
+            // // inner_enc.SetPosition(stowInner);
+            // // outter_enc.SetPosition(stowOutter);
+            // // ShuffleUI::MakeWidget("InnerAngle", tab, clampAngle(inner_enc.GetPosition()));
+            // // ShuffleUI::MakeWidget("OutterAngle", tab, clampAngle(outter_enc.GetPosition()));
             
-            // //moveProfiled(inner_enc.GetPosition(), outter_enc.GetPosition() - 20);
-            // //movetoXY(0, 0, false);
-            // ShuffleUI::MakeWidget("DONE", tab, 1);
-            // isZero = true;
+            // // //moveProfiled(inner_enc.GetPosition(), outter_enc.GetPosition() - 20);
+            // // //movetoXY(0, 0, false);
+            // // ShuffleUI::MakeWidget("DONE", tab, 1);
+            // // isZero = true;
           }
           teleopInit = true;
           
