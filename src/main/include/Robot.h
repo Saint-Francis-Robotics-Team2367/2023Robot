@@ -7,7 +7,7 @@
 #include <frc/TimedRobot.h>
 #include<frc/XboxController.h>
 #include <rev/CANSparkMax.h>
-
+#include <frc/smartdashboard/SmartDashboard.h>
 
 class Robot : public frc::TimedRobot {
 
