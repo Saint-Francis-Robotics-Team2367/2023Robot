@@ -103,18 +103,25 @@ void DriveBaseModule::autoBalance() {
   frc::SmartDashboard::PutNumber("stage", stateCounter);
   if(stateCounter==0) {
     if(!hasStarted) {
-      offset = tilt; //the original balanced thing
+      offsetTilt = tilt; //the original balanced thing
+      offsetYaw = ahrs->GetAngle(); //gets the angle of the actual robot (yaw)
       hasStarted = true;
     }
       if(fabs(getTilt()) < 11) { //go forward until we are on a known location at charge
-        // arcadeDrive(0.5, 0);
-        if(timesRun < 2) {
-          PIDDrive(40, false);
+
+        if(!firstRun) {
+          PIDDrive(40, false); //change this to SetReference later maybe
           frc::SmartDashboard::PutBoolean("forward", true);
-          maxAcc+=10; //these are global variables that are used in PIDDrive
-          maxVelocity+=20;
-          timesRun++;
-        } //run this two times, increase maxAcc and maxVelocity the second time
+          firstRun = true;
+        }
+
+        if(firstRun && !secondRun) {
+          if(fabs(offsetYaw - ahrs->GetAngle()) > 2) {
+            PIDTurn(offsetYaw - ahrs->GetAngle(), 0, true); //account for negatives later
+          }
+           PIDDrive(40, false);
+           secondRun = true;
+        }
         
       } else {
         stateCounter++;
@@ -128,6 +135,7 @@ void DriveBaseModule::autoBalance() {
       rEncoder.SetPosition(0);
       currEncoderPos = lEncoder.GetPosition();
       stateCounter++;
+      ahrs->GetAngle();
   }
 
   if(stateCounter == 2) {
@@ -144,17 +152,17 @@ void DriveBaseModule::autoBalance() {
       lEncoder.SetPosition(0); //this is to continue the loop to continuously update the error
       rEncoder.SetPosition(0);
 
-      if(fabs(tilt) <= (fabs(offset) + 0.5)) {
-        stateCounter++;
-        frc::SmartDashboard::PutBoolean("less than 1", true);
-      }
+      // if(fabs(tilt) <= (fabs(offsetTilt) + 0.5)) {
+      //   stateCounter++;
+      //   frc::SmartDashboard::PutBoolean("less than 1", true);
+      // }
   }
-  if(stateCounter == 3) {
-      //makes sure the robot stays in place at the top of the charge station
-      lPID.SetReference(lEncoder.GetPosition(), rev::CANSparkMax::ControlType::kPosition); //setpoint uses encoder
-      rPID.SetReference(rEncoder.GetPosition(), rev::CANSparkMax::ControlType::kPosition); //everything in abs, so will go backwards
-    frc::SmartDashboard::PutBoolean("lMotorDocked", true);
-  }
+  // if(stateCounter == 3) {
+  //     //makes sure the robot stays in place at the top of the charge station
+  //     lPID.SetReference(lEncoder.GetPosition(), rev::CANSparkMax::ControlType::kPosition); //setpoint uses encoder
+  //     rPID.SetReference(rEncoder.GetPosition(), rev::CANSparkMax::ControlType::kPosition); //everything in abs, so will go backwards
+  //   frc::SmartDashboard::PutBoolean("lMotorDocked", true);
+  // }
 }
 }
 

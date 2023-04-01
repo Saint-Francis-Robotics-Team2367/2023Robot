@@ -120,8 +120,12 @@ public:
   double getTilt();
   double n = 0;
   bool hasStarted = false;
-  double offset = 0;
+  double offsetTilt = 0;
+  double offsetYaw = 0;
+
   double timesRun = 0;
+  bool firstRun = false;
+  bool secondRun = false;
 
   std::string tab = "Drive Base"; // for MakeWidget() calls
 
