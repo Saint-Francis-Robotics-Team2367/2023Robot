@@ -114,14 +114,29 @@ public:
   void driveBaseTuning();
   double skim(double v);
 
+  // autobalance
+  enum autoBalanceStages
+  {
+    align = 1, 
+    initialClimb = 2, 
+    retryClimb = 3, 
+    balance = 4 
+  };
+
+
   int stateCounter = 0;
   double currEncoderPos = 0;
   void autoBalance();
   double getTilt();
+
   double n = 0;
   bool hasStarted = false;
   double offsetTilt = 0;
   double offsetYaw = 0;
+  double maxRampAngle = 9;
+  double restingRampAngle = 2;
+  double rampSpeed = 0.03;
+  autoBalanceStages balanceState = autoBalanceStages::align;
 
   double timesRun = 0;
   bool firstRun = false;

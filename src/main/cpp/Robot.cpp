@@ -36,6 +36,10 @@ void Robot::RobotInit()
   drive.driveThread.detach(); 
   scaraArm.scaraArmThread.detach();
   elevator.elevatorThread.detach();
+  frc::SmartDashboard::PutBoolean("In auto Drive base", false);
+  frc::SmartDashboard::PutBoolean("aligned", false);
+  frc::SmartDashboard::PutBoolean("moving to target", false);
+  frc::SmartDashboard::PutBoolean("balance", false);
 }
 
 void Robot::RobotPeriodic() {
