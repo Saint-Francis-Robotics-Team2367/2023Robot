@@ -6,6 +6,7 @@
 #include <frc/SmartDashboard/SmartDashboard.h>
 #include "AHRS.h"
 #include <frc/controller/PIDController.h>
+#include <frc/XboxController.h>
 #include <thread>
 #include <chrono>
 #include<mutex>
@@ -40,7 +41,7 @@
 // #define maxAcc = 7.0
 // #define maxVelocity = 21.0
 
-class DriveBaseModule{ //needed for gyroPIDDrive implementation
+class DriveBaseModule { //needed for gyroPIDDrive implementation
 public: 
   AHRS *ahrs; //needs to be intialized in constructor
 
@@ -76,9 +77,11 @@ public:
   double tuningPrevTime = 0;
 
   
-  frc::Joystick* driverStick = new frc::Joystick(driverStickPort);
+  //frc::Joystick* driverStick = new frc::Joystick(driverStickPort);
   // frc::Joystick* driverStick;
   //frc::Joystick* operatorStick = new frc::Joystick(operatorStickPort);
+  frc::XboxController* ctr;
+  frc::XboxController* ctrOperator;
   rev::CANSparkMax* lMotor = new rev::CANSparkMax(lMotorLeaderID, rev::CANSparkMax::MotorType::kBrushless);
   rev::CANSparkMax* lMotorFollower = new rev::CANSparkMax(lMotorFollowerID, rev::CANSparkMax::MotorType::kBrushless);
   rev::CANSparkMax* rMotor = new rev::CANSparkMax(rMotorLeaderID, rev::CANSparkMax::MotorType::kBrushless);
@@ -101,7 +104,7 @@ public:
   
   std::thread driveThread;
   double stopAuto = false;
-  DriveBaseModule(); 
+  DriveBaseModule(frc::XboxController *controller, frc::XboxController *controllerOperator); 
   void LimitRate(double& s, double& t);
   void arcadeDrive(double vel, double dir); //takes two values from the joystick and converts them into motor output %
   bool PIDDrive(float totalFeet, bool keepVelocity);
