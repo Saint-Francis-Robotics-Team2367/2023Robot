@@ -12,13 +12,13 @@
 #include <frc/XboxController.h>
 #include "Paths.h"
 
-DriveBaseModule drive;
-
 frc::XboxController* ctr = new frc::XboxController(0);
 frc::XboxController* ctr2 = new frc::XboxController(1);
 
 rev::CANSparkMax *leftStar = new rev::CANSparkMax(leftStarID, rev::CANSparkMax::MotorType::kBrushed);
 rev::CANSparkMax *rightStar = new rev::CANSparkMax(rightStarID, rev::CANSparkMax::MotorType::kBrushed);
+
+DriveBaseModule drive(ctr, ctr2);
 
 ScaraArmModule scaraArm(ctr, ctr2);
 
@@ -38,6 +38,7 @@ autoPath path[3] = {
 
 void Robot::RobotInit()
 {
+  frc::SmartDashboard::PutNumber("GrabSetpt", 0);
   drive.driveThread.detach(); 
   scaraArm.scaraArmThread.detach();
   elevator.elevatorThread.detach();
