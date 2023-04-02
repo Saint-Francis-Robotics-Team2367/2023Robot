@@ -186,6 +186,19 @@ void ElevatorModule::run() {
                 ShuffleUI::MakeWidget("y pressed", tab, true);
                 currentlyMoving = false;
             }
+            if (ctrOperator->GetXButtonPressed()) {
+                currentlyMoving = true;
+                setPos(kHighIntakeHeight, true);
+                ShuffleUI::MakeWidget("Intaking!", tab, true);
+                currentlyMoving = false;
+            }
+            if (ctrOperator->GetXButtonReleased()) {
+                currentlyMoving = true;
+                setPos(kLowestHeight, true);
+                ShuffleUI::MakeWidget("Intaking!", tab, true);
+                currentlyMoving = false;
+            }
+            
             }
             
             //need this line for down movement to work? also is manual, could replace triggers with 0, 0 and it works
