@@ -2,8 +2,10 @@
 #include <iostream>
 #include "ShuffleUI.h"
 
-DriveBaseModule::DriveBaseModule()
+DriveBaseModule::DriveBaseModule(frc::XboxController *controller, frc::XboxController *controllerOperator)
 {
+  ctr = controller;
+  ctrOperator = controllerOperator;
   ahrs = new AHRS(frc::SerialPort::kMXP);
   driveThread = std::thread(&DriveBaseModule::run, this); // initializing thread so can detach in robot init
 }
@@ -87,7 +89,7 @@ void DriveBaseModule::arcadeDrive(double xSpeedi, double zRotationi)
 
 void DriveBaseModule::gyroDriving()
 { 
-  int pov = driverStick->GetPOV();
+  int pov = ctr->GetPOV();
   frc::SmartDashboard::PutNumber("POV", pov);
 
   if (pov == -1) {
@@ -100,10 +102,10 @@ void DriveBaseModule::gyroDriving()
     gyroDriveInverse = true;
   }
 
-  float rightStickOutput = driverStick->GetRawAxis(4);
+  float rightStickOutput = ctr->GetRightX();
   float calculation = rightStickPID->Calculate(ahrs->GetRate() / 150, rightStickOutput); // add skim
   float gyroDir = gyroDriveInverse?-1:1;
-  arcadeDrive(driverStick->GetRawAxis(1) * gyroDir, calculation * gyroDir);
+  arcadeDrive(ctr->GetLeftY() * gyroDir, calculation * gyroDir);
   frc::SmartDashboard::PutNumber("yeyeye", 10);
   ShuffleUI::MakeWidget("output", tab, calculation);
   ShuffleUI::MakeWidget("gyro", tab, ahrs->GetRate());
@@ -684,7 +686,7 @@ void DriveBaseModule::run()
       // perioidic routines
       gyroDriving();
 
-      ShuffleUI::MakeWidget("joystick", tab, driverStick->GetRawAxis(1));
+      ShuffleUI::MakeWidget("joystick", tab, ctr->GetLeftY());
       // honestly let's move to xbox joystick maybe
       // elev->TeleopPeriodic(driverStick->GetLeftTriggerAxis(), driverStick->GetRightTriggerAxis());
       ShuffleUI::MakeWidget("lcheck", tab, lMotor->GetIdleMode() == rev::CANSparkMax::IdleMode::kBrake);
