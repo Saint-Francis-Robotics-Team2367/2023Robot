@@ -11,7 +11,8 @@ public:
     rev::CANSparkMax *grabberMotor = new rev::CANSparkMax(grabberID, rev::CANSparkMax::MotorType::kBrushless);
     rev::SparkMaxPIDController grabberPID = grabberMotor->GetPIDController();
     rev::SparkMaxRelativeEncoder grab_enc = grabberMotor->GetEncoder();
-    rev::SparkMaxLimitSwitch grabSwitch = grabberMotor->GetForwardLimitSwitch(rev::SparkMaxLimitSwitch::Type::kNormallyOpen);
+    rev::SparkMaxLimitSwitch reverseSwitch = grabberMotor->GetReverseLimitSwitch(rev::SparkMaxLimitSwitch::Type::kNormallyOpen);
+    rev::SparkMaxLimitSwitch forwardSwitch = grabberMotor->GetForwardLimitSwitch(rev::SparkMaxLimitSwitch::Type::kNormallyOpen);
 
     // 0 - closed, 1 - open
     int state = 0;
@@ -25,49 +26,33 @@ public:
         grab_enc.SetPosition(0);
         grabberMotor->SetIdleMode(rev::CANSparkMax::IdleMode::kBrake);
         grabberMotor->SetSmartCurrentLimit(20);
-        grabberMotor->SetSecondaryCurrentLimit(20, 0);
+        grabberPID.SetOutputRange(-1, 1);
+        forwardSwitch.EnableLimitSwitch(false);
+        reverseSwitch.EnableLimitSwitch(true);
     }
 
-    void delay(int n) 
-    {
-        auto start = std::chrono::system_clock::now();
-        auto end = start + std::chrono::seconds(n);
-        std::chrono::duration<double> elapsed;
-        do {
-            elapsed = end - std::chrono::system_clock::now();
-        } while (elapsed.count() > 0);
+   
+    void open() {
+        grabberPID.SetReference(-range, rev::CANSparkMax::ControlType::kPosition);
     }
 
-    void openAuto() 
-    {
-        grabberMotor->Set(-1.0);
-        delay(2);
-        state = 1;
-        grabberMotor->Set(0);
-        grab_enc.SetPosition(-range);
-        
+    void close() {
+        grabberPID.SetReference(0, rev::CANSparkMax::ControlType::kPosition);       
     }
 
-    void closeAuto(){
-        grabberMotor->Set(1.0);
-        delay(2);
-        state = 0;
-        grabberMotor->Set(0);
-        grab_enc.SetPosition(0);
-
-    }
-
-    void togglePID(bool buttonPressed) {
-        if (buttonPressed) {
-            state += 1;
-            state = state % 2;
-        }
+    void togglePID() {
+        state += 1;
+        state = state % 2;
         if (state == 0) {
-            grabberPID.SetReference(-range, rev::CANSparkMax::ControlType::kPosition);
+            grabberPID.SetReference(-0.1, rev::CANSparkMax::ControlType::kPosition);
         } else if (state == 1) {
-            grabberPID.SetReference(0, rev::CANSparkMax::ControlType::kPosition);
+            grabberPID.SetReference(-18, rev::CANSparkMax::ControlType::kPosition);
         }
 
+    }
+
+    void goToPID(double input) {
+        grabberPID.SetReference(input, rev::CANSparkMax::ControlType::kPosition);
     }
 
 private:
