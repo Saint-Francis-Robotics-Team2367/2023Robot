@@ -19,8 +19,10 @@ class autoPath {
         bool keepVelocity;
         bool motionProfiling; 
         float setpoint; 
-        double arm_x; 
-        double arm_y; 
+
+        // arm angles for pid 
+        double outer; 
+        double inner;
 
         autoPath(autoPathType type){
             action = type;
@@ -41,9 +43,9 @@ class autoPath {
             setpoint = point; 
         };
 
-        void register_arm(double x, double y){
-            arm_x = x; 
-            arm_y = y; 
+        void register_arm(double o, double i){
+            outer = o; 
+            inner = i; 
         };
 
 };

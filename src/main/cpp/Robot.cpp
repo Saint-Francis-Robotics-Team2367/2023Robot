@@ -24,9 +24,9 @@ ScaraArmModule scaraArm(ctr, ctr2);
 
 ElevatorModule elevator(ctr, ctr2);
 
-autoPath path[1] = {
+autoPath path[2] = {
     autoPath(autoPathType::elev),
-    //autoPath(autoPathType::arm),
+    autoPath(autoPathType::arm),
     // autoPath(autoPathType::turn), 
     //autoPath(autoPathType::straight),
     //autoPath(autoPathType::arm),
@@ -73,10 +73,9 @@ void Robot::AutonomousInit() {
 
   // autoPath d(autoPathType::straight); 
   // d.register_straight(5);
-  // elevator.isRunningAuto = true;
-  // scaraArm.autoStart = true;
-  // autoPath e(autoPathType::arm); 
-  // e.register_arm(20, 20); 
+
+  autoPath e(autoPathType::arm); 
+  e.register_arm(270, 180); 
 
 
   // // custom path 1 points:
@@ -103,6 +102,7 @@ void Robot::AutonomousInit() {
   // path[4] = e; 
 
   path[0] = a;
+  path[1] = e; 
 
   // if (selected == autoCustom){ // if custom path 1 is selected 
   //   autoPath path[4] = {
@@ -127,7 +127,6 @@ void Robot::AutonomousPeriodic() {
   //   leftStar->Set(-1);
   //   rightStar->Set(-1);
   // }
-
 
   int numSteps = 1; // CHANGE DEPENDING ON LENGTH OF PATH LIST! 
   float angle, radius; 
@@ -192,7 +191,7 @@ void Robot::AutonomousPeriodic() {
         if(!isStage) {
           scaraArm.autoStart = true;
           isStage = true;
-          frc::SmartDashboard::PutBoolean("in stage arm", isStage); 
+          frc::SmartDashboard::PutBoolean("auto path arm", true); 
         }
 
         if(scaraArm.isFinished) {
@@ -200,7 +199,6 @@ void Robot::AutonomousPeriodic() {
           scaraArm.isFinished = false;
         }
         
-        //scaraArm.movetoXY(path[index].arm_x, path[index].arm_y); 
         break; 
 
       default: 
@@ -210,7 +208,6 @@ void Robot::AutonomousPeriodic() {
     if (!isStage){
         index++;
     }
-
      
   }
 }

@@ -133,8 +133,10 @@ void ScaraArmModule::run()
     if (state == 'a')
     {
       if(autoStart) {
+        frc::SmartDashboard::PutBoolean("in arm stage a", true); 
         outterPID.SetReference(stowOutter, rev::CANSparkMax::ControlType::kPosition);
         innerPID.SetReference(-stowInner, rev::CANSparkMax::ControlType::kPosition);
+        isFinished = true; 
         autoStart = false;
       }
     }
