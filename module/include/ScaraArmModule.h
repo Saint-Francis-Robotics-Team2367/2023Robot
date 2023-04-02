@@ -6,7 +6,7 @@
 
 #include "Macros.h"
 #include "Limelight.h"
-//#include "Grabber.h"
+#include "Grabber.h"
 #include "MoveXY.h"
 
 
@@ -48,6 +48,17 @@ class ScaraArmModule {
     const double innerSize = 23.75;
     const double outterSize = 31.5;
 
+    const double innerP = 1.0;
+    const double innerI = 0.00001;
+    const double innerD = 1.0;
+    const double innerIZone = 0.1;
+    const double innerMaxAccum = 0.1;
+
+    const double outterP = 2;
+    const double outterI = 0.0001;
+    const double outterD = 1.0;
+    const double outterIZone = 1;
+
     const float teleopFactor = 1;
     
     double maxVelocity = 130;
@@ -85,7 +96,7 @@ class ScaraArmModule {
         double y;
     };
 
-    //Grabber* grabber = new Grabber();
+    Grabber* grabber = new Grabber();
     Limelight ll;
     frc::XboxController* ctr;
     frc::XboxController* ctrOperator;
@@ -102,6 +113,7 @@ class ScaraArmModule {
     bool isFinished = false;
     bool isStowing = false;
     armPos currentPosition;
+    bool stayInPlace = false;
 
     ScaraArmModule(frc::XboxController* controller, frc::XboxController* controllerOperator);
     void run();
@@ -113,17 +125,18 @@ class ScaraArmModule {
     void jstickArmMovement(double jstickX, double jstickY);
     bool XYInRange(double x, double y);
 
-
     rev::CANSparkMax* inner = new rev::CANSparkMax(scaraArmInner, rev::CANSparkMax::MotorType::kBrushless);
     rev::SparkMaxRelativeEncoder inner_enc = inner->GetEncoder();
     rev::SparkMaxPIDController innerPID = inner->GetPIDController();
-    rev::SparkMaxLimitSwitch InnerLimitSwitch = inner->GetForwardLimitSwitch(rev::SparkMaxLimitSwitch::Type::kNormallyClosed);
+    rev::SparkMaxLimitSwitch InnerLimitSwitchForward = inner->GetForwardLimitSwitch(rev::SparkMaxLimitSwitch::Type::kNormallyClosed);
+    rev::SparkMaxLimitSwitch InnerLimitSwitchReverse = inner->GetReverseLimitSwitch(rev::SparkMaxLimitSwitch::Type::kNormallyClosed);
+
     
     rev::CANSparkMax* outter = new rev::CANSparkMax(scaraArmOutter, rev::CANSparkMax::MotorType::kBrushless);
     rev::SparkMaxRelativeEncoder outter_enc = outter->GetEncoder();
     rev::SparkMaxPIDController outterPID = outter->GetPIDController();
-    rev::SparkMaxLimitSwitch OutterLimitSwitch = outter->GetForwardLimitSwitch(rev::SparkMaxLimitSwitch::Type::kNormallyClosed);
-
+    rev::SparkMaxLimitSwitch OutterLimitSwitchForward = outter->GetForwardLimitSwitch(rev::SparkMaxLimitSwitch::Type::kNormallyClosed);
+    rev::SparkMaxLimitSwitch OutterLimitSwitchReverse = outter->GetReverseLimitSwitch(rev::SparkMaxLimitSwitch::Type::kNormallyClosed);
 
 
 
