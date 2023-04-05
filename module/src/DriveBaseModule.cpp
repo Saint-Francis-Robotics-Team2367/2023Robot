@@ -112,9 +112,9 @@ void DriveBaseModule::autoBalance()
     frc::SmartDashboard::PutNumber("state", balanceState);
     //make init for this...
     case autoBalanceStages::align : // align
-        if(fabs(offsetYaw - ahrs->GetAngle()) > 2) { // test value for yaw (angle)
-          //PIDTurn(offsetYaw - ahrs->GetAngle(), 0, true); //account for negatives later ?
-        }
+        // if(fabs(offsetYaw - ahrs->GetAngle()) > 2) { // test value for yaw (angle)
+        //   //PIDTurn(offsetYaw - ahrs->GetAngle(), 0, true); //account for negatives later ?
+        // }
         lEncoder.SetPosition(0);
         currEncoderPos = lEncoder.GetPosition(); //setting up currEncoderPos for initialClimb
         balanceState = autoBalanceStages::initialClimb;
@@ -737,8 +737,8 @@ void DriveBaseModule::run() {
   int counter = 0;
 
   while(true) { 
-        double tilt = getTilt(); 
-  frc::SmartDashboard::PutNumber("Tilt", tilt);
+    double tilt = getTilt(); 
+    frc::SmartDashboard::PutNumber("Tilt", tilt);
     auto nextRun = std::chrono::steady_clock::now() + std::chrono::milliseconds(5); //change milliseconds at telop
     ShuffleUI::MakeWidget("timesRun", tab, ++counter);
     

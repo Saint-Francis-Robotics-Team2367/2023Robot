@@ -15,9 +15,9 @@
 #define driverStickPort 0
 #define operatorStickPort 1
 
-#define PIDProportional 0.59
+#define PIDProportional 0.39
 #define PIDIntegral 0
-#define PIDDerivative 0.28
+#define PIDDerivative 2.13
 #define PIDIZone 0
 
 #define driveTurningGain 0.25
@@ -96,7 +96,6 @@ public:
   bool initDriveMotor(rev::CANSparkMax* motor, rev::CANSparkMax* follower, bool invert); //loads initial values into motors such as current limit and phase direction
   bool setPowerBudget(rev::CANSparkMax* motor, float iPeak, float iRated, int limitCycles); //changes the current limits on the motors 
   bool setDriveCurrLimit(float iPeak, float iRated, int limitCycles);
-
   
   std::thread driveThread;
   double stopAuto = false;
