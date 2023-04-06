@@ -15,9 +15,9 @@
 #define driverStickPort 0
 #define operatorStickPort 1
 
-#define PIDProportional 0.59
+#define PIDProportional 0.39 //0.59
 #define PIDIntegral 0
-#define PIDDerivative 0.28
+#define PIDDerivative 2.13 //0.28
 #define PIDIZone 0
 
 #define driveTurningGain 0.25
@@ -66,6 +66,32 @@ public:
 
   void autoDrive(float totalFeet, bool keepVelocity);
   void autoTurn(float angle, float radius, bool keepVelocity);
+
+  enum autoBalanceStages
+  {
+    align = 1, 
+    initialClimb = 2, 
+    retryClimb = 3, 
+    balance = 4 
+  };
+
+  double currEncoderPos = 0;
+
+ void autoBalance();
+ double getTilt();
+
+double n = 0;
+  bool hasStarted = false;
+  double offsetTilt = 0;
+  double offsetYaw = 0;
+  double maxRampAngle = 9;
+  double restingRampAngle = 2;
+  double rampSpeed = 0.03;
+  autoBalanceStages balanceState = autoBalanceStages::align;
+
+
+
+
 
 
   double maxAcc =  20.0;
@@ -117,7 +143,6 @@ public:
   void PIDTuning();
   void driveBaseTuning();
   double skim(double v);
-  void autoBalance();
 
   std::string tab = "Drive Base"; // for MakeWidget() calls
 

@@ -112,28 +112,6 @@ void DriveBaseModule::gyroDriving()
   ShuffleUI::MakeWidget("gyro", tab, ahrs->GetRate());
 }
 
-void DriveBaseModule::autoBalance()
-{
-  double pitch = ahrs->GetPitch();
-  // pitch = std::clamp(pitch, -15.0, 15.0);
-  double error = 15 - pitch;
-  double maxDegrees = 15;
-  double length = 12;
-  frc::SmartDashboard::PutNumber("pitch", pitch);
-  frc::SmartDashboard::PutNumber("error", error);
-  // ouble gyroOutput = autoBalancePID->Calculate(pitch); // should I make this setpoint nothing?
-  // double gyroOutput = autoBalancePID->Calculate(pitch, 0.01);
-  // frc::SmartDashboard::PutNumber("gyroOutput", gyroOutput);
-
-  // uncomment later
-  // lPID.SetReference(error, rev::CANSparkMax::ControlType::kPosition);
-  // rPID.SetReference(error, rev::CANSparkMax::ControlType::kPosition);
-  //-------------
-
-  // PIDDrive(gyroOutput, false);
-  // arcadeDrive(gyroOutput/10, 0);
-}
-
 void DriveBaseModule::PIDTuning()
 {
   // double prevTime = frc::Timer::GetFPGATimestamp().value();
@@ -554,6 +532,90 @@ void DriveBaseModule::autoTurn(float angle, float radius, bool keepVelocity)
   isRunningAutoTurn = true; // do it here
 }
 
+double DriveBaseModule::getTilt() {
+  double pitch = ahrs->GetPitch();
+  double roll = ahrs->GetRoll();
+  if((pitch + roll)>= 0){
+    return std::sqrt(pitch * pitch + roll * roll);
+  } else {
+    return -std::sqrt(pitch * pitch + roll * roll);
+  }
+}
+
+void DriveBaseModule::autoBalance() {
+  //make autoBalance init()
+  // 17 in to travel the shorter part of the ramp
+  // 26 inches til midway of the ramp (~39 inches to travel so that 1/4 away from edge of ramp)
+  //tilt is negative on first start
+  double tilt = getTilt(); //you also might be able to just use roll() or just use pitch(), but both work
+  frc::SmartDashboard::PutNumber("Tilt", tilt);
+  //frc::SmartDashboard::PutNumber("stage", stateCounter);
+  bool attemptedClimbOnce = false;
+  
+  switch (balanceState) {
+    frc::SmartDashboard::PutNumber("state", balanceState);
+    //make init for this...
+    case autoBalanceStages::align : // align
+        if(fabs(offsetYaw - ahrs->GetAngle()) > 2) { // test value for yaw (angle)
+          //PIDTurn(offsetYaw - ahrs->GetAngle(), 0, true); //account for negatives later ?
+        }
+        lEncoder.SetPosition(0);
+        currEncoderPos = lEncoder.GetPosition(); //setting up currEncoderPos for initialClimb
+        balanceState = autoBalanceStages::initialClimb;
+        frc::SmartDashboard::PutBoolean("aligned", true);
+        break;
+    
+
+    case autoBalanceStages::initialClimb : // initial climb
+
+      frc::SmartDashboard::PutBoolean("moving to target", true);
+      frc::SmartDashboard::PutNumber("currEncoderPos", currEncoderPos);
+      if(!(currEncoderPos < -30))  
+      {
+        lPID.SetReference(currEncoderPos, rev::CANSparkMax::ControlType::kPosition);
+        rPID.SetReference(currEncoderPos, rev::CANSparkMax::ControlType::kPosition);
+        currEncoderPos -= rampSpeed;
+      }
+      
+        // implement 2nd try to climb
+      if(tilt > maxRampAngle) 
+      { // do we want to add deg of freedom?
+        currEncoderPos = lEncoder.GetPosition();
+        balanceState = autoBalanceStages::balance;
+        frc::SmartDashboard::PutBoolean("initial climb", true);
+      }
+      break;
+    
+    case autoBalanceStages::balance :
+      frc::SmartDashboard::PutBoolean("balance", true);
+      // do I need some timer to wait for next command?
+      frc::SmartDashboard::PutNumber("currEncoderPos", currEncoderPos);
+
+      // initially robot is driving backwards so this value should be negative for the first half of the ramp, then if it goes over drive forward
+      if (tilt < maxRampAngle - 2)
+      {                                                                           // two degrees of freedom to just stop
+        lPID.SetReference(currEncoderPos, rev::CANSparkMax::ControlType::kPosition); // setpoint uses encoder (tilt - 0 = error, you don't need the 0)
+        rPID.SetReference(currEncoderPos, rev::CANSparkMax::ControlType::kPosition); // everything in abs, so will go backwards
+        } 
+        else 
+        {
+            if(tilt > 0)
+            {                      // tilt going up initially is positive
+              currEncoderPos -= rampSpeed; //temporary incremenet amount
+            }
+            else 
+            {
+              currEncoderPos += rampSpeed;
+            }
+
+          lPID.SetReference(currEncoderPos, rev::CANSparkMax::ControlType::kPosition);
+          rPID.SetReference(currEncoderPos, rev::CANSparkMax::ControlType::kPosition);
+        }
+        frc::SmartDashboard::PutBoolean("balancing", true);
+        break;
+    }
+}
+
 void DriveBaseModule::autonomousSequence()
 {
   initPath();
@@ -653,12 +715,12 @@ void DriveBaseModule::run()
 
     if (state == 'a')
     {
-      if (test)
-      {
-        frc::SmartDashboard::PutBoolean("hi", true);
-        PIDDrive(7, false);
-        test = false;
-      }
+      // if (test)
+      // {
+      //   frc::SmartDashboard::PutBoolean("hi", true);
+      //   PIDDrive(7, false);
+      //   test = false;
+      // }
       // if (isRunningAutoTurn)
       // { // default false
       //   isRunningAutoTurn = false;
