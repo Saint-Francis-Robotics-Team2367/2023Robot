@@ -93,7 +93,7 @@ void ScaraArmModule::run()
         grabber->togglePID();
       }
       if (ctrOperator->GetStartButtonReleased()) {
-        flipJstick = false;
+        flipJstick = !flipJstick;
       }
 
       frc::SmartDashboard::PutBoolean("FlipJstick", flipJstick);
