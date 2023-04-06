@@ -48,10 +48,7 @@ bool ElevatorModule::setPos(double setpoint, bool isMotionProfiled) {
         down = true;
     }
     while(fabs(currentPosition - setpoint) > 0){ //40 < 20, fix this on arm too!!!!!! while(fabs(currentPosition) < fabs(setpoint)){
-        if(stopAuto) {
-          break;
-        }
-
+        frc::SmartDashboard::PutBoolean("In Elevator", true);
         timeElapsed = frc::Timer::GetFPGATimestamp().value() - prevTime;
         distanceToDeccelerate = (3 * currentVelocity * currentVelocity) / (2 * maxAcc); //change
         if (fabs(distanceToDeccelerate) > fabs(setpoint - currentPosition)) {  //change this line???
@@ -97,6 +94,7 @@ bool ElevatorModule::setPos(double setpoint, bool isMotionProfiled) {
         ShuffleUI::MakeWidget("prevTime", tab, prevTime);
     }
       height = setpoint; 
+      frc::SmartDashboard::PutBoolean("In Elevator", false);
       return true;
   }
 
@@ -175,7 +173,7 @@ void ElevatorModule::run() {
              if(!currentlyMoving) {
                 if(ctr->GetXButton()) { //|| (ShuffleUI::GetInt("Score", "ArmtoElev", -1) == topLeftPole || ShuffleUI::GetInt("Score", "ArmtoElev", -1) == topRightPole)
                 currentlyMoving = true;
-                setPos(kHighScoreHeight, true);
+                setPos(kHighIntakeHeight, true);
                 ShuffleUI::MakeWidget("x pressed", tab, true);
                 currentlyMoving = false;
             }
@@ -186,23 +184,23 @@ void ElevatorModule::run() {
                 ShuffleUI::MakeWidget("y pressed", tab, true);
                 currentlyMoving = false;
             }
-            if (ctrOperator->GetXButtonPressed()) {
-                currentlyMoving = true;
-                setPos(kHighIntakeHeight, true);
-                ShuffleUI::MakeWidget("Intaking!", tab, true);
-                currentlyMoving = false;
-            }
-            if (ctrOperator->GetXButtonReleased()) {
-                currentlyMoving = true;
-                setPos(kLowestHeight, true);
-                ShuffleUI::MakeWidget("Intaking!", tab, true);
-                currentlyMoving = false;
-            }
+            // if (ctrOperator->GetXButtonPressed()) {
+            //     currentlyMoving = true;
+            //     setPos(kHighIntakeHeight, true);
+            //     ShuffleUI::MakeWidget("Intaking!", tab, true);
+            //     currentlyMoving = false;
+            // }
+            // if (ctrOperator->GetXButtonReleased()) {
+            //     currentlyMoving = true;
+            //     setPos(kLowestHeight, true);
+            //     ShuffleUI::MakeWidget("Intaking!", tab, true);
+            //     currentlyMoving = false;
+            // }
             
             }
             
             //need this line for down movement to work? also is manual, could replace triggers with 0, 0 and it works
-            TeleopPeriodic(ctrOperator->GetLeftTriggerAxis(), ctrOperator->GetRightTriggerAxis()); //for some reason either need this or teleop periodic for moving downwards to work
+            TeleopPeriodic(ctrOperator->GetRightTriggerAxis(), ctrOperator->GetLeftTriggerAxis()); //for some reason either need this or teleop periodic for moving downwards to work
             //elevatorMotor->Set(ctr->GetLeftTriggerAxis() - ctr->GetRightTriggerAxis());
         }
         if(state == 'a') {
