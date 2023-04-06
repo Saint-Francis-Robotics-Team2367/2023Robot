@@ -25,7 +25,7 @@ public:
         grabberPID.SetD(0);
         grab_enc.SetPosition(0);
         grabberMotor->SetIdleMode(rev::CANSparkMax::IdleMode::kBrake);
-        grabberMotor->SetSmartCurrentLimit(20);
+        grabberMotor->SetSmartCurrentLimit(10);
         grabberPID.SetOutputRange(-1, 1);
         forwardSwitch.EnableLimitSwitch(false);
         reverseSwitch.EnableLimitSwitch(true);
@@ -41,12 +41,19 @@ public:
     }
 
     void togglePID() {
+        frc::SmartDashboard::PutNumber("GrabberENCC", grab_enc.GetPosition());
         state += 1;
         state = state % 2;
         if (state == 0) {
-            grabberPID.SetReference(-0.1, rev::CANSparkMax::ControlType::kPosition);
+            grabberPID.SetReference(0, rev::CANSparkMax::ControlType::kPosition);
         } else if (state == 1) {
-            grabberPID.SetReference(-18, rev::CANSparkMax::ControlType::kPosition);
+            if (reverseSwitch.Get()) {
+                grab_enc.SetPosition(-18.0);
+                grabberPID.SetReference(-18.0,rev::CANSparkMax::ControlType::kPosition);
+            } else {
+                grabberMotor->Set(-0.4);
+            }
+            //grabberPID.SetReference(-18, rev::CANSparkMax::ControlType::kPosition);
         }
 
     }
