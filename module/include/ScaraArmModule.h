@@ -129,6 +129,7 @@ class ScaraArmModule {
     PointXY getPoleXY(Limelight::poleIDs poleID);
     void jstickArmMovement(double jstickX, double jstickY);
     bool XYInRange(double x, double y);
+    bool autoScore();
 
     rev::CANSparkMax* inner = new rev::CANSparkMax(scaraArmInner, rev::CANSparkMax::MotorType::kBrushless);
     rev::SparkMaxRelativeEncoder inner_enc = inner->GetEncoder();

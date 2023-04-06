@@ -5,6 +5,7 @@
 #include "ScaraArmModule.h"
 #include <frc/Timer.h>
 #include "ShuffleUI.h"
+#include <frc/Errors.h>
 
 ScaraArmModule::ScaraArmModule(frc::XboxController *controller, frc::XboxController *controllerOperator)
 {
@@ -57,6 +58,10 @@ void ScaraArmModule::run()
 {
   runInit();
   isStowing = false;
+  if(autoStart) {
+    autoScore();
+    autoStart = false;
+  }
   frc::SmartDashboard::PutNumber("XSet", innerSize);
   frc::SmartDashboard::GetNumber("YSet", outterSize);
 
@@ -91,6 +96,14 @@ void ScaraArmModule::run()
       frc::SmartDashboard::PutNumber("GrabberState", grabber->state);
       if (ctrOperator->GetBButtonReleased()) {
         grabber->togglePID();
+        if (grabber->state == 0) {
+          MoveXY::Point currXY = armCalc.command_to_xy(MoveXY::ArmAngles{inner_enc.GetPosition() + innerCommandOffset,  outter_enc.GetPosition() + outterCommandOffset});
+          //frc::DriverStation::StartDataLog
+          std::vector<double> targetPose = ll.getTargetPoseRobotSpace();
+
+          std::cout << std::endl << "ArmX:" << currXY.x << ", Arm y: " << currXY.y << std::endl;
+          std::cout << std::endl << "LL_TagX" << targetPose.at(0) << ", LL_TagY" << targetPose.at(1) << std::endl;
+        }
       }
       if (ctrOperator->GetStartButtonReleased()) {
         flipJstick = !flipJstick;
@@ -398,4 +411,44 @@ bool ScaraArmModule::XYInRange(double x, double y)
     return true;
   else
     return false;
+}
+
+bool ScaraArmModule::autoScore() {
+
+  grabber->squeeze();
+
+  double innerScorePoint = -151.2841;
+  double outterScorePoint = -146.6655;
+
+  //Stow the arm
+  stow(0.3, 0.2, 0.1);
+  inner_enc.SetPosition(0);
+  outter_enc.SetPosition(0);
+  innerPID.SetReference(-10.0, rev::CANSparkMax::ControlType::kPosition);
+  outterPID.SetReference(-15.0, rev::CANSparkMax::ControlType::kPosition);
+
+
+  //Move the arm to full extension backwards
+  while (inner_enc.GetPosition() > (innerScorePoint - 0.5) && outter_enc.GetPosition() > (outterScorePoint - 0.5) ) {
+    innerPID.SetReference(innerScorePoint,rev::CANSparkMax::ControlType::kPosition);
+    outterPID.SetReference(outterScorePoint, rev::CANSparkMax::ControlType::kPosition);
+  }
+  //innerPID.SetReference(innerScorePoint,rev::CANSparkMax::ControlType::kPosition);
+  //outterPID.SetReference(outterScorePoint, rev::CANSparkMax::ControlType::kPosition);
+
+  //Grabber drop
+  grabber->open();
+  stow(0.3, 0.2, 0.1);
+  inner_enc.SetPosition(0);
+  outter_enc.SetPosition(0);
+  innerPID.SetReference(-10.0, rev::CANSparkMax::ControlType::kPosition);
+  outterPID.SetReference(-15.0, rev::CANSparkMax::ControlType::kPosition);
+  isFinished = true;
+  return true;
+  
+  
+
+
+
+
 }
