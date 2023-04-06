@@ -58,10 +58,7 @@ void ScaraArmModule::run()
 {
   runInit();
   isStowing = false;
-  if(autoStart) {
-    autoScore();
-    autoStart = false;
-  }
+
   frc::SmartDashboard::PutNumber("XSet", innerSize);
   frc::SmartDashboard::GetNumber("YSet", outterSize);
 
@@ -180,7 +177,11 @@ void ScaraArmModule::run()
 
     if (state == 'a')
     {
-      stow(0.2, 0.1, 0.05);
+     //stow(0.2, 0.1, 0.05);
+    if(autoStart) {
+      autoScore();
+      autoStart = false;
+  }
     }
 
     if (state == 'd')
