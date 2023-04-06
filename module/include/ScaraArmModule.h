@@ -42,11 +42,14 @@ class ScaraArmModule {
     const double stowOutter = 141.189407;
     const double stowInner = 130.83564;
 
+    const double innerCommandOffset = (360 - stowInner) + 90;
+    const double outterCommandOffset = 180 + stowOutter;
+
     const double innerConv = 3.6;  //1/(4096/100/360)
     const double outterConv = 36 / 7; //1/(4096/70/360)
 
-    const double innerSize = 23.75;
-    const double outterSize = 31.5;
+    const double innerSize = 25;
+    const double outterSize = 27;
 
     const double innerP = 1.0;
     const double innerI = 0.00001;
@@ -59,7 +62,9 @@ class ScaraArmModule {
     const double outterD = 1.0;
     const double outterIZone = 1;
 
-    const float teleopFactor = 1;
+    bool flipJstick = false;
+
+    const float teleopFactor = 2;
     
     double maxVelocity = 130;
     double maxAcc = 68;

@@ -38,8 +38,8 @@ void ScaraArmModule::runInit()
   outterPID.SetD(outterD);
   outterPID.SetIZone(outterIZone);
 
-  innerPID.SetOutputRange(-1, 1);
-  outterPID.SetOutputRange(-1, 1);
+  innerPID.SetOutputRange(-0.6, 0.6);
+  outterPID.SetOutputRange(-0.5, 0.5);
 
   inner->SetSmartCurrentLimit(20);
   outter->SetSmartCurrentLimit(20);
@@ -57,6 +57,9 @@ void ScaraArmModule::run()
 {
   runInit();
   isStowing = false;
+  frc::SmartDashboard::PutNumber("XSet", innerSize);
+  frc::SmartDashboard::GetNumber("YSet", outterSize);
+
 
   while (true)
   {
@@ -71,12 +74,12 @@ void ScaraArmModule::run()
 
     if (isStowing)
     {
-      stow(0.2, 0.1, 0.05);
+      stow(0.3, 0.2, 0.1);
 
       inner_enc.SetPosition(0);
       outter_enc.SetPosition(0);
       innerPID.SetReference(-10.0, rev::CANSparkMax::ControlType::kPosition);
-      outterPID.SetReference(-10.0, rev::CANSparkMax::ControlType::kPosition);
+      outterPID.SetReference(-15.0, rev::CANSparkMax::ControlType::kPosition);
 
       isStowing = false;
       continue;
@@ -89,6 +92,11 @@ void ScaraArmModule::run()
       if (ctrOperator->GetBButtonReleased()) {
         grabber->togglePID();
       }
+      if (ctrOperator->GetStartButtonReleased()) {
+        flipJstick = false;
+      }
+
+      frc::SmartDashboard::PutBoolean("FlipJstick", flipJstick);
 
 
       if (ctrOperator->GetYButtonPressed())
@@ -98,51 +106,58 @@ void ScaraArmModule::run()
        
       else if (ctrOperator->GetXButtonPressed())
       {
-        inner->SetSmartCurrentLimit(10);
-        outter->SetSmartCurrentLimit(10);
-        innerPID.SetReference(-45.0, rev::CANSparkMax::ControlType::kPosition);
-        outterPID.SetReference(-35.0, rev::CANSparkMax::ControlType::kPosition);
-      }
-
-      else if (ctrOperator->GetAButtonPressed())
-      {
-        innerPID.SetReference(-10.0, rev::CANSparkMax::ControlType::kPosition);
-        outterPID.SetReference(-10.0, rev::CANSparkMax::ControlType::kPosition);
-        inner->SetSmartCurrentLimit(20);
-        outter->SetSmartCurrentLimit(20);
+        innerPID.SetReference(-30.0, rev::CANSparkMax::ControlType::kPosition);
+        outterPID.SetReference(-50.0, rev::CANSparkMax::ControlType::kPosition);
       }
 
       // else if (ctrOperator->GetAButtonPressed())
       // {
-      //   MoveXY::Point target{innerSize, outterSize};
-      //   armCalc.calc_solution_to_target(target);
-      //   MoveXY::ArmAngles motor_angle = armCalc.get_command_solution();
-      //   frc::SmartDashboard::PutNumber("innerCalc", motor_angle.shoulder);
-      //   frc::SmartDashboard::PutNumber("outterCalc", motor_angle.elbow);
-      //   outterPID.SetReference(motor_angle.elbow, rev::CANSparkMax::ControlType::kPosition);
-      //   innerPID.SetReference(motor_angle.shoulder, rev::CANSparkMax::ControlType::kPosition);
+      //   innerPID.SetReference(-10.0, rev::CANSparkMax::ControlType::kPosition);
+      //   outterPID.SetReference(-10.0, rev::CANSparkMax::ControlType::kPosition);
+      //   inner->SetSmartCurrentLimit(20);
+      //   outter->SetSmartCurrentLimit(20);
       // }
 
-      else if (ctrOperator->GetBackButtonPressed())
+      else if (ctrOperator->GetAButton())
       {
         PointXY poleXY = getPoleXY(ll.bottomRightPole);
         MoveXY::Point target{poleXY.x, poleXY.y};
-        armCalc.calc_solution_to_target(target);
+        frc::SmartDashboard::PutNumber("TapeX", poleXY.x);
+        frc::SmartDashboard::PutNumber("Tapey", poleXY.y);
+        armCalc.calc_solution_to_target(target, 1, inner_enc.GetPosition() + innerCommandOffset);
         MoveXY::ArmAngles motor_angle = armCalc.get_command_solution();
         frc::SmartDashboard::PutNumber("innerCalc", motor_angle.shoulder);
         frc::SmartDashboard::PutNumber("outterCalc", motor_angle.elbow);
         outterPID.SetReference(motor_angle.elbow, rev::CANSparkMax::ControlType::kPosition);
-        innerPID.SetReference(motor_angle.shoulder, rev::CANSparkMax::ControlType::kPosition);
+        innerPID.SetReference(motor_angle.shoulder, rev::CANSparkMax::ControlType::kPosition);;
       }
 
-      else if (ctrOperator->GetStartButton())
+      else if (ctrOperator->GetBackButtonPressed())
       {
-        moveProfiled(-10.0, motorMappings::outterMotor);
+        // PointXY poleXY = getPoleXY(ll.bottomRightPole);
+        // MoveXY::Point target{poleXY.x, poleXY.y};
+        // armCalc.calc_solution_to_target(target);
+        // MoveXY::ArmAngles motor_angle = armCalc.get_command_solution();
+        // frc::SmartDashboard::PutNumber("innerCalc", motor_angle.shoulder);
+        // frc::SmartDashboard::PutNumber("outterCalc", motor_angle.elbow);
+        // outterPID.SetReference(motor_angle.elbow, rev::CANSparkMax::ControlType::kPosition);
+        // innerPID.SetReference(motor_angle.shoulder, rev::CANSparkMax::ControlType::kPosition);
+        innerPID.SetReference(-230.0, rev::CANSparkMax::ControlType::kPosition);
+        outterPID.SetReference(-20.0, rev::CANSparkMax::ControlType::kPosition);
+
+        
       }
 
       else if (ctrOperator->GetRightBumper())
       {
-        jstickArmMovement(ctrOperator->GetLeftX(), ctrOperator->GetLeftY());
+        // inner->Set(ctrOperator->GetLeftX());
+        // outter->Set(ctrOperator->GetRightX());
+        if (!flipJstick) {
+          jstickArmMovement(ctrOperator->GetLeftX(), -ctrOperator->GetLeftY());
+        } else {
+          jstickArmMovement(-ctrOperator->GetLeftX(), ctrOperator->GetLeftY());
+        }
+        
       }
 
       else
@@ -337,7 +352,7 @@ bool ScaraArmModule::moveProfiled(double setpoint, motorMappings motor)
 
 void ScaraArmModule::jstickArmMovement(double jstickX, double jstickY)
 {
-  MoveXY::Point currXY = armCalc.command_to_xy(MoveXY::ArmAngles{inner_enc.GetPosition(), outter_enc.GetPosition()});
+  MoveXY::Point currXY = armCalc.command_to_xy(MoveXY::ArmAngles{inner_enc.GetPosition() + innerCommandOffset,  outter_enc.GetPosition() + outterCommandOffset});
   currentPosition.armX = currXY.x;
   currentPosition.armY = currXY.y;
 
@@ -349,10 +364,15 @@ void ScaraArmModule::jstickArmMovement(double jstickX, double jstickY)
     ShuffleUI::MakeWidget("SetY", tab, currentPosition.armY);
 
 
-    armCalc.calc_solution_to_target(MoveXY::Point{currentPosition.armX, currentPosition.armY});
+    armCalc.calc_solution_to_target(MoveXY::Point{currentPosition.armX, currentPosition.armY}, 1, inner_enc.GetPosition() + innerCommandOffset);
     MoveXY::ArmAngles motor_angle = armCalc.get_command_solution();
+    frc::SmartDashboard::PutNumber("CalcInner", motor_angle.shoulder);
+    frc::SmartDashboard::PutNumber("CalcOutter", motor_angle.elbow);
+
+
     outterPID.SetReference(motor_angle.elbow, rev::CANSparkMax::ControlType::kPosition);
     innerPID.SetReference(motor_angle.shoulder, rev::CANSparkMax::ControlType::kPosition);
+    armCalc.set_target_to_current();
     ShuffleUI::MakeWidget("Invalid?", tab, 0);
 
   }
@@ -360,8 +380,10 @@ void ScaraArmModule::jstickArmMovement(double jstickX, double jstickY)
   {
     ShuffleUI::MakeWidget("InnerSet", tab, atan2(jstickY, jstickX) * 180 / PI);
     ShuffleUI::MakeWidget("OutterSet", tab, 0);
-    innerPID.SetReference(atan2(jstickY, jstickX) * 180 / PI, rev::ControlType::kPosition);
-    outterPID.SetReference(0, rev::ControlType::kPosition);
+    ShuffleUI::MakeWidget("Invalid?", tab, 1);
+
+    //innerPID.SetReference(atan2(jstickY, jstickX) * 180 / PI, rev::ControlType::kPosition);
+    //outterPID.SetReference(0, rev::ControlType::kPosition);
   }
 }
 
