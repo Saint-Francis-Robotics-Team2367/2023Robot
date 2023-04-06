@@ -2,6 +2,7 @@
 #include <rev/CANSparkMax.h>
 #include <frc/Joystick.h>
 #include <frc/SmartDashboard/SmartDashboard.h>
+#pragma once
 
 
 class IntakeModule {
@@ -40,7 +41,7 @@ class IntakeModule {
     void toggle(bool buttonPressed) {
         if (buttonPressed) {
             tripleState += 1;
-            tripleState = tripleState % 3;
+            tripleState = tripleState % 2;
         }
         if(tripleState == 0) {
             rotaryIntake->StopMotor();
@@ -61,6 +62,7 @@ class IntakeModule {
             rightStar->Set(1);
         }
     }
+
 
     private:
 };

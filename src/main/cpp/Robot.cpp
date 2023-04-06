@@ -11,6 +11,7 @@
 #include "ElevatorModule.h"
 #include <frc/XboxController.h>
 #include "Paths.h"
+#include "IntakeModule.h"
 
 frc::XboxController* ctr = new frc::XboxController(0);
 frc::XboxController* ctr2 = new frc::XboxController(1);
@@ -18,6 +19,7 @@ frc::XboxController* ctr2 = new frc::XboxController(1);
 ScaraArmModule scaraArm(ctr, ctr2);
 DriveBaseModule drive;
 ElevatorModule elevator(ctr, ctr2);
+IntakeModule* intake = new IntakeModule();
 
 autoPath path[5] = {
     autoPath(autoPathType::straight),
@@ -33,9 +35,9 @@ autoPath path[5] = {
 
 void Robot::RobotInit()
 {
-  drive.driveThread.detach(); 
-  scaraArm.scaraArmThread.detach();
-  elevator.elevatorThread.detach();
+  // drive.driveThread.detach(); 
+  // scaraArm.scaraArmThread.detach();
+  // elevator.elevatorThread.detach();
 }
 
 void Robot::RobotPeriodic() {
@@ -190,12 +192,17 @@ void Robot::AutonomousPeriodic() {
 
 
 void Robot::TeleopInit() {
-  scaraArm.state = 't';
-  drive.state = 't';
-  elevator.state = 't';
+  // scaraArm.state = 't';
+  // drive.state = 't';
+  // elevator.state = 't';
+  intake->Init();
 }
 
-void Robot::TeleopPeriodic() {}
+void Robot::TeleopPeriodic() {
+  intake->toggle(ctr->GetAButton());
+  intake->rotaryIntake->Set(ctr->GetRightTriggerAxis() - ctr->GetLeftTriggerAxis());
+  frc::SmartDashboard::PutNumber("intake encoder pos", intake->rotaryIntakeEncoder.GetPosition());
+}
 
 void Robot::DisabledInit() {
   scaraArm.state = 'd';

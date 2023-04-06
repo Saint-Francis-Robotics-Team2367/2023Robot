@@ -78,7 +78,7 @@ class ElevatorModule {
     double dUp = 0.0;
 
     bool oneRun = true;
-    IntakeModule* intake = new IntakeModule();
+    // IntakeModule* intake = new IntakeModule();
 
 
     ElevatorModule(frc::XboxController* controller, frc::XboxController* controllerOperator);

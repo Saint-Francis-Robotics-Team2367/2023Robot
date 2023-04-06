@@ -98,7 +98,7 @@ double DriveBaseModule::getTilt() {
 }
 
 void DriveBaseModule::autoBalance() {
-  double tilt = -getTilt(); //you also might be able to just use roll() or just use pitch(), but both work
+  double tilt = getTilt(); //you also might be able to just use roll() or just use pitch(), but both work
   frc::SmartDashboard::PutNumber("Tilt", tilt);
   frc::SmartDashboard::PutNumber("stage", stateCounter);
   if(stateCounter==0) {
