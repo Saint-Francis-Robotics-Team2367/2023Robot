@@ -18,6 +18,8 @@ frc::XboxController* ctr2 = new frc::XboxController(1);
 rev::CANSparkMax *leftStar = new rev::CANSparkMax(leftStarID, rev::CANSparkMax::MotorType::kBrushed);
 rev::CANSparkMax *rightStar = new rev::CANSparkMax(rightStarID, rev::CANSparkMax::MotorType::kBrushed);
 
+//rev::CANSparkMax *rotary = new rev::CANSparkMax(rotaryID, rev::CANSparkMax::MotorType::kBrushed);
+//rev::SparkMaxRelativeEncoder rotaryEnc = rotary->GetEncoder();
 DriveBaseModule drive(ctr, ctr2);
 
 ScaraArmModule scaraArm(ctr, ctr2);
@@ -224,11 +226,14 @@ void Robot::TeleopInit() {
   drive.state = 't';
   elevator.state = 't';
   frc::SmartDashboard::PutNumber("scale", 1.0);
+  //otaryEnc.SetPosition(0);
+  
 }
 
 void Robot::TeleopPeriodic() {
-  
+  //frc::SmartDashboard::PutNumber("RotaryEnc", rotaryEnc.GetPosition());
   float scale = frc::SmartDashboard::GetNumber("scale", 0.0);
+  //rotary->Set(ctr->GetRightX() / 10);
 
   if(ctr->GetRawButton(5))
   {
