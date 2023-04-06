@@ -3,6 +3,7 @@
 #include <vector>
 #include <algorithm>
 #include <cmath>
+#include <frc/smartdashboard/SmartDashboard.h>
 
 class MoveXY
 {
@@ -98,6 +99,8 @@ public:
     ArmAngles get_command_solution()
     {
         ArmAngles res;
+        std::cout << "shoulder offset" << m_offset_theta.shoulder << "Elbow offset" << m_offset_theta.elbow << std::endl;
+        std::cout << "Elbow target" << m_target_theta.elbow << std::endl;
         res.elbow = m_target_theta.elbow - m_offset_theta.elbow;
         res.shoulder = m_target_theta.shoulder - m_offset_theta.shoulder;
 
@@ -198,6 +201,9 @@ public:
 
         if (angle > 360.0f)
             return angle - 360.0f;
+        else if (angle < 0.0f) {
+            return 360 + angle;
+        }
         else
             return angle;
     };
@@ -212,9 +218,27 @@ public:
     double get_theta_elbow(Point shoulderXY, Point targetXY)
     {
         Point delta{targetXY.x - shoulderXY.x, targetXY.y - shoulderXY.y};
-        double res = delta.get_angle() + 90.0f + get_theta_shoulder(shoulderXY);
+        double rel_angle = atan2(delta.y, delta.x) * 180 / 3.1415;
+        double inner = get_theta_shoulder(shoulderXY);
+        std::cout << "Inner" << inner << std::endl;
+        double res;
+        if (inner < 90) {
+            res = 180 + (90 - inner) + rel_angle;
+        } else if (inner < 180) {
+            res = 180 - (inner - 90) + rel_angle;
+        } else if (inner < 270) {
+            res = rel_angle + (90 - (inner - 180));
+        } else if (inner < 360) {
+            std::cout << "Fax";
+            res = 360 - (inner - 270) + rel_angle;
+        }
+        std::cout << "res" << res << std::endl;
+        // double res = delta.get_angle() + 90.0f + get_theta_shoulder(shoulderXY);
         if (res > 360.0f)
             res -= 360.0f;
+        if (res < 0.0f) {
+            res = 360.0f + res;
+        }
         return res;
     }
 
@@ -225,12 +249,18 @@ public:
      * @param target target point
      * @param quadrant requested quadrant for elbow
      */
-    void calc_solution_to_target(Point target, int quadrant = 1)
+    void calc_solution_to_target(Point target, int quadrant = 1, double curr_inner = 0)
     {
         getCircleInts(target);
-        Point res = cull_elbow(i1, i2, quadrant);
-        m_target_theta.shoulder = get_theta_shoulder(res);
-        m_target_theta.elbow = get_theta_elbow(res, target);
+        //Point res = cull_elbow(i1, i2, quadrant);
+        if (fabs(get_theta_shoulder(i1) - curr_inner) < fabs(get_theta_shoulder(i2) - curr_inner)) {
+            m_target_theta.shoulder = get_theta_shoulder(i1);
+            m_target_theta.elbow = get_theta_elbow(i1, target);
+        } else {
+            m_target_theta.shoulder = get_theta_shoulder(i2);
+            m_target_theta.elbow = get_theta_elbow(i2, target);
+        }
+       
     }
 
     /**
@@ -245,7 +275,7 @@ public:
         double shoulder_angle = pose.shoulder - 90.0f;
         shoulder.set_mag_angle(m_shoulder_len, shoulder_angle);
 
-        double elbow_angle = pose.elbow - 180.0f - shoulder.get_angle();
+        double elbow_angle = pose.elbow + 180.0f + shoulder.get_angle();
         elbow_angle = std::round(elbow_angle);
         elbow.set_mag_angle(m_elbow_len, elbow_angle);
         res.setCoords(shoulder.x + elbow.x, shoulder.y + elbow.y);
