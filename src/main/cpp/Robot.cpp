@@ -125,10 +125,10 @@ void Robot::AutonomousInit() {
   }
   
 void Robot::AutonomousPeriodic() {
-  if(frc::Timer::GetFPGATimestamp().value() - timestamp < 5) {
-    leftStar->Set(-1);
-    rightStar->Set(-1);
-  }
+  // if(frc::Timer::GetFPGATimestamp().value() - timestamp < 5) {
+  //   leftStar->Set(-1);
+  //   rightStar->Set(-1);
+  // }
 
 
 

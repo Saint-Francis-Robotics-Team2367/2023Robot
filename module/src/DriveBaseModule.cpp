@@ -708,7 +708,7 @@ void DriveBaseModule::run()
   {
     auto nextRun = std::chrono::steady_clock::now() + std::chrono::milliseconds(5); // change milliseconds at telop
     ShuffleUI::MakeWidget("timesRun", tab, ++counter);
-
+    frc::SmartDashboard::PutNumber("tilt", getTilt());
     // frc::SmartDashboard::PutNumber("drivebase y", driverStick->GetRawAxis(1));
 
     // need mutex to stop
