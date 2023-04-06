@@ -33,12 +33,22 @@ public:
 
    
     void open() {
-        grabberPID.SetReference(-range, rev::CANSparkMax::ControlType::kPosition);
+         if (reverseSwitch.Get()) {
+                grab_enc.SetPosition(-18.0);
+                grabberPID.SetReference(-18.0,rev::CANSparkMax::ControlType::kPosition);
+        } else {
+                grabberMotor->Set(-0.4);
+        }
     }
 
     void close() {
         grabberPID.SetReference(0, rev::CANSparkMax::ControlType::kPosition);       
     }
+
+    void squeeze() {
+        grabberMotor->Set(0.2);
+    }
+
 
     void togglePID() {
         frc::SmartDashboard::PutNumber("GrabberENCC", grab_enc.GetPosition());
