@@ -104,8 +104,9 @@ void DriveBaseModule::gyroDriving()
 
   float rightStickOutput = ctr->GetRightX();
   float calculation = rightStickPID->Calculate(ahrs->GetRate() / 150, rightStickOutput); // add skim
-  float gyroDir = gyroDriveInverse?-1:1;
-  arcadeDrive(ctr->GetLeftY() * gyroDir, calculation * gyroDir);
+  float gyroDir = gyroDriveInverse?1:-1;
+  double accelTriggers = ctr->GetRightTriggerAxis() - ctr->GetLeftTriggerAxis();
+  arcadeDrive(accelTriggers * gyroDir, calculation * gyroDir);
   frc::SmartDashboard::PutNumber("yeyeye", 10);
   ShuffleUI::MakeWidget("output", tab, calculation);
   ShuffleUI::MakeWidget("gyro", tab, ahrs->GetRate());
