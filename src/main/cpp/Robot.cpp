@@ -9,14 +9,26 @@
 #include "ScaraArmModule.h"
 #include "DriveBaseModule.h"
 #include "ElevatorModule.h"
+// #include "IntakeModule.h"
 #include <frc/XboxController.h>
 #include "Paths.h"
+#include <rev/CANSparkMax.h>
 
 frc::XboxController* ctr = new frc::XboxController(0);
 frc::XboxController* ctr2 = new frc::XboxController(1);
 
+rev::CANSparkMax *roller = new rev::CANSparkMax(rollerID, rev::CANSparkMax::MotorType::kBrushed);
+
+
 rev::CANSparkMax *leftStar = new rev::CANSparkMax(leftStarID, rev::CANSparkMax::MotorType::kBrushed);
 rev::CANSparkMax *rightStar = new rev::CANSparkMax(rightStarID, rev::CANSparkMax::MotorType::kBrushed);
+
+rev::CANSparkMax *rotaryIntake = new rev::CANSparkMax(rotaryID, rev::CANSparkMax::MotorType::kBrushless);
+  
+
+    // // if you don't include getEncoder here, it doesn't build?
+rev::SparkMaxRelativeEncoder rotaryIntakeEncoder = rotaryIntake->GetEncoder();
+rev::SparkMaxPIDController rotaryIntakePIDController = rotaryIntake->GetPIDController();
 
 //rev::CANSparkMax *rotary = new rev::CANSparkMax(rotaryID, rev::CANSparkMax::MotorType::kBrushed);
 //rev::SparkMaxRelativeEncoder rotaryEnc = rotary->GetEncoder();
@@ -25,6 +37,8 @@ DriveBaseModule drive(ctr, ctr2);
 ScaraArmModule scaraArm(ctr, ctr2);
 
 ElevatorModule elevator(ctr, ctr2);
+
+// IntakeModule* intake = new IntakeModule();
 
 autoPath path[3] = {
     autoPath(autoPathType::elev),
@@ -44,6 +58,17 @@ void Robot::RobotInit()
   drive.driveThread.detach(); 
   scaraArm.scaraArmThread.detach();
   elevator.elevatorThread.detach();
+
+
+//intake init
+leftStar->SetIdleMode(rev::CANSparkMax::IdleMode::kBrake);
+leftStar->SetSmartCurrentLimit(5);
+rightStar->SetIdleMode(rev::CANSparkMax::IdleMode::kBrake);
+rightStar->SetSmartCurrentLimit(5);
+roller->SetIdleMode(rev::CANSparkMax::IdleMode::kBrake);
+roller->SetSmartCurrentLimit(5);
+roller->SetInverted(true);
+
 }
 
 void Robot::RobotPeriodic() {
@@ -61,21 +86,21 @@ void Robot::AutonomousInit() {
   // const std::string autoCustom = "Path 1"; // define more variables if there are more custom paths 
   // std::string selected; 
 
-  // autoPath a(autoPathType::elev); 
-  // a.register_elev(10); 
+  autoPath a(autoPathType::elev); 
+  a.register_elev(33); 
+
   
-  // autoPath x(autoPathType::arm);
-  // x.register_arm(10, 10);
+  autoPath x(autoPathType::arm);
+  x.register_arm(10, 10);
 
-
-  // autoPath b(autoPathType::arm); 
-  // b.register_turn(90, 2);
+  autoPath b(autoPathType::elev); 
+  b.register_elev(0);
 
   // autoPath c(autoPathType::straight); 
   // c.register_elev(25); 
 
-  autoPath d(autoPathType::straight); 
-  d.register_straight(5);
+  // autoPath d(autoPathType::straight); 
+  // d.register_straight(5);
 
   // autoPath e(autoPathType::arm); 
   // e.register_arm(20, 20); 
@@ -104,7 +129,9 @@ void Robot::AutonomousInit() {
   // path[3] = d;
   // path[4] = e; 
 
-  path[0] = d;
+  path[0] = a;
+  path[1] = x;
+  path[2] = b;
 
   // if (selected == autoCustom){ // if custom path 1 is selected 
   //   autoPath path[4] = {
@@ -118,104 +145,100 @@ void Robot::AutonomousInit() {
   //   path[1] = b1; 
   //   path[2] = c1; 
   //   path[3] = d1;
-  leftStar->Set(-1);
-  rightStar->Set(-1);
-  timestamp = frc::Timer::GetFPGATimestamp().value();
+  // leftStar->Set(-1);
+  // rightStar->Set(-1);
+  // timestamp = frc::Timer::GetFPGATimestamp().value();
   
   }
   
 void Robot::AutonomousPeriodic() {
-  // if(frc::Timer::GetFPGATimestamp().value() - timestamp < 5) {
-  //   leftStar->Set(-1);
-  //   rightStar->Set(-1);
-  // }
 
+  int numSteps = 3; // CHANGE DEPENDING ON LENGTH OF PATH LIST! 
+  float angle, radius; 
 
-
-  //  int index = 0; 
-
-  // // int numSteps = 1; // CHANGE DEPENDING ON LENGTH OF PATH LIST! 
-  // // float angle, radius; 
-
-  // // if(index < numSteps){
-  // //    switch(path[index].action){
-  // //      case 's': // driving straight
+  if(index < numSteps){
+     switch(path[index].action){
+       case 's': // driving straight
       
-  // //       if(!isStage) { // if its not currently driving 
-  // //         drive.autoDrive(path[index].dis, path[index].keepVelocity);
-  // //         isStage = true; 
-  // //         frc::SmartDashboard::PutBoolean("in stage drive", isStage); 
-  // //         frc::SmartDashboard::PutBoolean("is finished", drive.isFinished);
-  // //         frc::SmartDashboard::PutNumber("dis", path[index].dis);
-  // //       } 
+        if(!isStage) { // if its not currently driving 
+          drive.autoDrive(path[index].dis, path[index].keepVelocity);
+          isStage = true; 
+          frc::SmartDashboard::PutBoolean("in stage drive", isStage); 
+          frc::SmartDashboard::PutBoolean("is finished", drive.isFinished);
+          frc::SmartDashboard::PutNumber("dis", path[index].dis);
+        } 
         
-  // //       if (drive.isFinished){ // once drive is finished 
-  // //         isStage = false; 
-  // //         drive.isFinished = false; 
-  // //       }
-  // //       break; 
+        if (drive.isFinished){ // once drive is finished 
+          isStage = false; 
+          drive.isFinished = false; 
+        }
+        break; 
 
-  // //     case 't': // turn
-  // //       if (!isStage){
-  // //         angle = path[index].angle; 
-  // //         radius = path[index].radius; 
-  // //         frc::SmartDashboard::PutNumber("angle", angle); 
-  // //         frc::SmartDashboard::PutNumber("radius", radius);
+      case 't': // turn
+        if (!isStage){
+          angle = path[index].angle; 
+          radius = path[index].radius; 
+          frc::SmartDashboard::PutNumber("angle", angle); 
+          frc::SmartDashboard::PutNumber("radius", radius);
 
-  // //         if (angle > 0){ // robot starts at 180 deg for right turns 
-  // //           angle = -(angle - 180);
-  // //         }
+          if (angle > 0){ // robot starts at 180 deg for right turns 
+            angle = -(angle - 180);
+          }
 
-  // //         drive.autoTurn(angle, radius, path[index].keepVelocity);
-  // //         isStage = true; 
-  // //       }
+          drive.autoTurn(angle, radius, path[index].keepVelocity);
+          isStage = true; 
+        }
         
-  // //       if (drive.isFinished ){
-  // //         isStage = false; 
-  // //         drive.isFinished = false; 
-  // //       }
+        if (drive.isFinished ){
+          isStage = false; 
+          drive.isFinished = false; 
+        }
         
-  // //       break; 
+        break; 
 
-  // //     case 'e': // elevator
-  // //       if (!isStage){
-  // //         elevator.autoSet(path[index].setpoint); 
-  // //         isStage = true; 
-  // //         frc::SmartDashboard::PutBoolean("in stage elev", isStage); 
-  // //       }
+      case 'e': // elevator
+        if (!isStage){
+          elevator.autoSet(path[index].setpoint); 
+          isStage = true; 
+          frc::SmartDashboard::PutBoolean("in stage elev", isStage); 
+        }
 
-  // //       if (elevator.isFinished){
-  // //         isStage = false; 
-  // //         elevator.isFinished = false; 
-  // //       }
+        if (elevator.isFinished){
+          isStage = false; 
+          elevator.isFinished = false; 
+        }
         
-  // //       break;
+        break;
 
-  // //     case 'a': 
-  // //       if(!isStage) {
-  // //         scaraArm.autoStart = true;
-  // //         isStage = true;
-  // //         frc::SmartDashboard::PutBoolean("in stage arm", isStage); 
-  // //       }
+      case 'a': 
+        if(!isStage) {
+          scaraArm.autoStart = true;
+          isStage = true;
+          frc::SmartDashboard::PutBoolean("in stage arm", isStage); 
+        }
 
-  // //       if(scaraArm.isFinished) {
-  // //         isStage = false;
-  // //         scaraArm.isFinished = false;
-  // //       }
+        if(scaraArm.isFinished) {
+          isStage = false;
+          scaraArm.isFinished = false;
+        }
         
-  // //       //scaraArm.movetoXY(path[index].arm_x, path[index].arm_y); 
-  // //       break; 
+        //scaraArm.movetoXY(path[index].arm_x, path[index].arm_y); 
+        break; 
 
-  // //     default: 
-  // //       break; 
-  // //   }
+      default: 
+        break; 
+    }
     
-  // //   if (!isStage){
-  // //       index++;
-  // //   }
+    if (!isStage){
+        index++;
+    }
 
      
-  // }
+  }
+
+  if(index >= numSteps) {
+    drive.balancing = true;
+  }
 
      
   }
@@ -240,18 +263,27 @@ void Robot::TeleopPeriodic() {
     const float forward = 0.5F * scale;
     leftStar->Set(forward);
     rightStar->Set(forward);
+    roller->Set(forward);
+    
   } 
   else if (ctr->GetRawButton(6))
   {
     const float reverse = -0.5F * scale;
     leftStar->Set(reverse);
     rightStar->Set(reverse);
+    roller->Set(reverse);
   }
   else
   {
     leftStar->StopMotor();
     rightStar->StopMotor();
+    roller->StopMotor();
   }
+
+  rotaryIntake->Set(ctr->GetLeftX()/5);
+  frc::SmartDashboard::PutNumber("rotaryIntakeEncoder", rotaryIntakeEncoder.GetPosition());
+  
+
   
    scale = frc::SmartDashboard::PutNumber("scale", scale);
 
