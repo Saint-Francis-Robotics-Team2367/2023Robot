@@ -738,10 +738,10 @@ void DriveBaseModule::run()
       //   frc::SmartDashboard::PutBoolean("isRunningAutoDrive", isRunningAutoDrive);
       // }
 
-      // if (balancing)
-      // {
-      //   autoBalance();
-      // }
+      if (balancing)
+      {
+        autoBalance();
+      }
     }
 
     if (state == 't')
