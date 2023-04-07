@@ -56,7 +56,7 @@ public:
         state = state % 2;
         if (state == 0) {
             //grabberPID.SetReference(0, rev::CANSparkMax::ControlType::kPosition);
-            grabberMotor->Set(0.2);
+            grabberMotor->Set(0.3);
         } else if (state == 1) {
             if (reverseSwitch.Get()) {
                 grab_enc.SetPosition(-18.0);
