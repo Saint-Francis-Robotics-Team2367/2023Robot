@@ -42,7 +42,7 @@ void ScaraArmModule::runInit()
   innerPID.SetOutputRange(-0.6, 0.6);
   outterPID.SetOutputRange(-0.5, 0.5);
 
-  inner->SetSmartCurrentLimit(20);
+  inner->SetSmartCurrentLimit(30);
   outter->SetSmartCurrentLimit(20);
 
   grabber->Init();
@@ -71,7 +71,7 @@ void ScaraArmModule::run()
     frc::SmartDashboard::PutBoolean("OutterLimitSwitch", OutterLimitSwitchForward.Get());
     frc::SmartDashboard::PutBoolean("InnerLimitSwitch", InnerLimitSwitchForward.Get());
 
-    frc::SmartDashboard::PutNumber("GrabberEnc", grabber->grab_enc.GetPosition());
+    //frc::SmartDashboard::PutNumber("GrabberEnc", grabber->grab_enc.GetPosition());
     frc::SmartDashboard::PutNumber("GrabSwitch", grabber->reverseSwitch.Get());
 
     if (isStowing)
@@ -178,6 +178,7 @@ void ScaraArmModule::run()
     if (state == 'a')
     {
      //stow(0.2, 0.1, 0.05);
+
     if(autoStart) {
       autoScore();
       autoStart = false;
@@ -396,8 +397,8 @@ void ScaraArmModule::jstickArmMovement(double jstickX, double jstickY)
     ShuffleUI::MakeWidget("OutterSet", tab, 0);
     ShuffleUI::MakeWidget("Invalid?", tab, 1);
 
-    //innerPID.SetReference(atan2(jstickY, jstickX) * 180 / PI, rev::ControlType::kPosition);
-    //outterPID.SetReference(0, rev::ControlType::kPosition);
+    innerPID.SetReference(((atan2(jstickY, jstickX) * 180 / PI) + 90) - innerCommandOffset, rev::ControlType::kPosition);
+    outterPID.SetReference(0, rev::ControlType::kPosition);
   }
 }
 
@@ -416,11 +417,17 @@ bool ScaraArmModule::XYInRange(double x, double y)
 
 bool ScaraArmModule::autoScore() {
 
-  grabber->squeeze();
+  innerPID.SetI(0.0);
+  outterPID.SetI(0.0);
 
-  double innerScorePoint = -151.2841;
-  double outterScorePoint = -146.6655;
+  innerPID.SetOutputRange(-0.3, 0.3);
+  outterPID.SetOutputRange(-0.3, 0.3);
 
+  //grabber->squeeze();
+
+  double innerScorePoint = -144.2841;
+  double outterScorePoint = -136.6655;
+  grabber->close();
   //Stow the arm
   stow(0.3, 0.2, 0.1);
   inner_enc.SetPosition(0);
@@ -429,21 +436,51 @@ bool ScaraArmModule::autoScore() {
   outterPID.SetReference(-15.0, rev::CANSparkMax::ControlType::kPosition);
 
 
-  //Move the arm to full extension backwards
-  while (inner_enc.GetPosition() > (innerScorePoint - 0.5) && outter_enc.GetPosition() > (outterScorePoint - 0.5) ) {
+  // Move the arm to full extension backwards
+
+
+  // while (currTime < startTime + 5) {
+  //   currTime = frc::Timer::GetFPGATimestamp().value();
+  //   innerPID.SetReference(innerScorePoint,rev::CANSparkMax::ControlType::kPosition);
+  //   outterPID.SetReference(outterScorePoint, rev::CANSparkMax::ControlType::kPosition);
+  // }
+
+  while ((inner_enc.GetPosition() > innerScorePoint + 2) || (outter_enc.GetPosition() > outterScorePoint + 2)) {
+    frc::SmartDashboard::PutNumber("innerPos", inner_enc.GetPosition());
+    frc::SmartDashboard::PutNumber("OutterPOs", outter_enc.GetPosition());
     innerPID.SetReference(innerScorePoint,rev::CANSparkMax::ControlType::kPosition);
     outterPID.SetReference(outterScorePoint, rev::CANSparkMax::ControlType::kPosition);
-  }
-  //innerPID.SetReference(innerScorePoint,rev::CANSparkMax::ControlType::kPosition);
-  //outterPID.SetReference(outterScorePoint, rev::CANSparkMax::ControlType::kPosition);
+  } 
 
-  //Grabber drop
+
+  float startTime = frc::Timer::GetFPGATimestamp().value();
+  float currTime = frc::Timer::GetFPGATimestamp().value();
+  while (currTime < startTime + 1) {
+    currTime = frc::Timer::GetFPGATimestamp().value();
+  }
+
   grabber->open();
+
+
   stow(0.3, 0.2, 0.1);
   inner_enc.SetPosition(0);
   outter_enc.SetPosition(0);
   innerPID.SetReference(-10.0, rev::CANSparkMax::ControlType::kPosition);
   outterPID.SetReference(-15.0, rev::CANSparkMax::ControlType::kPosition);
+
+  
+  // innerPID.SetReference(innerScorePoint);
+  // outterPID.SetReference(outterScorePoint);
+  //innerPID.SetReference(innerScorePoint,rev::CANSparkMax::ControlType::kPosition);
+  //outterPID.SetReference(outterScorePoint, rev::CANSparkMax::ControlType::kPosition);
+
+  //Grabber drop
+  // grabber->open();
+  // stow(0.3, 0.2, 0.1);
+  // inner_enc.SetPosition(0);
+  // outter_enc.SetPosition(0);
+  // innerPID.SetReference(-10.0, rev::CANSparkMax::ControlType::kPosition);
+  // outterPID.SetReference(-15.0, rev::CANSparkMax::ControlType::kPosition);
   isFinished = true;
   return true;
   
