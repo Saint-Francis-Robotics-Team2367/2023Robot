@@ -27,6 +27,7 @@ rev::CANSparkMax *rotaryIntake = new rev::CANSparkMax(rotaryID, rev::CANSparkMax
   
 
     // // if you don't include getEncoder here, it doesn't build?
+double tapAmount = 1;
 rev::SparkMaxRelativeEncoder rotaryIntakeEncoder = rotaryIntake->GetEncoder();
 rev::SparkMaxPIDController rotaryIntakePIDController = rotaryIntake->GetPIDController();
 
@@ -40,11 +41,11 @@ ElevatorModule elevator(ctr, ctr2);
 
 // IntakeModule* intake = new IntakeModule();
 
-autoPath path[3] = {
+autoPath path[2] = {
     autoPath(autoPathType::elev),
     autoPath(autoPathType::arm),
     // autoPath(autoPathType::turn), 
-    autoPath(autoPathType::straight),
+    //autoPath(autoPathType::straight),
     //autoPath(autoPathType::arm),
   };
 
@@ -62,20 +63,31 @@ void Robot::RobotInit()
 
 //intake init
 leftStar->SetIdleMode(rev::CANSparkMax::IdleMode::kBrake);
-leftStar->SetSmartCurrentLimit(5);
+leftStar->SetSmartCurrentLimit(15); //actually the roller
 rightStar->SetIdleMode(rev::CANSparkMax::IdleMode::kBrake);
-rightStar->SetSmartCurrentLimit(5);
+rightStar->SetSmartCurrentLimit(10);
 roller->SetIdleMode(rev::CANSparkMax::IdleMode::kBrake);
-roller->SetSmartCurrentLimit(5);
+roller->SetSmartCurrentLimit(10);
 roller->SetInverted(true);
+rotaryIntake->SetSmartCurrentLimit(40);
+frc::SmartDashboard::PutNumber("current limit", 20);
 
 }
 
 void Robot::RobotPeriodic() {
 
+  double current = frc::SmartDashboard::GetNumber("current limit", 20);
+  rotaryIntake->SetSmartCurrentLimit(current);
+  frc::SmartDashboard::PutNumber("current limit", current);
+  rotaryIntakePIDController.SetP(1.0);
+
 }
 
 void Robot::AutonomousInit() {
+
+    //   leftStar->Set(-0.5);
+    // rightStar->Set(-0.5);
+    // roller->Set(-0.5);
   scaraArm.state = 'a';
   drive.state = 'a';
   elevator.state = 'a';
@@ -94,7 +106,7 @@ void Robot::AutonomousInit() {
   x.register_arm(10, 10);
 
   autoPath b(autoPathType::elev); 
-  b.register_elev(0);
+  //b.register_elev(0);
 
   // autoPath c(autoPathType::straight); 
   // c.register_elev(25); 
@@ -131,7 +143,7 @@ void Robot::AutonomousInit() {
 
   path[0] = a;
   path[1] = x;
-  path[2] = b;
+  //path[2] = b;
 
   // if (selected == autoCustom){ // if custom path 1 is selected 
   //   autoPath path[4] = {
@@ -153,7 +165,7 @@ void Robot::AutonomousInit() {
   
 void Robot::AutonomousPeriodic() {
 
-  int numSteps = 3; // CHANGE DEPENDING ON LENGTH OF PATH LIST! 
+  int numSteps = 2; // CHANGE DEPENDING ON LENGTH OF PATH LIST! 
   float angle, radius; 
 
   if(index < numSteps){
@@ -250,6 +262,10 @@ void Robot::TeleopInit() {
   elevator.state = 't';
   frc::SmartDashboard::PutNumber("scale", 1.0);
   //otaryEnc.SetPosition(0);
+   drive.lMotor->SetIdleMode(rev::CANSparkMax::IdleMode::kCoast);
+  drive.rMotor->SetIdleMode(rev::CANSparkMax::IdleMode::kCoast);
+  drive.lMotorFollower->SetIdleMode(rev::CANSparkMax::IdleMode::kCoast);
+  drive.rMotorFollower->SetIdleMode(rev::CANSparkMax::IdleMode::kCoast);
   
 }
 
@@ -260,7 +276,7 @@ void Robot::TeleopPeriodic() {
 
   if(ctr->GetRawButton(5))
   {
-    const float forward = 0.5F * scale;
+    const float forward = 1 * 1;
     leftStar->Set(forward);
     rightStar->Set(forward);
     roller->Set(forward);
@@ -268,7 +284,7 @@ void Robot::TeleopPeriodic() {
   } 
   else if (ctr->GetRawButton(6))
   {
-    const float reverse = -0.5F * scale;
+    const float reverse = -1 * 1;
     leftStar->Set(reverse);
     rightStar->Set(reverse);
     roller->Set(reverse);
@@ -280,7 +296,14 @@ void Robot::TeleopPeriodic() {
     roller->StopMotor();
   }
 
-  rotaryIntake->Set(ctr->GetLeftX()/5);
+  //rotaryIntake->Set(ctr->GetLeftY());
+  if(ctr->GetStartButton()) {
+    rotaryIntakePIDController.SetReference(rotaryIntakeEncoder.GetPosition() + tapAmount, rev::CANSparkMax::ControlType::kPosition);
+  }
+
+  if(ctr->GetBackButton()) {
+    rotaryIntakePIDController.SetReference(rotaryIntakeEncoder.GetPosition() - tapAmount, rev::CANSparkMax::ControlType::kPosition);
+  }
   frc::SmartDashboard::PutNumber("rotaryIntakeEncoder", rotaryIntakeEncoder.GetPosition());
   
 
