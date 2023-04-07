@@ -64,7 +64,7 @@ class ElevatorModule {
     double kElevatorMaxHeight = 35.75;
     double kLowScoreHeight = 25;
     double kHighScoreHeight = 26.75;
-    double kHighIntakeHeight = 20.75;
+    double kHighIntakeHeight = 22.75;
     double kLowestHeight = 0.0;
 
     bool currentlyMoving = false;
