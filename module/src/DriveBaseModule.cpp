@@ -19,19 +19,18 @@ bool DriveBaseModule::initDriveMotor(rev::CANSparkMax *motor, rev::CANSparkMax *
   return motor->GetLastError() == rev::REVLibError::kOk;
 }
 
-bool DriveBaseModule::setPowerBudget(rev::CANSparkMax *motor, float iPeak, float iRated, int limitCycles)
+bool DriveBaseModule::setPowerBudget(rev::CANSparkMax *motor, float iPeak)
 {
-  motor->SetSmartCurrentLimit(iRated);
-  motor->SetSecondaryCurrentLimit(iPeak, limitCycles);
+  motor->SetSmartCurrentLimit(iPeak);
   return motor->GetLastError() == rev::REVLibError::kOk;
 }
 
-bool DriveBaseModule::setDriveCurrLimit(float iPeak, float iRated, int limitCycles)
+bool DriveBaseModule::setDriveCurrLimit(float iPeak)
 {
-  bool setlFront = setPowerBudget(lMotor, iPeak, iRated, limitCycles);
-  bool setrFront = setPowerBudget(rMotor, iPeak, iRated, limitCycles);
-  bool setlBack = setPowerBudget(lMotorFollower, iPeak, iRated, limitCycles);
-  bool setrBack = setPowerBudget(rMotorFollower, iPeak, iRated, limitCycles);
+  bool setlFront = setPowerBudget(lMotor, iPeak);
+  bool setrFront = setPowerBudget(rMotor, iPeak);
+  bool setlBack = setPowerBudget(lMotorFollower, iPeak);
+  bool setrBack = setPowerBudget(rMotorFollower, iPeak);
 
   return setlFront && setrFront && setlBack && setrBack; // Failure on false
 }
@@ -88,23 +87,25 @@ void DriveBaseModule::arcadeDrive(double xSpeedi, double zRotationi)
 }
 
 void DriveBaseModule::gyroDriving()
-{ 
+{
   int pov = ctr->GetPOV();
   frc::SmartDashboard::PutNumber("POV", pov);
 
-  if (pov == -1) {
-
+  if (pov == -1)
+  {
   }
-  else if(pov > 270 || pov < 90){
+  else if (pov > 270 || pov < 90)
+  {
     gyroDriveInverse = false;
   }
-  else if(90 < pov < 270){
+  else if (90 < pov < 270)
+  {
     gyroDriveInverse = true;
   }
 
-  float rightStickOutput = ctr->GetRightX();
+  float rightStickOutput = -ctr->GetRightX();
   float calculation = rightStickPID->Calculate(ahrs->GetRate() / 150, rightStickOutput); // add skim
-  float gyroDir = gyroDriveInverse?1:-1;
+  float gyroDir = gyroDriveInverse ? 1 : -1;
   double accelTriggers = ctr->GetRightTriggerAxis() - ctr->GetLeftTriggerAxis();
   arcadeDrive(accelTriggers * gyroDir, calculation * gyroDir);
   frc::SmartDashboard::PutNumber("yeyeye", 10);
@@ -174,7 +175,6 @@ void DriveBaseModule::PIDTuning()
 
 void DriveBaseModule::driveBaseTuning()
 {
-
   // double voltageOverall = lMotor->GetBusVoltage() + rMotor->GetBusVoltage();
   // frc::SmartDashboard::PutNumber("Total Voltage", voltageOverall);
 
@@ -532,88 +532,94 @@ void DriveBaseModule::autoTurn(float angle, float radius, bool keepVelocity)
   isRunningAutoTurn = true; // do it here
 }
 
-double DriveBaseModule::getTilt() {
+double DriveBaseModule::getTilt()
+{
   double pitch = ahrs->GetPitch();
   double roll = ahrs->GetRoll();
-  if((pitch + roll)>= 0){
+  if ((pitch + roll) >= 0)
+  {
     return std::sqrt(pitch * pitch + roll * roll);
-  } else {
+  }
+  else
+  {
     return -std::sqrt(pitch * pitch + roll * roll);
   }
 }
 
-void DriveBaseModule::autoBalance() {
-  //make autoBalance init()
-  // 17 in to travel the shorter part of the ramp
-  // 26 inches til midway of the ramp (~39 inches to travel so that 1/4 away from edge of ramp)
-  //tilt is negative on first start
-  double tilt = getTilt(); //you also might be able to just use roll() or just use pitch(), but both work
+void DriveBaseModule::autoBalance()
+{
+  // make autoBalance init()
+  //  17 in to travel the shorter part of the ramp
+  //  26 inches til midway of the ramp (~39 inches to travel so that 1/4 away from edge of ramp)
+  // tilt is negative on first start
+  double tilt = getTilt(); // you also might be able to just use roll() or just use pitch(), but both work
   frc::SmartDashboard::PutNumber("Tilt", tilt);
-  //frc::SmartDashboard::PutNumber("stage", stateCounter);
+  // frc::SmartDashboard::PutNumber("stage", stateCounter);
   bool attemptedClimbOnce = false;
-  
-  switch (balanceState) {
+
+  switch (balanceState)
+  {
     frc::SmartDashboard::PutNumber("state", balanceState);
-    //make init for this...
-    case autoBalanceStages::align : // align
-        if(fabs(offsetYaw - ahrs->GetAngle()) > 2) { // test value for yaw (angle)
-          //PIDTurn(offsetYaw - ahrs->GetAngle(), 0, true); //account for negatives later ?
-        }
-        lEncoder.SetPosition(0);
-        currEncoderPos = lEncoder.GetPosition(); //setting up currEncoderPos for initialClimb
-        balanceState = autoBalanceStages::initialClimb;
-        frc::SmartDashboard::PutBoolean("aligned", true);
-        break;
-    
-
-    case autoBalanceStages::initialClimb : // initial climb
-
-      frc::SmartDashboard::PutBoolean("moving to target", true);
-      frc::SmartDashboard::PutNumber("currEncoderPos", currEncoderPos);
-      if(!(currEncoderPos < -30))  
-      {
-        lPID.SetReference(currEncoderPos, rev::CANSparkMax::ControlType::kPosition);
-        rPID.SetReference(currEncoderPos, rev::CANSparkMax::ControlType::kPosition);
-        currEncoderPos -= rampSpeed;
-      }
-      
-        // implement 2nd try to climb
-      if(tilt > maxRampAngle) 
-      { // do we want to add deg of freedom?
-        currEncoderPos = lEncoder.GetPosition();
-        balanceState = autoBalanceStages::balance;
-        frc::SmartDashboard::PutBoolean("initial climb", true);
-      }
-      break;
-    
-    case autoBalanceStages::balance :
-      frc::SmartDashboard::PutBoolean("balance", true);
-      // do I need some timer to wait for next command?
-      frc::SmartDashboard::PutNumber("currEncoderPos", currEncoderPos);
-
-      // initially robot is driving backwards so this value should be negative for the first half of the ramp, then if it goes over drive forward
-      if (tilt < maxRampAngle - 2)
-      {                                                                           // two degrees of freedom to just stop
-        lPID.SetReference(currEncoderPos, rev::CANSparkMax::ControlType::kPosition); // setpoint uses encoder (tilt - 0 = error, you don't need the 0)
-        rPID.SetReference(currEncoderPos, rev::CANSparkMax::ControlType::kPosition); // everything in abs, so will go backwards
-        } 
-        else 
-        {
-            if(tilt > 0)
-            {                      // tilt going up initially is positive
-              currEncoderPos -= rampSpeed; //temporary incremenet amount
-            }
-            else 
-            {
-              currEncoderPos += rampSpeed;
-            }
-
-          lPID.SetReference(currEncoderPos, rev::CANSparkMax::ControlType::kPosition);
-          rPID.SetReference(currEncoderPos, rev::CANSparkMax::ControlType::kPosition);
-        }
-        frc::SmartDashboard::PutBoolean("balancing", true);
-        break;
+  // make init for this...
+  case autoBalanceStages::align: // align
+    if (fabs(offsetYaw - ahrs->GetAngle()) > 2)
+    { // test value for yaw (angle)
+      // PIDTurn(offsetYaw - ahrs->GetAngle(), 0, true); //account for negatives later ?
     }
+    lEncoder.SetPosition(0);
+    currEncoderPos = lEncoder.GetPosition(); // setting up currEncoderPos for initialClimb
+    balanceState = autoBalanceStages::initialClimb;
+    frc::SmartDashboard::PutBoolean("aligned", true);
+    break;
+
+  case autoBalanceStages::initialClimb: // initial climb
+
+    frc::SmartDashboard::PutBoolean("moving to target", true);
+    frc::SmartDashboard::PutNumber("currEncoderPos", currEncoderPos);
+    if (!(currEncoderPos < -35))
+    {
+      lPID.SetReference(currEncoderPos, rev::CANSparkMax::ControlType::kPosition);
+      rPID.SetReference(currEncoderPos, rev::CANSparkMax::ControlType::kPosition);
+      currEncoderPos -= rampSpeed;
+    }
+
+    // implement 2nd try to climb
+    if (tilt > maxRampAngle)
+    { // do we want to add deg of freedom?
+      currEncoderPos = lEncoder.GetPosition();
+      balanceState = autoBalanceStages::balance;
+      frc::SmartDashboard::PutBoolean("initial climb", true);
+    }
+    break;
+
+  case autoBalanceStages::balance:
+    frc::SmartDashboard::PutBoolean("balance", true);
+    // do I need some timer to wait for next command?
+    frc::SmartDashboard::PutNumber("currEncoderPos", currEncoderPos);
+
+    // initially robot is driving backwards so this value should be negative for the first half of the ramp, then if it goes over drive forward
+    if (tilt < maxRampAngle - 2)
+    {                                                                              // two degrees of freedom to just stop
+      lPID.SetReference(currEncoderPos, rev::CANSparkMax::ControlType::kPosition); // setpoint uses encoder (tilt - 0 = error, you don't need the 0)
+      rPID.SetReference(currEncoderPos, rev::CANSparkMax::ControlType::kPosition); // everything in abs, so will go backwards
+    }
+    else
+    {
+      if (tilt > 0)
+      {                              // tilt going up initially is positive
+        currEncoderPos -= rampSpeed; // temporary incremenet amount
+      }
+      else
+      {
+        currEncoderPos += rampSpeed;
+      }
+
+      lPID.SetReference(currEncoderPos, rev::CANSparkMax::ControlType::kPosition);
+      rPID.SetReference(currEncoderPos, rev::CANSparkMax::ControlType::kPosition);
+    }
+    frc::SmartDashboard::PutBoolean("balancing", true);
+    break;
+  }
 }
 
 void DriveBaseModule::autonomousSequence()
@@ -677,7 +683,7 @@ void DriveBaseModule::runInit()
     ShuffleUI::MakeWidget("Drive Motor Inits", tab, false);
   }
 
-  if (!setDriveCurrLimit(motorInitMaxCurrent, motorInitRatedCurrent, motorInitLimitCycles))
+  if (!setDriveCurrLimit(motorInitMaxCurrent))
   {
     ShuffleUI::MakeWidget("Drive Curr Limits", tab, false);
   }
@@ -737,11 +743,12 @@ void DriveBaseModule::run()
       //   frc::SmartDashboard::PutBoolean("isFinished", isFinished);
       //   frc::SmartDashboard::PutBoolean("isRunningAutoDrive", isRunningAutoDrive);
       // }
+      autoBalance();
 
-      if (balancing)
-      {
-        autoBalance();
-      }
+      // if (balancing)
+      // {
+      //   autoBalance();
+      // }
     }
 
     if (state == 't')
