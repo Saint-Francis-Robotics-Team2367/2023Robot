@@ -130,6 +130,7 @@ class ScaraArmModule {
     void jstickArmMovement(double jstickX, double jstickY);
     bool XYInRange(double x, double y);
     bool autoScore();
+    void teleopInit();
 
     rev::CANSparkMax* inner = new rev::CANSparkMax(scaraArmInner, rev::CANSparkMax::MotorType::kBrushless);
     rev::SparkMaxRelativeEncoder inner_enc = inner->GetEncoder();

@@ -58,6 +58,7 @@ void ScaraArmModule::run()
 {
   runInit();
   isStowing = false;
+  bool firstTeleop = true;
 
   frc::SmartDashboard::PutNumber("XSet", innerSize);
   frc::SmartDashboard::GetNumber("YSet", outterSize);
@@ -89,6 +90,12 @@ void ScaraArmModule::run()
 
     else if (state == 't')
     {
+      if (firstTeleop) {
+        teleopInit();
+        firstTeleop = false;
+      }
+      
+      
       //frc::SmartDashboard::PutNumber("GrabberSetpt", frc::SmartDashboard::GetNumber("GrabberSetpt", 0));
       frc::SmartDashboard::PutNumber("GrabberState", grabber->state);
       if (ctrOperator->GetBButtonReleased()) {
@@ -118,6 +125,11 @@ void ScaraArmModule::run()
       {
         innerPID.SetReference(-30.0, rev::CANSparkMax::ControlType::kPosition);
         outterPID.SetReference(-50.0, rev::CANSparkMax::ControlType::kPosition);
+      }
+
+      else if (ctrOperator->GetLeftBumperReleased()) {
+        innerPID.SetReference(-260.0, rev::CANSparkMax::ControlType::kPosition);
+        outterPID.SetReference(-250.0, rev::CANSparkMax::ControlType::kPosition);
       }
 
       // else if (ctrOperator->GetAButtonPressed())
@@ -182,12 +194,14 @@ void ScaraArmModule::run()
     if(autoStart) {
       autoScore();
       autoStart = false;
-  }
+      firstTeleop = true;
+    }
     }
 
     if (state == 'd')
     {
       isStowing = false;
+      firstTeleop = true;
     }
 
     std::this_thread::sleep_until(nextRun);
@@ -452,14 +466,19 @@ bool ScaraArmModule::autoScore() {
     outterPID.SetReference(outterScorePoint, rev::CANSparkMax::ControlType::kPosition);
   } 
 
+  
+  innerPID.SetReference(inner_enc.GetPosition(),rev::CANSparkMax::ControlType::kPosition);
+  outterPID.SetReference(outter_enc.GetPosition(), rev::CANSparkMax::ControlType::kPosition);
+
+
+
+  grabber->open();
 
   float startTime = frc::Timer::GetFPGATimestamp().value();
   float currTime = frc::Timer::GetFPGATimestamp().value();
   while (currTime < startTime + 1) {
     currTime = frc::Timer::GetFPGATimestamp().value();
   }
-
-  grabber->open();
 
 
   stow(0.3, 0.2, 0.1);
@@ -468,25 +487,28 @@ bool ScaraArmModule::autoScore() {
   innerPID.SetReference(-10.0, rev::CANSparkMax::ControlType::kPosition);
   outterPID.SetReference(-15.0, rev::CANSparkMax::ControlType::kPosition);
 
-  
-  // innerPID.SetReference(innerScorePoint);
-  // outterPID.SetReference(outterScorePoint);
-  //innerPID.SetReference(innerScorePoint,rev::CANSparkMax::ControlType::kPosition);
-  //outterPID.SetReference(outterScorePoint, rev::CANSparkMax::ControlType::kPosition);
 
-  //Grabber drop
-  // grabber->open();
-  // stow(0.3, 0.2, 0.1);
-  // inner_enc.SetPosition(0);
-  // outter_enc.SetPosition(0);
-  // innerPID.SetReference(-10.0, rev::CANSparkMax::ControlType::kPosition);
-  // outterPID.SetReference(-15.0, rev::CANSparkMax::ControlType::kPosition);
   isFinished = true;
   return true;
   
-  
 
+}
 
+void ScaraArmModule::teleopInit() {
+  innerPID.SetP(innerP);
+  innerPID.SetI(innerI);
+  innerPID.SetD(innerD);
+  innerPID.SetIZone(innerIZone);
+  innerPID.SetIMaxAccum(innerMaxAccum);
 
+  outterPID.SetP(outterP);
+  outterPID.SetI(outterI);
+  outterPID.SetD(outterD);
+  outterPID.SetIZone(outterIZone);
 
+  innerPID.SetOutputRange(-0.6, 0.6);
+  outterPID.SetOutputRange(-0.5, 0.5);
+
+  inner->SetSmartCurrentLimit(30);
+  outter->SetSmartCurrentLimit(20);
 }
