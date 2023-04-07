@@ -42,7 +42,7 @@ public:
     }
 
     void close() {
-        grabberPID.SetReference(0, rev::CANSparkMax::ControlType::kPosition);       
+        grabberMotor->Set(0.2);   
     }
 
     void squeeze() {
@@ -55,7 +55,8 @@ public:
         state += 1;
         state = state % 2;
         if (state == 0) {
-            grabberPID.SetReference(0, rev::CANSparkMax::ControlType::kPosition);
+            //grabberPID.SetReference(0, rev::CANSparkMax::ControlType::kPosition);
+            grabberMotor->Set(0.2);
         } else if (state == 1) {
             if (reverseSwitch.Get()) {
                 grab_enc.SetPosition(-18.0);
@@ -74,3 +75,5 @@ public:
 
 private:
 };
+
+
