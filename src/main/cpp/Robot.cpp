@@ -41,11 +41,11 @@ ElevatorModule elevator(ctr, ctr2);
 
 // IntakeModule* intake = new IntakeModule();
 
-autoPath path[2] = {
+autoPath path[4] = {
     autoPath(autoPathType::elev),
     autoPath(autoPathType::arm),
-    // autoPath(autoPathType::turn), 
-    //autoPath(autoPathType::straight),
+    autoPath(autoPathType::straight), 
+    autoPath(autoPathType::elev),
     //autoPath(autoPathType::arm),
   };
 
@@ -93,6 +93,9 @@ void Robot::AutonomousInit() {
   elevator.state = 'a';
   index = 0;
 
+
+  scaraArm.grabber->grabberMotor->Set(0.3); //starting grabber squeezed
+
   // frc::SendableChooser<std::string> chooser;
   // const std::string autoDefault = "Default";
   // const std::string autoCustom = "Path 1"; // define more variables if there are more custom paths 
@@ -105,15 +108,14 @@ void Robot::AutonomousInit() {
   autoPath x(autoPathType::arm);
   x.register_arm(10, 10);
 
+  autoPath d(autoPathType::straight); 
+  d.register_straight(-5);
+
   autoPath b(autoPathType::elev); 
-  //b.register_elev(0);
+  b.register_elev(0);
 
-  // autoPath c(autoPathType::straight); 
-  // c.register_elev(25); 
 
-  // autoPath d(autoPathType::straight); 
-  // d.register_straight(5);
-
+  
   // autoPath e(autoPathType::arm); 
   // e.register_arm(20, 20); 
 
@@ -143,6 +145,8 @@ void Robot::AutonomousInit() {
 
   path[0] = a;
   path[1] = x;
+  path[2] = d;
+  path[3] = b;
   //path[2] = b;
 
   // if (selected == autoCustom){ // if custom path 1 is selected 
@@ -165,7 +169,7 @@ void Robot::AutonomousInit() {
   
 void Robot::AutonomousPeriodic() {
 
-  int numSteps = 2; // CHANGE DEPENDING ON LENGTH OF PATH LIST! 
+  int numSteps = 4; // CHANGE DEPENDING ON LENGTH OF PATH LIST! 
   float angle, radius; 
 
   if(index < numSteps){

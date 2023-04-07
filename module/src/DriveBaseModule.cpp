@@ -598,16 +598,16 @@ void DriveBaseModule::autoBalance()
     frc::SmartDashboard::PutNumber("currEncoderPos", currEncoderPos);
 
     // initially robot is driving backwards so this value should be negative for the first half of the ramp, then if it goes over drive forward
-    if (tilt < maxRampAngle - 2)
-    {                                                                              // two degrees of freedom to just stop
-      lPID.SetReference(currEncoderPos, rev::CANSparkMax::ControlType::kPosition); // setpoint uses encoder (tilt - 0 = error, you don't need the 0)
-      rPID.SetReference(currEncoderPos, rev::CANSparkMax::ControlType::kPosition); // everything in abs, so will go backwards
-    }
-    else
-    {
+    // if (tilt < maxRampAngle - 2)
+    // {                                                                              // two degrees of freedom to just stop
+    //   lPID.SetReference(currEncoderPos, rev::CANSparkMax::ControlType::kPosition); // setpoint uses encoder (tilt - 0 = error, you don't need the 0)
+    //   rPID.SetReference(currEncoderPos, rev::CANSparkMax::ControlType::kPosition); // everything in abs, so will go backwards
+    // }
+    // else
+    // {
       if (tilt > 0)
       {                              // tilt going up initially is positive
-        currEncoderPos -= rampSpeed; // temporary incremenet amount
+        currEncoderPos -= rampSpeed/2; // temporary incremenet amount
       }
       else
       {
@@ -616,7 +616,7 @@ void DriveBaseModule::autoBalance()
 
       lPID.SetReference(currEncoderPos, rev::CANSparkMax::ControlType::kPosition);
       rPID.SetReference(currEncoderPos, rev::CANSparkMax::ControlType::kPosition);
-    }
+  
     frc::SmartDashboard::PutBoolean("balancing", true);
     break;
   }
@@ -727,28 +727,28 @@ void DriveBaseModule::run()
       //   PIDDrive(7, false);
       //   test = false;
       // }
-      // if (isRunningAutoTurn)
-      // { // default false
-      //   isRunningAutoTurn = false;
-      //   isFinished = PIDTurn(angle, radius, keepVelocityTurn);
-      //   frc::SmartDashboard::PutBoolean("isRunningAutoTurn", isRunningAutoTurn);
-      // }
+      if (isRunningAutoTurn)
+      { // default false
+        isRunningAutoTurn = false;
+        isFinished = PIDTurn(angle, radius, keepVelocityTurn);
+        frc::SmartDashboard::PutBoolean("isRunningAutoTurn", isRunningAutoTurn);
+      }
 
-      // if (isRunningAutoDrive)
-      // {
-      //   isRunningAutoDrive = false;
-      //   isFinished = PIDDrive(totalFeet, keepVelocityDrive);
-      //   // PIDDrive(totalFeet, keepVelocityDrive);
-      //   // isFinished = true;
-      //   frc::SmartDashboard::PutBoolean("isFinished", isFinished);
-      //   frc::SmartDashboard::PutBoolean("isRunningAutoDrive", isRunningAutoDrive);
-      // }
-      autoBalance();
+      if (isRunningAutoDrive)
+      {
+        isRunningAutoDrive = false;
+        isFinished = PIDDrive(totalFeet, keepVelocityDrive);
+        // PIDDrive(totalFeet, keepVelocityDrive);
+        // isFinished = true;
+        frc::SmartDashboard::PutBoolean("isFinished", isFinished);
+        frc::SmartDashboard::PutBoolean("isRunningAutoDrive", isRunningAutoDrive);
+      }
+     // autoBalance();
 
-      // if (balancing)
-      // {
-      //   autoBalance();
-      // }
+      if (balancing)
+      {
+        autoBalance();
+      }
     }
 
     if (state == 't')
@@ -763,6 +763,20 @@ void DriveBaseModule::run()
       ShuffleUI::MakeWidget("rcheck", tab, rMotor->GetIdleMode() == rev::CANSparkMax::IdleMode::kBrake);
 
       test = true;
+
+      if(ctr->GetAButtonPressed()) {
+        lMotor->SetSmartCurrentLimit(60);
+        lMotorFollower->SetSmartCurrentLimit(60);
+        rMotor->SetSmartCurrentLimit(60);
+        rMotorFollower->SetSmartCurrentLimit(60);
+      }
+
+      if(ctr->GetAButtonReleased()) {
+        lMotor->SetSmartCurrentLimit(40);
+        lMotorFollower->SetSmartCurrentLimit(40);
+        rMotor->SetSmartCurrentLimit(40);
+        rMotorFollower->SetSmartCurrentLimit(40);
+      }
       // stopAuto = true;
     }
 
