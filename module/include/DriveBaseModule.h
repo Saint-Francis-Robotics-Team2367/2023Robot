@@ -25,7 +25,7 @@
 #define driveIntegral 0
 #define driveDerivitive 0.13
 
-#define motorInitMaxCurrent 40 // The initial max current setting
+#define motorInitMaxCurrent 60 // The initial max current setting
 #define motorInitRatedCurrent 30 // The inital rated current settings
 #define motorInitLimitCycles 200 // The inital number of allowed ms at peak current
 #define lInvert false // Inversion setings for sides (invert this if opposite side)
@@ -86,7 +86,7 @@ double n = 0;
   double offsetYaw = 0;
   double maxRampAngle = 9;
   double restingRampAngle = 2;
-  double rampSpeed = 0.03;
+  double rampSpeed = 0.115;
   autoBalanceStages balanceState = autoBalanceStages::align;
 
 
@@ -124,8 +124,8 @@ double n = 0;
   double kd;
 
   bool initDriveMotor(rev::CANSparkMax* motor, rev::CANSparkMax* follower, bool invert); //loads initial values into motors such as current limit and phase direction
-  bool setPowerBudget(rev::CANSparkMax* motor, float iPeak, float iRated, int limitCycles); //changes the current limits on the motors 
-  bool setDriveCurrLimit(float iPeak, float iRated, int limitCycles);
+  bool setPowerBudget(rev::CANSparkMax* motor, float iPeak); //changes the current limits on the motors 
+  bool setDriveCurrLimit(float iPeak);
 
   
   std::thread driveThread;
